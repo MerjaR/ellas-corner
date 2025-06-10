@@ -1,0 +1,508 @@
+/* Set up main fonts and colours */
+body {
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Ensure body takes full height */
+    margin-bottom: 80px; /* Add bottom margin to avoid overlapping content */
+}
+
+/* Headings */
+h1, h2, h3, .page-title {
+    font-family: 'Quicksand', sans-serif;
+}
+
+/* Brand Colors */
+:root {
+  --blue: #B3B7EE;
+  --blue-light: #ecf1f8;
+  --pink: #993955;
+  --pink-light: #fff5f6;
+  --yellow: #FDF0D5;
+  --green: #0B7189;
+  --beige: #F3E9DC;
+  --brown: #B87D4B;
+  --text-dark: #333;
+}
+
+/* Main Navbar */
+.navbar {
+  background-color: #fff;
+  border-bottom: 1px solid var(--blue-light);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  font-family: 'Quicksand', sans-serif;
+}
+
+/* Logo on Left */
+.nav-left img.nav-logo {
+  height: 80px;
+  width: auto;
+  border-radius: 50%;
+}
+
+/* Centered Search */
+.nav-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.search-form {
+  display: flex;
+  align-items: center;
+  background-color: var(--blue-light);
+  border-radius: 20px;
+  padding: 5px 12px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.search-form input {
+  border: none;
+  background: transparent;
+  outline: none;
+  padding: 6px 10px;
+  width: 100%;
+  font-size: 14px;
+}
+
+.search-form button {
+  background-color: var(--blue);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 6px 14px;
+  margin-left: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.search-form button:hover {
+  background-color: var(--green);
+}
+
+/* Right-Aligned Buttons */
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: 20px;
+}
+
+.nav-button {
+  padding: 8px 14px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  border: 1px solid transparent;
+  transition: background-color 0.2s, border-color 0.2s;
+  margin-left: 10px;
+}
+
+/* Login – Soft Blue */
+.nav-button.login {
+  background-color: #ecf1f8; /* light blue */
+  color: #333;
+  border: 1px solid var(--blue);
+}
+
+.nav-button.login:hover {
+  background-color: var(--blue);
+  color: white;
+}
+
+/* Register – Soft Pink */
+.nav-button.register {
+  background-color: #fff5f6; /* light pink */
+  color: #333;
+  border: 1px solid var(--pink);
+}
+
+.nav-button.register:hover {
+  background-color: var(--pink);
+  color: white;
+}
+
+
+.nav-button:hover {
+  background-color: var(--brown);
+}
+
+.nav-link {
+  font-weight: 600;
+  margin-right: 12px;
+  color: var(--green);
+  text-decoration: none;
+}
+
+.nav-link:hover {
+  text-decoration: underline;
+  color: var(--blue);
+}
+
+.heart-icon {
+  height: 30px;
+  width: auto;
+  margin: 0 12px;
+  cursor: pointer;
+  vertical-align: middle;
+  transition: transform 0.2s ease;
+}
+
+.heart-icon:hover {
+  transform: scale(1.1);
+}
+
+/* Profile Dropdown */
+.profile-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+
+.profile-dropdown {
+  position: relative;
+}
+
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 50px;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  min-width: 140px;
+  z-index: 100;
+}
+
+.dropdown-menu.show {
+  display: block;
+}
+
+.dropdown-menu a {
+  display: block;
+  padding: 10px 15px;
+  color: #333;
+  text-decoration: none;
+}
+
+.dropdown-menu a:hover {
+  background-color: #f0f0f0;
+}
+
+main {
+    padding: 20px;
+    flex: 1; /* Allows main content to grow and push footer down */
+    padding-bottom: 100px; /* Space for footer and consent banner */
+    flex: 1; /* Make the main content area take up available space */
+    padding: 20px;
+}
+
+/* Updated post container and title using branding */
+.post {
+    background-color: var(--beige);
+    border: 1px solid var(--green);
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    padding-bottom: 100px; /* Space for footer and consent banner */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.post h2 {
+    color: var(--brown);
+}
+
+/* Update page title color */
+.page-title {
+    color: var(--brown);
+}
+
+/* Style the post content */
+.post p {
+    margin-bottom: 15px;        /* Space between paragraphs */
+    line-height: 1.6;           /* Better readability */
+    color: #555;                /* Slightly lighter color for body text */
+}
+
+/* Add styling for the metadata (author, date, etc.) */
+.post p strong {
+    color: var(--brown);              /* A highlight color for the post metadata */
+}
+
+/* Target images inside form buttons for active reaction */
+form button img.active-reaction {
+    filter: brightness(0.7); /* Darkens the image to indicate it's active */
+    transform: scale(1.2);   /* Enlarges the image slightly to show it's selected */
+    transition: all 0.2s ease; /* Smooth transition effect */
+}
+
+/* Add hover effect specifically to images inside form buttons */
+form button img:hover {
+    filter: brightness(1.2); /* Brightens the image on hover */
+    transform: scale(1.1);   /* Slightly enlarges on hover */
+    transition: all 0.2s ease;
+}
+
+/* Comments section styles */
+
+/* Style the comments to be indented */
+.comments-section .comment {
+    margin-left: 40px; /* Indent the comments relative to the main post */
+    padding: 10px;
+    border-left: 2px solid #f9f9f9; 
+    background-color: var(--yellow);; 
+    border-radius: 5px; /* Rounded corners */
+    margin-bottom: 10px; /* Space between each comment */
+}
+
+/* Style the comments section title */
+.comments-section h3 {
+    margin-left: 20px; /* Slightly indent the title of the comments section */
+}
+
+
+
+
+/* Filter section styles */
+
+.filter-section {
+    padding: 10px 20px;
+    background-color: var(--beige);
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.filter-inline-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+.filter-inline-form label {
+    font-weight: bold;
+    color: #444;
+}
+
+.filter-inline-form select,
+.filter-inline-form input[type="date"] {
+    padding: 6px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+/* Create post page styling */
+
+#create-post-title {
+    font-family: 'Quicksand', sans-serif;
+    color: var(--brown);
+    text-align: center;
+    font-size: 2em;
+    margin-bottom: 20px;
+}
+
+/* Post Form */
+.post-form {
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid var(--green);
+    border-radius: 5px;
+    background-color: var(--beige);
+    max-width: 600px;
+}
+
+.post-form div {
+    margin-bottom: 15px;
+}
+
+.post-form label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    display: block;
+    font-family: 'Quicksand', sans-serif;
+    color: #555;
+}
+
+.post-form input[type="text"],
+.post-form textarea {
+    font-family: 'Quicksand', sans-serif;
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-size: 1em;
+    box-sizing: border-box; /* Ensures padding is included in the total width */
+    margin-bottom: 15px; /* Add space below each field */
+}
+
+.post-form button {
+    padding: 10px 20px;
+    background-color: var(--blue);
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 1em;
+}
+
+.post-form button:hover {
+    background-color: var(--green);
+}
+
+/* Dropdown (category) styling */
+.post-form select {
+    font-family: 'Quicksand', sans-serif;
+    width: 100%; /* Make the dropdown fit within the form */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    box-sizing: border-box; /* Ensures padding is included in the total width */
+    margin-bottom: 15px; /* Add space below the dropdown */
+}
+
+
+/* Footer styling  */
+footer {
+    background-color: var(--pink);
+    color: var(--beige);
+    padding: 12px 0;
+    text-align: center;
+    font-size: 14px;
+}
+
+/* Cookie Banner Styling */
+.cookie-banner {
+    position: fixed;            /* Fixed at the bottom of the screen */
+    bottom: 0;                  /* Align with the bottom edge */
+    left: 0;                    /* Start from the left edge */
+    width: 100%;                /* Full width of the page */
+    background-color: #f4f4f4;  /* Light background for visibility */
+    border-top: 2px solid #ccc; /* Border at the top to separate it visually */
+    display: flex;              /* Flexbox for aligning the content */
+    align-items: center;        /* Vertically center the content */
+    justify-content: space-between; /* Space between image, text, and button */
+    padding: 15px 30px;         /* Padding to give breathing room */
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2); /* Shadow to make it stand out */
+    z-index: 1000;              /* Ensure it stays above other elements */
+    box-sizing: border-box;     /* Include padding in width calculation */
+}
+
+/* Reduce the size of the cookie image */
+.cookie-image {
+    width: 40px;                /* Smaller cookie image */
+    height: 40px;
+    margin-right: 20px;         /* Space between the image and the text */
+}
+
+.cookie-text {
+    flex-grow: 1;               /* Allow the text to take up remaining space */
+    font-size: 14px;            /* Make the text smaller but readable */
+}
+
+.accept-button {
+    background-color: var(--blue);  /* Button color */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 14px;
+    margin-left: 20px;          /* Add margin between text and button */
+}
+
+.accept-button:hover {
+    background-color: var(--green);  
+}
+
+/* Filter section styles */
+
+.filter-section {
+    padding: 10px 20px;
+    background-color: var(--beige);
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.filter-inline-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+.filter-inline-form label {
+    font-weight: bold;
+    color: #444;
+}
+
+.filter-inline-form select,
+.filter-inline-form input[type="date"] {
+    padding: 6px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+
+/* Profile page styles */
+
+/* Style the profile picture */
+.profile-picture {
+    width: 150px; /* Set the desired size */
+    height: 150px; /* Set the desired size */
+    border-radius: 50%; /* Make the image round */
+    object-fit: cover; /* Ensure the image is not distorted */
+    display: block; /* Make sure image behaves like a block element */
+    margin-left: auto; /* Horizontally center the image */
+    margin-right: auto; /* Horizontally center the image */
+    border: 2px solid #333; /* Add a border for styling */
+}
+
+/* Center the profile header container */
+.profile-header {
+    text-align: center; /* Center all content in the profile header */
+    margin-bottom: 20px; /* Add space below the profile section */
+}
+
+/* Profile picture upload form options */
+.profile-upload-form .upload-label {
+    font-size: 0.9em;
+    color: #888; 
+    margin-bottom: 5px;
+    display: block;
+}
+
+/* Reduce the size of the file input */
+.profile-upload-form .upload-input {
+    font-size: 0.85em;
+    margin-top: 5px;
+}
+
+/* Style the upload button */
+.profile-upload-form .upload-button {
+    padding: 5px 10px;
+    font-size: 0.85em;
+    background-color: var(--blue);
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    color: white;
+    cursor: pointer;
+}
+
+.profile-upload-form .upload-button:hover {
+    background-color: var(--green); 
+}
