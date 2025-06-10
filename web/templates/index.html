@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Literary Lions Forum</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <!-- Google Fonts link -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Quicksand:wght@500&display=swap" rel="stylesheet">
+
+</head>
+<body>
+    <!-- Navigation Bar -->
+   <nav class="navbar">
+  <div class="nav-left">
+    <a href="/">
+      <img src="/static/EClogo.png" alt="Ella's Corner Logo" class="nav-logo">
+    </a>
+  </div>
+
+  <div class="nav-center">
+    <form action="/search" method="GET" class="search-form">
+      <input type="text" name="q" placeholder="Search items..." required>
+      <button type="submit">Search</button>
+    </form>
+  </div>
+
+  <div class="nav-right">
+  {{ if not .IsLoggedIn }}
+    <a href="/login" class="nav-button login">Login</a>
+    <a href="/register" class="nav-button register">Register</a>
+  {{ else }}
+    <a href="/create-post" class="nav-link">Share an Item</a>
+    <a href="/liked-posts">
+  <img src="/static/heart.png" alt="Liked Posts" class="heart-icon">
+    </a>
+   <div class="profile-dropdown" id="profileDropdown">
+  <img src="/static/profile_pictures/{{ .ProfilePicture }}" alt="Profile Picture" class="profile-icon" id="profileIcon">
+  <div class="dropdown-menu" id="dropdownMenu">
+    <a href="/profile">Profile</a>
+    <a href="/logout">Logout</a>
+  </div>
+</div>
+  {{ end }}
+</div>
+</nav>
+
+
+    <main>
+     <!-- Flexbox container for title and filter form -->
+    <div class="filter-banner-container" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap;">
+        <!-- Page Title and Filter Form on the left -->
+        <div class="filter-section" style="flex: 1; min-width: 250px;">
+            <h1 class="page-title">Ella's Corner</h1>
+            <p>Your community-powered guide to help new parents find the most loved, most useful, and most talked about baby items.</p>
+
+            <!-- Filter Form -->
+            <form action="/filter" method="GET" class="filter-inline-form">
+                <label for="category">Filter by:</label>
+                <select name="category" id="category">
+                    <option value="">All Categories</option>
+                    {{ if .Categories }}
+                    {{ range .Categories }}
+                    <option value="{{ . }}">{{ . }}</option>
+                    {{ end }}
+                    {{ else }}
+                    <option value="">No Categories Available</option>
+                    {{ end }}
+                </select>
+
+                <!-- My Created Posts and My Liked Posts in one line -->
+                <div class="checkbox-group" style="display: flex; gap: 15px; margin-top: 10px;">
+                    {{ if .IsLoggedIn }}
+                    <label><input type="checkbox" name="created_posts" value="true"> My Created Posts</label>
+                    <label><input type="checkbox" name="liked_posts" value="true"> My Liked Posts</label>
+                    {{ end }}
+                </div>
+
+                <!-- Date filtering group on the same line -->
+                <div class="date-filter-group" style="display: flex; gap: 10px; margin-top: 10px;">
+                    <label for="start_date">From:</label>
+                    <input type="date" name="start_date" id="start_date">
+
+                    <label for="end_date">To:</label>
+                    <input type="date" name="end_date" id="end_date">
+                </div>
+
+                <!-- Add a note for inclusive dates -->
+                <div style="margin-top: 10px;">
+                    <p style="margin-bottom: 10px;"><em>Note: The selected dates are inclusive.</em></p>
+
+                    <!-- Apply button now placed below the note -->
+                    <button type="submit">Apply</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+        <!-- Global Error message section below the filters -->
+        {{ if .ErrorMessage }}
+        <div class="error-message" style="color: red; text-align: center; margin-top: 10px;">
+            <p>{{ .ErrorMessage }}</p>
+        </div>
+        {{ end }}
+
+        <!-- Display Posts -->
+{{ range .Posts }}
+<div class="post">
+    <h2>{{ .Title }}</h2>
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <!-- Profile Picture for Post Author -->
+        <img src="/static/profile_pictures/{{ .ProfilePicture }}" alt="Profile Picture" style="width: 40px; height: 40px; border-radius: 50%;">
+        <p><strong>Posted by {{ .Username }}</strong> on {{ .FormattedCreatedAt }}</p>
+    </div>
+    <!-- Post Content -->
+    <pre style="
+    background-color: #FDF0D5;
+    border: none;
+    font-family: 'Roboto', sans-serif;
+    font-size: 16px;
+    padding: 15px 30px;
+    border-radius: 8px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    color: #333;
+    margin: 0 20px;">{{ .Content }}</pre>
+            <p><strong>Category:</strong> {{ .Category }}</p>
+            
+
+            <div class="reactions-section">
+                <!-- Like Button (Image) -->
+                <form action="/react" method="POST" style="display:inline-block;">
+                    <input type="hidden" name="post_id" value="{{ .ID }}">
+                    <input type="hidden" name="reaction" value="like">
+                    <button type="submit" style="border:none; background:none;">
+                        <img src="/static/like.png" alt="Like" style="width:20px; height:20px;" class="{{ if eq .UserReaction "like" }}active-reaction{{ end }}">
+                    </button>
+                </form>
+                <span>{{ .Likes }} Likes</span>
+
+                <!-- Dislike Button (Image) -->
+                <form action="/react" method="POST" style="display:inline-block; margin-left: 10px;">
+                    <input type="hidden" name="post_id" value="{{ .ID }}">
+                    <input type="hidden" name="reaction" value="dislike">
+                    <button type="submit" style="border:none; background:none;">
+                        <img src="/static/dislike.png" alt="Dislike" style="width:20px; height:20px;" class="{{ if eq .UserReaction "dislike" }}active-reaction{{ end }}">
+                    </button>
+                </form>
+                <span>{{ .Dislikes }} Dislikes</span>
+            </div>
+
+            <!-- Display Comments Section -->
+            <div class="comments-section">
+                <h3>Comments ({{ len .Comments }}):</h3>
+                {{ range .Comments }}
+                <div class="comment">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <!-- Profile Picture for Comment Author -->
+                        <img src="/static/profile_pictures/{{ .ProfilePicture }}" alt="Profile Picture" style="width: 30px; height: 30px; border-radius: 50%;">
+                        <p><strong>Commented by {{ .Username }}</strong> on {{ .FormattedCreatedAt }}</p>
+                    </div>
+                    <!-- Comment Content -->
+                    <pre style="
+                    background-color: #f0f0f0;
+                    border: none;
+                    font-family: 'Roboto', sans-serif;
+                    font-size: 16px;
+                    padding: 15px 30px;
+                    border-radius: 8px;
+                    white-space: pre-wrap;
+                    word-wrap: break-word;
+                    color: #333;
+                    margin: 0 20px;">{{ .Content }}</pre>
+                    
+
+                    <!-- Like Button (for comments) -->
+                    <form action="/react-comment" method="POST" style="display:inline-block;">
+                        <input type="hidden" name="comment_id" value="{{ .ID }}">
+                        <input type="hidden" name="reaction" value="like">
+                        <button type="submit" style="border:none; background:none;">
+                            <img src="/static/like.png" alt="Like" style="width:20px; height:20px;" class="{{ if eq .UserReaction "like" }}active-reaction{{ end }}">
+                        </button>
+                    </form>
+                    <span>{{ .Likes }} Likes</span>
+
+                    <!-- Dislike Button (for comments) -->
+                    <form action="/react-comment" method="POST" style="display:inline-block; margin-left: 10px;">
+                        <input type="hidden" name="comment_id" value="{{ .ID }}">
+                        <input type="hidden" name="reaction" value="dislike">
+                        <button type="submit" style="border:none; background:none;">
+                            <img src="/static/dislike.png" alt="Dislike" style="width:20px; height:20px;" class="{{ if eq .UserReaction "dislike" }}active-reaction{{ end }}">
+                        </button>
+                    </form>
+                    <span>{{ .Dislikes }} Dislikes</span>
+                </div>
+                {{ else }}
+                <p>No comments yet.</p>
+                {{ end }}
+            </div>
+
+            <!-- Display "Leave a Comment" Link -->
+            {{ if $.IsLoggedIn }}
+            <a href="/?showCommentFormForPost={{ .ID }}">Leave a Comment</a>
+            {{ end }}
+
+            <!-- Add comment form if the current post is selected -->
+            {{ if eq $.ShowCommentFormForPost .ID }}
+            <form action="/add-comment" method="POST" style="margin-top: 10px;">
+                <input type="hidden" name="post_id" value="{{ .ID }}">
+                <textarea name="content" placeholder="Write your comment here" maxlength="2000" rows="10" cols="50" style="resize: none; padding: 10px; border-radius: 5px;"></textarea><br>
+                <button type="submit">Comment</button>
+            </form>
+            {{ end }}
+        </div>
+        {{ end }}
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 Ella’s Corner. Made with care for new parents.</p>
+    </footer>
+
+    <!-- Cookie consent banner -->
+    {{ if .ShowConsentBanner }}
+    <div id="cookie-banner" class="cookie-banner">
+        <img src="/static/cookie.png" alt="Cookie" class="cookie-image">
+        <div class="cookie-text">
+            <p>This site uses necessary cookies that help it function properly. By continuing to browse, you consent to our use of such cookies.</p>
+            <form action="/accept-cookies" method="POST">
+                <button type="submit" class="accept-button">I understand!</button>
+            </form>
+        </div>
+    </div>
+    {{ end }}
+    <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const icon = document.getElementById('profileIcon');
+    const menu = document.getElementById('dropdownMenu');
+
+    icon.addEventListener('click', function (e) {
+      e.stopPropagation();
+      menu.classList.toggle('show');
+    });
+
+    document.addEventListener('click', function () {
+      menu.classList.remove('show');
+    });
+  });
+</script>
+</body>
+</html>
