@@ -4,8 +4,8 @@ import (
 	"log"
 	"net/http"
 
-	"forum/internal/db"
-	"forum/internal/handlers"
+	"ellas-corner/internal/db"
+	"ellas-corner/internal/handlers"
 )
 
 func main() {
@@ -37,6 +37,7 @@ func main() {
 	mux.HandleFunc("/accept-cookies", handlers.AcceptCookiesHandler)
 	mux.HandleFunc("/profile", handlers.ProfileHandler)
 	mux.HandleFunc("/upload-profile-picture", handlers.UploadProfilePictureHandler)
+	mux.HandleFunc("/liked-posts", handlers.LikedPostsHandler)
 
 	//Comments and reactions
 	mux.HandleFunc("/add-comment", handlers.AddCommentHandler)

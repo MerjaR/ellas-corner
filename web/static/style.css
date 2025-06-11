@@ -22,7 +22,7 @@ h1, h2, h3, .page-title {
   --pink-light: #fff5f6;
   --yellow: #FDF0D5;
   --green: #0B7189;
-  --beige: #F3E9DC;
+  --beige: #f8f4ef;
   --brown: #B87D4B;
   --text-dark: #333;
 }
@@ -40,7 +40,7 @@ h1, h2, h3, .page-title {
 
 /* Logo on Left */
 .nav-left img.nav-logo {
-  height: 80px;
+  height: 120px;
   width: auto;
   border-radius: 50%;
 }
@@ -146,6 +146,7 @@ h1, h2, h3, .page-title {
   color: var(--blue);
 }
 
+
 .heart-icon {
   height: 30px;
   width: auto;
@@ -200,6 +201,33 @@ h1, h2, h3, .page-title {
   background-color: #f0f0f0;
 }
 
+
+.category-bar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 20px;
+  background-color: #fff5f6;
+  border-bottom: 1px solid #eee;
+}
+
+.category-bar a {
+  padding: 6px 12px;
+  background-color: #ecf1f8;
+  color: #333;
+  border-radius: 20px;
+  text-decoration: none;
+  font-size: 0.9rem;
+  border: 1px solid #ccc;
+  transition: background-color 0.2s;
+}
+
+.category-bar a:hover {
+  background-color: #dbe7f2;
+}
+
+
 main {
     padding: 20px;
     flex: 1; /* Allows main content to grow and push footer down */
@@ -210,7 +238,7 @@ main {
 
 /* Updated post container and title using branding */
 .post {
-    background-color: var(--beige);
+    background-color: white;
     border: 1px solid var(--green);
     padding: 20px;
     border-radius: 8px;
@@ -220,12 +248,12 @@ main {
 }
 
 .post h2 {
-    color: var(--brown);
+    color: var(--text-dark);
 }
 
 /* Update page title color */
 .page-title {
-    color: var(--brown);
+    color: var(--text-dark);
 }
 
 /* Style the post content */
@@ -237,7 +265,7 @@ main {
 
 /* Add styling for the metadata (author, date, etc.) */
 .post p strong {
-    color: var(--brown);              /* A highlight color for the post metadata */
+    color: var(--text-dark);              /* A highlight color for the post metadata */
 }
 
 /* Target images inside form buttons for active reaction */
@@ -261,7 +289,7 @@ form button img:hover {
     margin-left: 40px; /* Indent the comments relative to the main post */
     padding: 10px;
     border-left: 2px solid #f9f9f9; 
-    background-color: var(--yellow);; 
+    background-color: var(--beige);; 
     border-radius: 5px; /* Rounded corners */
     margin-bottom: 10px; /* Space between each comment */
 }
@@ -276,39 +304,53 @@ form button img:hover {
 
 /* Filter section styles */
 
-.filter-section {
-    padding: 10px 20px;
-    background-color: var(--beige);
-    border-radius: 8px;
-    margin-bottom: 20px;
+/* Container that aligns the form to the top right */
+.date-filter-container {
+  display: flex;
+  justify-content: flex-end;
+  margin: 20px 20px 10px 0;
 }
 
-.filter-inline-form {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 10px;
-    font-size: 14px;
-    margin-top: 10px;
+/* Styling the date filter form itself */
+.date-filter-form {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: white;
+  padding: 10px 15px;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  font-size: 14px;
 }
 
-.filter-inline-form label {
-    font-weight: bold;
-    color: #444;
+/* Style individual date inputs and button */
+.date-filter-form input[type="date"] {
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-family: 'Quicksand', sans-serif;
 }
 
-.filter-inline-form select,
-.filter-inline-form input[type="date"] {
-    padding: 6px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    font-size: 14px;
+.date-filter-form button {
+ background-color: var(--blue);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 6px 14px;
+  margin-left: 8px;
+  cursor: pointer;
+  font-weight: bold;
 }
+
+.date-filter-form button:hover {
+  background-color: var(--green);
+}
+
 /* Create post page styling */
 
 #create-post-title {
     font-family: 'Quicksand', sans-serif;
-    color: var(--brown);
+    color: var(--text-dark);
     text-align: center;
     font-size: 2em;
     margin-bottom: 20px;
@@ -318,11 +360,13 @@ form button img:hover {
 .post-form {
     margin: 0 auto;
     padding: 20px;
-    border: 1px solid var(--green);
-    border-radius: 5px;
+    border: none; 
+    border-radius: 10px;
     background-color: var(--beige);
     max-width: 600px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); 
 }
+
 
 .post-form div {
     margin-bottom: 15px;
@@ -356,6 +400,7 @@ form button img:hover {
     border-radius: 3px;
     cursor: pointer;
     font-size: 1em;
+    font-weight: bold;
 }
 
 .post-form button:hover {
@@ -376,8 +421,8 @@ form button img:hover {
 
 /* Footer styling  */
 footer {
-    background-color: var(--pink);
-    color: var(--beige);
+    background-color: var(--pink-light);
+    color: var(--text-dark);
     padding: 12px 0;
     text-align: center;
     font-size: 14px;
@@ -460,49 +505,275 @@ footer {
 
 /* Profile page styles */
 
-/* Style the profile picture */
-.profile-picture {
-    width: 150px; /* Set the desired size */
-    height: 150px; /* Set the desired size */
-    border-radius: 50%; /* Make the image round */
-    object-fit: cover; /* Ensure the image is not distorted */
-    display: block; /* Make sure image behaves like a block element */
-    margin-left: auto; /* Horizontally center the image */
-    margin-right: auto; /* Horizontally center the image */
-    border: 2px solid #333; /* Add a border for styling */
+.page-title {
+    text-align: center;
+    color: var(--text-dark, #333);
+    font-family: 'Roboto', sans-serif;
+    margin-top: 30px;
 }
 
-/* Center the profile header container */
 .profile-header {
-    text-align: center; /* Center all content in the profile header */
-    margin-bottom: 20px; /* Add space below the profile section */
+    background-color: var(--beige, #f8f4ef);
+    border-radius: 12px;
+    padding: 20px 30px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    max-width: 800px;
+    margin: 30px auto;
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    flex-wrap: wrap;
 }
 
-/* Profile picture upload form options */
-.profile-upload-form .upload-label {
-    font-size: 0.9em;
-    color: #888; 
-    margin-bottom: 5px;
-    display: block;
+.profile-picture {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid var(--green);
 }
 
-/* Reduce the size of the file input */
-.profile-upload-form .upload-input {
-    font-size: 0.85em;
-    margin-top: 5px;
+.profile-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
-/* Style the upload button */
-.profile-upload-form .upload-button {
-    padding: 5px 10px;
-    font-size: 0.85em;
-    background-color: var(--blue);
+.profile-upload-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.upload-label {
+    font-size: 0.95em;
+    color: #555;
+}
+
+.upload-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.upload-input {
+    padding: 6px 10px;
+    border-radius: 6px;
     border: 1px solid #ccc;
-    border-radius: 3px;
-    color: white;
-    cursor: pointer;
+    background-color: white;
+    font-size: 0.95em;
 }
 
-.profile-upload-form .upload-button:hover {
-    background-color: var(--green); 
+.upload-button {
+    background-color: var(--light-blue, #cbe8f7);
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
 }
+
+.upload-button:hover {
+    background-color: #add8f0;
+}
+
+.post {
+    background-color: white;
+    border: 1px solid var(--green);
+    padding: 20px;
+    border-radius: 8px;
+    margin: 20px auto;
+    max-width: 700px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.post h3 {
+    color: var(--text-dark);
+    margin-top: 0;
+}
+
+.post p {
+    margin-bottom: 10px;
+    line-height: 1.5;
+    color: #555;
+}
+
+.reactions-section {
+    margin-top: 10px;
+}
+
+form button img.active-reaction {
+    filter: brightness(0.7);
+    transform: scale(1.2);
+    transition: all 0.2s ease;
+}
+
+form button img:hover {
+    filter: brightness(1.2);
+    transform: scale(1.1);
+    transition: all 0.2s ease;
+}
+
+.comments-section .comment {
+    margin: 20px auto;
+    max-width: 640px;
+    padding: 10px 20px;
+    border-left: 4px solid var(--green);
+    background-color: var(--beige);
+    border-radius: 6px;
+    color: #444;
+    line-height: 1.4;
+}
+/* Login Page Styling */
+
+.login-container {
+    background-color: var(--beige); /* use #f8f4ef or define as --beige */
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 30px 40px;
+    max-width: 400px;
+    margin: 40px auto;
+    text-align: center;
+}
+
+.login-container h2 {
+    color: var(--text); /* dark text, assuming defined */
+    font-family: 'Roboto', sans-serif;
+    margin-bottom: 20px;
+    font-size: 1.6em;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.login-form label {
+    font-weight: 500;
+    font-family: 'Roboto', sans-serif;
+    text-align: left;
+}
+
+.login-form input[type="email"],
+.login-form input[type="password"] {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 1em;
+    background-color: #fff;
+}
+
+.login-form button {
+    background-color: var(--light-blue, #cbe8f7);
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.login-form button:hover {
+    background-color: #add8f0;
+}
+
+.success-message {
+    color: var(--green, #2e7d32);
+    background-color: #eaf7ea;
+    border-left: 4px solid var(--green, #2e7d32);
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+}
+
+.error-message {
+    color: var(--red, #d32f2f);
+    background-color: #fcebea;
+    border-left: 4px solid var(--red, #d32f2f);
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+}
+
+/* Register Page Styling – Matches Login Page Aesthetic */
+
+.register-container {
+    background-color: var(--beige); /* same as login */
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 30px 40px;
+    max-width: 400px;
+    margin: 40px auto;
+    text-align: center;
+}
+
+.register-container h1 {
+    color: var(--text);
+    font-family: 'Roboto', sans-serif;
+    margin-bottom: 20px;
+    font-size: 1.6em;
+}
+
+.register-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.register-form label {
+    font-weight: 500;
+    font-family: 'Roboto', sans-serif;
+    text-align: left;
+}
+
+.register-form input[type="text"],
+.register-form input[type="email"],
+.register-form input[type="password"] {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 1em;
+    background-color: #fff;
+}
+
+.register-form button {
+    background-color: var(--light-blue, #cbe8f7);
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.register-form button:hover {
+    background-color: #add8f0;
+}
+
+/* Reuse message styles from login */
+.success-message {
+    color: var(--green, #2e7d32);
+    background-color: #eaf7ea;
+    border-left: 4px solid var(--green, #2e7d32);
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+}
+
+.error-message {
+    color: var(--red, #d32f2f);
+    background-color: #fcebea;
+    border-left: 4px solid var(--red, #d32f2f);
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+}
+
+
+

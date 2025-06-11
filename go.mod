@@ -1,4 +1,4 @@
-module forum
+module ellas-corner
 
 go 1.22.1
 

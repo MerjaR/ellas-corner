@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Liked Posts – Ella's Corner</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+    <!-- Include navigation bar -->
+    {{ template "navbar" . }}
+
+    <main>
+        <h1 class="page-title">Posts You've Liked</h1>
+
+        {{ if .Posts }}
+            {{ range .Posts }}
+                <div class="post">
+                    <h2>{{ .Title }}</h2>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <img src="/static/profile_pictures/{{ .ProfilePicture }}" alt="Profile Picture" style="width: 40px; height: 40px; border-radius: 50%;">
+                        <p><strong>Posted by {{ .Username }}</strong> on {{ .FormattedCreatedAt }}</p>
+                    </div>
+                    <pre>{{ .Content }}</pre>
+                    <p><strong>Category:</strong> {{ .Category }}</p>
+                </div>
+            {{ end }}
+        {{ else }}
+            <p style="margin-top: 20px;">You haven’t liked any posts yet.</p>
+        {{ end }}
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Ella's Corner. All Rights Reserved.</p>
+    </footer>
+</body>
+</html>

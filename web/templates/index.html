@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Literary Lions Forum</title>
+    <title>Ella's Corner</title>
     <link rel="stylesheet" href="/static/style.css">
     <!-- Google Fonts link -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Quicksand:wght@500&display=swap" rel="stylesheet">
@@ -11,90 +11,25 @@
 </head>
 <body>
     <!-- Navigation Bar -->
-   <nav class="navbar">
-  <div class="nav-left">
-    <a href="/">
-      <img src="/static/EClogo.png" alt="Ella's Corner Logo" class="nav-logo">
-    </a>
-  </div>
-
-  <div class="nav-center">
-    <form action="/search" method="GET" class="search-form">
-      <input type="text" name="q" placeholder="Search items..." required>
-      <button type="submit">Search</button>
-    </form>
-  </div>
-
-  <div class="nav-right">
-  {{ if not .IsLoggedIn }}
-    <a href="/login" class="nav-button login">Login</a>
-    <a href="/register" class="nav-button register">Register</a>
-  {{ else }}
-    <a href="/create-post" class="nav-link">Share an Item</a>
-    <a href="/liked-posts">
-  <img src="/static/heart.png" alt="Liked Posts" class="heart-icon">
-    </a>
-   <div class="profile-dropdown" id="profileDropdown">
-  <img src="/static/profile_pictures/{{ .ProfilePicture }}" alt="Profile Picture" class="profile-icon" id="profileIcon">
-  <div class="dropdown-menu" id="dropdownMenu">
-    <a href="/profile">Profile</a>
-    <a href="/logout">Logout</a>
-  </div>
-</div>
-  {{ end }}
-</div>
-</nav>
+ {{ template "navbar" . }}
 
 
     <main>
-     <!-- Flexbox container for title and filter form -->
-    <div class="filter-banner-container" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap;">
-        <!-- Page Title and Filter Form on the left -->
-        <div class="filter-section" style="flex: 1; min-width: 250px;">
-            <h1 class="page-title">Ella's Corner</h1>
-            <p>Your community-powered guide to help new parents find the most loved, most useful, and most talked about baby items.</p>
+    <!-- Date filtering -->     
+<div class="date-filter-container">
+  <form action="/filter" method="GET" class="date-filter-form">
+    <label for="start_date">From:</label>
+    <input type="date" id="start_date" name="start_date">
 
-            <!-- Filter Form -->
-            <form action="/filter" method="GET" class="filter-inline-form">
-                <label for="category">Filter by:</label>
-                <select name="category" id="category">
-                    <option value="">All Categories</option>
-                    {{ if .Categories }}
-                    {{ range .Categories }}
-                    <option value="{{ . }}">{{ . }}</option>
-                    {{ end }}
-                    {{ else }}
-                    <option value="">No Categories Available</option>
-                    {{ end }}
-                </select>
+    <label for="end_date">To:</label>
+    <input type="date" id="end_date" name="end_date">
 
-                <!-- My Created Posts and My Liked Posts in one line -->
-                <div class="checkbox-group" style="display: flex; gap: 15px; margin-top: 10px;">
-                    {{ if .IsLoggedIn }}
-                    <label><input type="checkbox" name="created_posts" value="true"> My Created Posts</label>
-                    <label><input type="checkbox" name="liked_posts" value="true"> My Liked Posts</label>
-                    {{ end }}
-                </div>
+    <button type="submit">Apply</button>
+  </form>
+</div>
 
-                <!-- Date filtering group on the same line -->
-                <div class="date-filter-group" style="display: flex; gap: 10px; margin-top: 10px;">
-                    <label for="start_date">From:</label>
-                    <input type="date" name="start_date" id="start_date">
 
-                    <label for="end_date">To:</label>
-                    <input type="date" name="end_date" id="end_date">
-                </div>
 
-                <!-- Add a note for inclusive dates -->
-                <div style="margin-top: 10px;">
-                    <p style="margin-bottom: 10px;"><em>Note: The selected dates are inclusive.</em></p>
-
-                    <!-- Apply button now placed below the note -->
-                    <button type="submit">Apply</button>
-                </div>
-            </form>
-        </div>
-    </div>
 
 
         <!-- Global Error message section below the filters -->
@@ -115,7 +50,7 @@
     </div>
     <!-- Post Content -->
     <pre style="
-    background-color: #FDF0D5;
+    background-color: #f8f4ef;
     border: none;
     font-family: 'Roboto', sans-serif;
     font-size: 16px;
@@ -162,7 +97,7 @@
                     </div>
                     <!-- Comment Content -->
                     <pre style="
-                    background-color: #f0f0f0;
+                    background-color: #f8f4ef;
                     border: none;
                     font-family: 'Roboto', sans-serif;
                     font-size: 16px;
@@ -233,20 +168,6 @@
         </div>
     </div>
     {{ end }}
-    <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const icon = document.getElementById('profileIcon');
-    const menu = document.getElementById('dropdownMenu');
 
-    icon.addEventListener('click', function (e) {
-      e.stopPropagation();
-      menu.classList.toggle('show');
-    });
-
-    document.addEventListener('click', function () {
-      menu.classList.remove('show');
-    });
-  });
-</script>
 </body>
 </html>

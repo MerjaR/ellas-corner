@@ -1,0 +1,69 @@
+{{ define "navbar" }}
+<nav class="navbar">
+  <div class="nav-left">
+    <a href="/">
+      <img src="/static/EClogo.png" alt="Ella's Corner Logo" class="nav-logo">
+    </a>
+  </div>
+
+  <div class="nav-center">
+    <form action="/search" method="GET" class="search-form">
+      <input type="text" name="q" placeholder="Search items..." required>
+      <button type="submit">Search</button>
+    </form>
+  </div>
+
+  <div class="nav-right">
+    {{ if not .isLoggedIn }}
+      <a href="/login" class="nav-button login">Login</a>
+      <a href="/register" class="nav-button register">Register</a>
+    {{ else }}
+      <a href="/create-post" class="nav-link">Share an Item</a>
+      <a href="/liked-posts">
+        <img src="/static/heart.png" alt="Liked Posts" class="heart-icon">
+      </a>
+      <div class="profile-dropdown" id="profileDropdown">
+        <img src="/static/profile_pictures/{{ .ProfilePicture }}" alt="Profile Picture" class="profile-icon" id="profileIcon">
+        <div class="dropdown-menu" id="dropdownMenu">
+          <a href="/profile">Profile</a>
+          <a href="/logout">Logout</a>
+        </div>
+      </div>
+    {{ end }}
+  </div>
+</nav>
+
+<div class="category-bar">
+  <a href="/filter?category=Newborn">Newborn</a>
+  <a href="/filter?category=3-6 months">3–6 months</a>
+  <a href="/filter?category=6-9 months">6–9 months</a>
+  <a href="/filter?category=9-12 months">9–12 months</a>
+  <a href="/filter?category=Over 12 months">Over 12 months</a>
+  <a href="/filter?category=Parents">Parents</a>
+</div>
+
+<script>
+    // JavaScript for Dropdown menu. This was added during modifying the project, but bonus features are allowed with JS.
+  document.addEventListener("DOMContentLoaded", function () {
+    const profileIcon = document.getElementById("profileIcon");
+    const dropdownMenu = document.getElementById("dropdownMenu");
+
+    if (profileIcon && dropdownMenu) {
+      profileIcon.addEventListener("click", function (e) {
+        dropdownMenu.classList.toggle("show");
+        e.stopPropagation(); // Prevent click from bubbling up
+      });
+
+      document.addEventListener("click", function () {
+        dropdownMenu.classList.remove("show");
+      });
+
+      dropdownMenu.addEventListener("click", function (e) {
+        e.stopPropagation(); // Keep menu open when clicking inside
+      });
+    }
+  });
+</script>
+
+{{ end }}
+

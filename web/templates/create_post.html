@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Share an item</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+   <!-- Navigation Bar -->
+   {{ template "navbar" . }}
+
+<main>
+    <h1 id="create-post-title">Create a New Post</h1>
+
+
+    <!-- Display error message if present -->
+    {{ if .Error }}
+    <p class="error-message">{{ .Error }}</p>
+    {{ end }}
+
+    <form action="/create-post" method="POST" class="post-form">
+        <div>
+            <label for="title">Post Title:</label>
+            <input type="text" id="title" name="title" required placeholder="Enter the name of the product" value="{{ .Title }}"><br>
+        </div>
+
+        <div>
+            <label for="content">Post Content:</label>
+            <textarea id="content" name="content" required placeholder="Write about why you like this item...">{{ .Content }}</textarea><br>
+        </div>
+
+        <div>
+            <label for="category">What age or situation is it best for:</label>
+            <select id="category" name="category" required>
+                <option value="Newborn" {{ if eq .Category "Newborn" }}selected{{ end }}>Newborn</option>
+                <option value="3-6 months" {{ if eq .Category "3-6 months" }}selected{{ end }}>3-6 months</option>
+                <option value="6-9 months" {{ if eq .Category "6-9 months" }}selected{{ end }}>6-9 months</option>
+                <option value="9-12 months" {{ if eq .Category "9-12 months" }}selected{{ end }}>9-12 months</option>
+                <option value="Over 12 months" {{ if eq .Category "Over 12 months" }}selected{{ end }}>Over 12 months</option>
+                <option value="Parents" {{ if eq .Category "Parents" }}selected{{ end }}>Parents</option>
+                <option value="Older siblings" {{ if eq .Category "Older siblings" }}selected{{ end }}>Older siblings</option>
+                <option value="Outside the house" {{ if eq .Category "Outside the house" }}selected{{ end }}>Outside the house</option>
+                <option value="Travelling" {{ if eq .Category "Travelling" }}selected{{ end }}>Travelling</option>
+                <option value="Books" {{ if eq .Category "Books" }}selected{{ end }}>Books</option>
+                <option value="General" {{ if eq .Category "General" }}selected{{ end }}>General</option>
+            </select><br>
+        </div>
+
+        <button type="submit">Submit Your Recommendation</button>
+    </form>
+</main>
+</body>
+</html>

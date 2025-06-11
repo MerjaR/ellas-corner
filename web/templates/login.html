@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css">
+    <title>Login – Ella's Corner</title>
+</head>
+<body>
+ {{ template "navbar" . }}
+
+    <main>
+
+        <!-- Display custom message if available -->
+        {{if .Message}}
+            <p class="success-message">{{.Message}}</p>
+        {{end}}
+
+        <!-- Display error message if available -->
+        {{if .Error}}
+            <p class="error-message">{{.Error}}</p>
+        {{end}}
+
+        <div class="login-container">
+            <h2>Login to Your Account</h2>
+            <form action="/login" method="POST" class="login-form">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+
+                <button type="submit">Login</button>
+            </form>
+        </div>
+    </main>
+</body>
+</html>

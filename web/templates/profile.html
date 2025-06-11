@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ .Username }}'s Profile</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+    {{ template "navbar" . }}
+
+    <main>
+        <h1 class="page-title">{{ .Username }}'s Profile</h1>
+
+        <div class="profile-header">
+            <img src="/static/profile_pictures/{{ .ProfilePicture }}" alt="Profile Picture" class="profile-picture">
+            <div class="profile-info">
+                <p><strong>Email:</strong> {{ .Email }}</p>
+
+                <form action="/upload-profile-picture" method="POST" enctype="multipart/form-data" class="profile-upload-form">
+                    <label for="profile_picture" class="upload-label">Change profile picture:</label>
+                    <div class="upload-controls">
+                        <input type="file" name="profile_picture" id="profile_picture" accept="image/*" class="upload-input">
+                        <button type="submit" class="upload-button">Upload</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <section>
+            <h2>Your Items</h2>
+            {{ if .Posts }}
+            {{ range .Posts }}
+            <div class="post">
+                <h3>{{ .Title }}</h3>
+                <p>{{ .Content }}</p>
+                <p><strong>Category:</strong> {{ .Category }}</p>
+                <p><strong>Posted on:</strong> {{ .FormattedCreatedAt }}</p>
+                <div class="reactions-section">
+                    <span>{{ .Likes }} Likes | {{ .Dislikes }} Dislikes</span>
+                </div>
+                <div class="post-actions">
+                    <a href="/edit-post?id={{ .ID }}" class="edit-button">Edit</a>
+                    <form action="/delete-post" method="POST" style="display:inline;">
+                        <input type="hidden" name="post_id" value="{{ .ID }}">
+                        <button type="submit" class="delete-button" onclick="return confirm('Are you sure you want to delete this post?')">Delete</button>
+                    </form>
+                </div>
+            </div>
+            {{ end }}
+            {{ else }}
+            <p>You haven't posted anything yet.</p>
+            {{ end }}
+        </section>
+
+        <section class="comments-section">
+            <h2>Your Comments</h2>
+            {{ if .Comments }}
+            {{ range .Comments }}
+            <div class="comment">
+                <p><strong>On Post:</strong> {{ .PostTitle }}</p>
+                <p>{{ .Content }}</p>
+                <p><strong>Commented on:</strong> {{ .FormattedCreatedAt }}</p>
+            </div>
+            {{ end }}
+            {{ else }}
+            <p>You haven't commented on anything yet.</p>
+            {{ end }}
+        </section>
+
+        <section>
+            <h2>Items You Liked</h2>
+            {{ if .LikedPosts }}
+            {{ range .LikedPosts }}
+            <div class="post">
+                <h3>{{ .Title }}</h3>
+                <p>{{ .Content }}</p>
+                <p><strong>Posted on:</strong> {{ .FormattedCreatedAt }}</p>
+                <div class="reactions-section">
+                    <form action="/react" method="POST" style="display:inline-block;">
+                        <input type="hidden" name="post_id" value="{{ .ID }}">
+                        <input type="hidden" name="reaction" value="like">
+                        <button type="submit" style="border:none; background:none;">
+                            <img src="/static/like.png" alt="Like" class="active-reaction" style="width:20px; height:20px;">
+                        </button>
+                    </form>
+                    <span>{{ .Likes }} Likes</span>
+
+                    <form action="/react" method="POST" style="display:inline-block; margin-left: 10px;">
+                        <input type="hidden" name="post_id" value="{{ .ID }}">
+                        <input type="hidden" name="reaction" value="dislike">
+                        <button type="submit" style="border:none; background:none;">
+                            <img src="/static/dislike.png" alt="Dislike" style="width:20px; height:20px;">
+                        </button>
+                    </form>
+                    <span>{{ .Dislikes }} Marked unhelpful</span>
+                </div>
+            </div>
+            {{ end }}
+            {{ else }}
+            <p>You haven't liked any items yet.</p>
+            {{ end }}
+        </section>
+
+        <section>
+            <h2>Items You Found Unhelpful</h2>
+            {{ if .DislikedPosts }}
+            {{ range .DislikedPosts }}
+            <div class="post">
+                <h3>{{ .Title }}</h3>
+                <p>{{ .Content }}</p>
+                <p><strong>Posted on:</strong> {{ .FormattedCreatedAt }}</p>
+                <div class="reactions-section">
+                    <form action="/react" method="POST" style="display:inline-block;">
+                        <input type="hidden" name="post_id" value="{{ .ID }}">
+                        <input type="hidden" name="reaction" value="like">
+                        <button type="submit" style="border:none; background:none;">
+                            <img src="/static/like.png" alt="Like" style="width:20px; height:20px;">
+                        </button>
+                    </form>
+                    <span>{{ .Likes }} Likes</span>
+
+                    <form action="/react" method="POST" style="display:inline-block; margin-left: 10px;">
+                        <input type="hidden" name="post_id" value="{{ .ID }}">
+                        <input type="hidden" name="reaction" value="dislike">
+                        <button type="submit" style="border:none; background:none;">
+                            <img src="/static/dislike.png" alt="Dislike" class="active-reaction" style="width:20px; height:20px;">
+                        </button>
+                    </form>
+                    <span>{{ .Dislikes }} Marked unhelpful</span>
+                </div>
+            </div>
+            {{ end }}
+            {{ else }}
+            <p>Looks like you haven’t marked any items as unhelpful yet.</p>
+            {{ end }}
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Ella’s Corner. All Rights Reserved.</p>
+    </footer>
+</body>
+</html>
