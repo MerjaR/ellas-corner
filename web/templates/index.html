@@ -43,9 +43,13 @@
 {{ range .Posts }}
 <div class="post">
     <h2>{{ .Title }}</h2>
+    {{ if .Image }}
+    <img src="/static/uploads/{{ .Image }}" alt="Post Image" class="post-image">
+    {{ end }}
     <div style="display: flex; align-items: center; gap: 10px;">
         <!-- Profile Picture for Post Author -->
         <img src="/static/profile_pictures/{{ .ProfilePicture }}" alt="Profile Picture" style="width: 40px; height: 40px; border-radius: 50%;">
+        <p><strong>Category:</strong> {{ .Category }}</p>
         <p><strong>Posted by {{ .Username }}</strong> on {{ .FormattedCreatedAt }}</p>
     </div>
     <!-- Post Content -->
@@ -60,94 +64,81 @@
     word-wrap: break-word;
     color: #333;
     margin: 0 20px;">{{ .Content }}</pre>
-            <p><strong>Category:</strong> {{ .Category }}</p>
+            
             
 
-            <div class="reactions-section">
-                <!-- Like Button (Image) -->
-                <form action="/react" method="POST" style="display:inline-block;">
-                    <input type="hidden" name="post_id" value="{{ .ID }}">
-                    <input type="hidden" name="reaction" value="like">
-                    <button type="submit" style="border:none; background:none;">
-                        <img src="/static/like.png" alt="Like" style="width:20px; height:20px;" class="{{ if eq .UserReaction "like" }}active-reaction{{ end }}">
-                    </button>
-                </form>
-                <span>{{ .Likes }} Likes</span>
+            <div class="interaction-bar">
+    <!-- Like Button -->
+    <form action="/react" method="POST">
+        <input type="hidden" name="post_id" value="{{ .ID }}">
+        <input type="hidden" name="reaction" value="like">
+        <button type="submit" class="reaction-button">
+            <img src="/static/like.png" alt="Like" class="reaction-icon {{ if eq .UserReaction "like" }}active-reaction{{ end }}">
+        </button>
+    </form>
+    <span>{{ .Likes }}</span>
 
-                <!-- Dislike Button (Image) -->
-                <form action="/react" method="POST" style="display:inline-block; margin-left: 10px;">
-                    <input type="hidden" name="post_id" value="{{ .ID }}">
-                    <input type="hidden" name="reaction" value="dislike">
-                    <button type="submit" style="border:none; background:none;">
-                        <img src="/static/dislike.png" alt="Dislike" style="width:20px; height:20px;" class="{{ if eq .UserReaction "dislike" }}active-reaction{{ end }}">
-                    </button>
-                </form>
-                <span>{{ .Dislikes }} Dislikes</span>
-            </div>
+    <!-- Dislike Button -->
+    <form action="/react" method="POST">
+        <input type="hidden" name="post_id" value="{{ .ID }}">
+        <input type="hidden" name="reaction" value="dislike">
+        <button type="submit" class="reaction-button">
+            <img src="/static/dislike.png" alt="Dislike" class="reaction-icon {{ if eq .UserReaction "dislike" }}active-reaction{{ end }}">
+        </button>
+    </form>
+    <span>{{ .Dislikes }}</span>
 
-            <!-- Display Comments Section -->
-            <div class="comments-section">
-                <h3>Comments ({{ len .Comments }}):</h3>
-                {{ range .Comments }}
-                <div class="comment">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <!-- Profile Picture for Comment Author -->
-                        <img src="/static/profile_pictures/{{ .ProfilePicture }}" alt="Profile Picture" style="width: 30px; height: 30px; border-radius: 50%;">
-                        <p><strong>Commented by {{ .Username }}</strong> on {{ .FormattedCreatedAt }}</p>
-                    </div>
-                    <!-- Comment Content -->
-                    <pre style="
-                    background-color: #f8f4ef;
-                    border: none;
-                    font-family: 'Roboto', sans-serif;
-                    font-size: 16px;
-                    padding: 15px 30px;
-                    border-radius: 8px;
-                    white-space: pre-wrap;
-                    word-wrap: break-word;
-                    color: #333;
-                    margin: 0 20px;">{{ .Content }}</pre>
-                    
+    <!-- Leave a Comment -->
+    {{ if $.isLoggedIn }}
+    <a href="/?showCommentFormForPost={{ .ID }}" class="comment-button">Leave a Comment</a>
+    {{ end }}
+</div>
+           <!-- Display Comments Section -->
+<div class="comments-section">
+    <h3>Comments ({{ len .Comments }}):</h3>
 
-                    <!-- Like Button (for comments) -->
-                    <form action="/react-comment" method="POST" style="display:inline-block;">
-                        <input type="hidden" name="comment_id" value="{{ .ID }}">
-                        <input type="hidden" name="reaction" value="like">
-                        <button type="submit" style="border:none; background:none;">
-                            <img src="/static/like.png" alt="Like" style="width:20px; height:20px;" class="{{ if eq .UserReaction "like" }}active-reaction{{ end }}">
-                        </button>
-                    </form>
-                    <span>{{ .Likes }} Likes</span>
-
-                    <!-- Dislike Button (for comments) -->
-                    <form action="/react-comment" method="POST" style="display:inline-block; margin-left: 10px;">
-                        <input type="hidden" name="comment_id" value="{{ .ID }}">
-                        <input type="hidden" name="reaction" value="dislike">
-                        <button type="submit" style="border:none; background:none;">
-                            <img src="/static/dislike.png" alt="Dislike" style="width:20px; height:20px;" class="{{ if eq .UserReaction "dislike" }}active-reaction{{ end }}">
-                        </button>
-                    </form>
-                    <span>{{ .Dislikes }} Dislikes</span>
-                </div>
-                {{ else }}
-                <p>No comments yet.</p>
-                {{ end }}
-            </div>
-
-            <!-- Display "Leave a Comment" Link -->
-            {{ if $.IsLoggedIn }}
-            <a href="/?showCommentFormForPost={{ .ID }}">Leave a Comment</a>
-            {{ end }}
-
-            <!-- Add comment form if the current post is selected -->
-            {{ if eq $.ShowCommentFormForPost .ID }}
-            <form action="/add-comment" method="POST" style="margin-top: 10px;">
-                <input type="hidden" name="post_id" value="{{ .ID }}">
-                <textarea name="content" placeholder="Write your comment here" maxlength="2000" rows="10" cols="50" style="resize: none; padding: 10px; border-radius: 5px;"></textarea><br>
-                <button type="submit">Comment</button>
-            </form>
-            {{ end }}
+    {{ range .Comments }}
+    <div class="comment">
+        <div class="comment-header">
+            <img src="/static/profile_pictures/{{ .ProfilePicture }}" alt="Profile Picture" class="comment-profile-pic">
+            <p><strong>{{ .Username }}</strong> on {{ .FormattedCreatedAt }}</p>
         </div>
+        <div class="comment-body">
+            <p class="comment-text">{{ .Content }}</p>
+        </div>
+
+        <!-- Comment Reactions -->
+        <form action="/react-comment" method="POST" style="display:inline-block;">
+            <input type="hidden" name="comment_id" value="{{ .ID }}">
+            <input type="hidden" name="reaction" value="like">
+            <button type="submit" style="border:none; background:none;">
+                <img src="/static/like.png" alt="Like" style="width:20px; height:20px;" class="{{ if eq .UserReaction "like" }}active-reaction{{ end }}">
+            </button>
+        </form>
+        <span>{{ .Likes }} Likes</span>
+
+        <form action="/react-comment" method="POST" style="display:inline-block; margin-left: 10px;">
+            <input type="hidden" name="comment_id" value="{{ .ID }}">
+            <input type="hidden" name="reaction" value="dislike">
+            <button type="submit" style="border:none; background:none;">
+                <img src="/static/dislike.png" alt="Dislike" style="width:20px; height:20px;" class="{{ if eq .UserReaction "dislike" }}active-reaction{{ end }}">
+            </button>
+        </form>
+        <span>{{ .Dislikes }} Dislikes</span>
+    </div>
+    {{ end }}
+
+    <!-- Add comment form inside the comments section -->
+    {{ if eq $.ShowCommentFormForPost .ID }}
+    <form action="/add-comment" method="POST" class="comment-form">
+        <input type="hidden" name="post_id" value="{{ .ID }}">
+        <textarea name="content" placeholder="Join the conversation" maxlength="2000" rows="6" class="comment-textarea"></textarea>
+        <button type="submit" class="comment-submit-button">Comment</button>
+    </form>
+    {{ end }}
+</div>
+</div>
+
         {{ end }}
     </main>
 
