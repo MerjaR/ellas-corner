@@ -11,7 +11,7 @@ import (
 // EditPostHandler shows the edit form for a post
 func EditPostHandler(w http.ResponseWriter, r *http.Request) {
 	// Get post ID from the query parameters
-	postIDStr := r.URL.Query().Get("id")
+	postIDStr := r.FormValue("id")
 	postID, err := strconv.Atoi(postIDStr)
 	if err != nil {
 		log.Println("Error converting post ID:", err)
@@ -27,17 +27,47 @@ func EditPostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	categories, err := repository.FetchCategories()
+	if err != nil {
+		log.Println("Error fetching categories:", err)
+		http.Error(w, "Error loading categories", http.StatusInternalServerError)
+		return
+	}
+
 	// Handle GET request: Show the edit form
 	if r.Method == http.MethodGet {
-		tmpl, err := template.ParseFiles("web/templates/edit_post.html")
+		// Check for user session (if navbar needs it)
+		var isLoggedIn bool
+		var profilePicture string
+		cookie, err := r.Cookie("session_token")
+		if err == nil {
+			userID, err := repository.GetUserIDBySession(cookie.Value)
+			if err == nil && userID != 0 {
+				isLoggedIn = true
+				user, err := repository.GetUserByID(userID)
+				if err == nil {
+					profilePicture = user.ProfilePicture
+				}
+			}
+		}
+
+		tmpl, err := template.ParseFiles("web/templates/edit_post.html", "web/templates/partials/navbar.html")
 		if err != nil {
 			log.Println("Error loading edit template:", err)
 			http.Error(w, "Error loading page", http.StatusInternalServerError)
 			return
 		}
 
-		// Pass the post data to the template
-		tmpl.Execute(w, post)
+		data := map[string]interface{}{
+			"Post":           post,
+			"isLoggedIn":     isLoggedIn,
+			"ProfilePicture": profilePicture,
+			"Categories":     categories,
+		}
+
+		if err := tmpl.Execute(w, data); err != nil {
+			log.Println("Error executing template:", err)
+		}
 		return
 	}
 

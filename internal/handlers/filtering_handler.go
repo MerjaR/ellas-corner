@@ -24,6 +24,15 @@ func FilterHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// If user is logged in, fetch profile picture
+	var ProfilePicture string
+	if isLoggedIn {
+		user, err := repository.GetUserByID(userID)
+		if err == nil {
+			ProfilePicture = user.ProfilePicture
+		}
+	}
+
 	// Capture filter parameters from the query string
 	category := r.URL.Query().Get("category")
 	createdPosts := r.URL.Query().Get("created_posts")
@@ -51,7 +60,7 @@ func FilterHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("Categories fetched:", categories) // Log categories fetched
 
 	// Parse the filtered posts template
-	tmpl, err := template.ParseFiles("web/templates/index.html")
+	tmpl, err := template.ParseFiles("web/templates/filter_results.html", "web/templates/partials/navbar.html")
 	if err != nil {
 		log.Println("FilteringHandler: Error parsing template", err)
 		utils.RenderServerErrorPage(w)
@@ -60,9 +69,11 @@ func FilterHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Render the template with filtered posts and available categories
 	data := map[string]interface{}{
-		"IsLoggedIn": isLoggedIn,
-		"Posts":      posts,
-		"Categories": categories, // Pass categories to the template
+		"isLoggedIn":     isLoggedIn,
+		"Posts":          posts,
+		"Categories":     categories, // Pass categories to the template
+		"ProfilePicture": ProfilePicture,
+		"Category":       category,
 	}
 	err = tmpl.Execute(w, data)
 	if err != nil {

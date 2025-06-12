@@ -8,45 +8,74 @@ import (
 	"net/http"
 )
 
-// SearchHandler handles the search functionality
 func SearchHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("SearchHandler: Request received")
 
-	// Get the search query from the form
+	// Get the search query
 	searchQuery := r.URL.Query().Get("q")
 	if searchQuery == "" {
 		http.Error(w, "Please provide a search query", http.StatusBadRequest)
 		return
 	}
 
-	// Fetch the posts that match the search query
+	// Check if the user is logged in
+	sessionCookie, err := r.Cookie("session_token")
+	isLoggedIn := false
+	var userID int
+	var profilePicture string
+
+	if err == nil {
+		userID, err = repository.GetUserIDBySession(sessionCookie.Value)
+		if err == nil && userID != 0 {
+			isLoggedIn = true
+			// Fetch user to get profile picture
+			user, err := repository.GetUserByID(userID)
+			if err == nil {
+				profilePicture = user.ProfilePicture
+			}
+		}
+	}
+
+	// Fetch posts matching the query
 	posts, err := repository.SearchPosts(searchQuery)
 	if err != nil {
 		log.Println("Error searching posts:", err)
-		w.WriteHeader(http.StatusInternalServerError) // Send 500 status
-		utils.RenderServerErrorPage(w)                // Render custom error page
+		w.WriteHeader(http.StatusInternalServerError)
+		utils.RenderServerErrorPage(w)
 		return
 	}
 
-	// Parse the search results template
-	tmpl, err := template.ParseFiles("web/templates/search_results.html")
+	for i := range posts {
+		comments, err := repository.FetchCommentsForPost(posts[i].ID)
+		if err != nil {
+			log.Println("Error fetching comments for post ID", posts[i].ID, ":", err)
+			continue // skip adding comments if there's an error
+		}
+		posts[i].Comments = comments
+	}
+
+	// Parse the search results template and navbar
+	tmpl, err := template.ParseFiles("web/templates/search_results.html", "web/templates/partials/navbar.html")
 	if err != nil {
 		log.Println("SearchHandler: Error parsing template", err)
-		w.WriteHeader(http.StatusInternalServerError) // Send 500 status
-		utils.RenderServerErrorPage(w)                // Render custom error page
+		w.WriteHeader(http.StatusInternalServerError)
+		utils.RenderServerErrorPage(w)
 		return
 	}
 
-	// Render the template with the search results
+	// Prepare data for the template
 	data := map[string]interface{}{
-		"SearchQuery": searchQuery,
-		"Posts":       posts, // The search results (posts)
+		"SearchQuery":    searchQuery,
+		"Posts":          posts,
+		"isLoggedIn":     isLoggedIn,
+		"ProfilePicture": profilePicture,
 	}
+
 	err = tmpl.Execute(w, data)
 	if err != nil {
 		log.Println("SearchHandler: Error executing template", err)
-		w.WriteHeader(http.StatusInternalServerError) // Send 500 status
-		utils.RenderServerErrorPage(w)                // Render custom error page
+		w.WriteHeader(http.StatusInternalServerError)
+		utils.RenderServerErrorPage(w)
 		return
 	}
 

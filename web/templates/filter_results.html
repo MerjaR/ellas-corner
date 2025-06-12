@@ -1,70 +1,132 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Filtered Results</title>
-    <link rel="stylesheet" href="/static/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Filtered Results</title>
+  <link rel="stylesheet" href="/static/style.css"/>
 </head>
 <body>
-    <nav>
-        <ul>
-            <li><a href="/">Home</a></li>
-            {{ if .IsLoggedIn }}
-            <li><a href="/logout">Logout</a></li>
-            {{ else }}
-            <li><a href="/login">Login</a></li>
-            {{ end }}
-        </ul>
-    </nav>
+  {{ template "navbar" . }}
 
-    <main>
-        <h1>Filtered Results</h1>
+  <main>
+    <h1 class="page-title">
+        {{ if .Category }}
+        Here are the items for {{ .Category }}
+        {{ else }}
+        Filtered Results
+        {{ end }}
+    </h1>
 
-        <!-- Display Filtered Posts with Profile Pictures and Reactions -->
-        {{ range .Posts }}
-        <div class="post">
-            <div class="post-header" style="display: flex; align-items: center;">
-                <!-- Profile picture of post author -->
-                <img src="/static/profile_pictures/{{ .ProfilePicture }}" alt="Profile Picture" class="profile-picture-small" style="margin-right: 15px;">
-                <h2>{{ .Title }}</h2>
-            </div>
-            <p>{{ .Content }}</p>
-            <p><strong>Category:</strong> {{ .Category }}</p>
-            <p><strong>Posted by:</strong> {{ .Username }} on {{ .FormattedCreatedAt }}</p>
+    {{ range .Posts }}
+    <div class="post">
+      <h2>{{ .Title }}</h2>
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <img src="/static/profile_pictures/{{ .ProfilePicture }}" alt="Profile Picture" style="width: 40px; height: 40px; border-radius: 50%;" />
+        <p><strong>Posted by {{ .Username }}</strong> on {{ .FormattedCreatedAt }}</p>
+      </div>
 
-            <!-- Reactions Section -->
-            <div class="reactions-section">
-                <!-- Like Button (Image) -->
-                <form action="/react" method="POST" style="display:inline-block;">
-                    <input type="hidden" name="post_id" value="{{ .ID }}">
-                    <input type="hidden" name="reaction" value="like">
-                    <button type="submit" style="border:none; background:none;">
-                        <img src="/static/like.png" alt="Like" style="width:20px; height:20px;" class="{{ if eq .UserReaction "like" }}active-reaction{{ end }}">
-                    </button>
-                </form>
-                <span>{{ .Likes }} Likes</span>
+      <pre style="
+        background-color: #f8f4ef;
+        border: none;
+        font-family: 'Roboto', sans-serif;
+        font-size: 16px;
+        padding: 15px 30px;
+        border-radius: 8px;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        color: #333;
+        margin: 0 20px;">{{ .Content }}</pre>
 
-                <!-- Dislike Button (Image) -->
-                <form action="/react" method="POST" style="display:inline-block; margin-left: 10px;">
-                    <input type="hidden" name="post_id" value="{{ .ID }}">
-                    <input type="hidden" name="reaction" value="dislike">
-                    <button type="submit" style="border:none; background:none;">
-                        <img src="/static/dislike.png" alt="Dislike" style="width:20px; height:20px;" class="{{ if eq .UserReaction "dislike" }}active-reaction{{ end }}">
-                    </button>
-                </form>
-                <span>{{ .Dislikes }} Dislikes</span>
-            </div>
+      <p><strong>Category:</strong> {{ .Category }}</p>
+
+      <!-- Reactions Section -->
+      <div class="reactions-section">
+        <form action="/react" method="POST" style="display:inline-block;">
+          <input type="hidden" name="post_id" value="{{ .ID }}">
+          <input type="hidden" name="reaction" value="like">
+          <button type="submit" style="border:none; background:none;">
+            <img src="/static/like.png" alt="Like" style="width:20px; height:20px;" class="{{ if eq .UserReaction "like" }}active-reaction{{ end }}">
+          </button>
+        </form>
+        <span>{{ .Likes }} Likes</span>
+
+        <form action="/react" method="POST" style="display:inline-block; margin-left: 10px;">
+          <input type="hidden" name="post_id" value="{{ .ID }}">
+          <input type="hidden" name="reaction" value="dislike">
+          <button type="submit" style="border:none; background:none;">
+            <img src="/static/dislike.png" alt="Dislike" style="width:20px; height:20px;" class="{{ if eq .UserReaction "dislike" }}active-reaction{{ end }}">
+          </button>
+        </form>
+        <span>{{ .Dislikes }} Dislikes</span>
+      </div>
+
+      <!-- Comments Section -->
+      <div class="comments-section">
+        <h3>Comments ({{ len .Comments }}):</h3>
+        {{ range .Comments }}
+        <div class="comment">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <img src="/static/profile_pictures/{{ .ProfilePicture }}" alt="Profile Picture" style="width: 30px; height: 30px; border-radius: 50%;" />
+            <p><strong>Commented by {{ .Username }}</strong> on {{ .FormattedCreatedAt }}</p>
+          </div>
+          <pre style="
+            background-color: #f8f4ef;
+            border: none;
+            font-family: 'Roboto', sans-serif;
+            font-size: 16px;
+            padding: 15px 30px;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            color: #333;
+            margin: 0 20px;">{{ .Content }}</pre>
+
+          <form action="/react-comment" method="POST" style="display:inline-block;">
+            <input type="hidden" name="comment_id" value="{{ .ID }}">
+            <input type="hidden" name="reaction" value="like">
+            <button type="submit" style="border:none; background:none;">
+              <img src="/static/like.png" alt="Like" style="width:20px; height:20px;" class="{{ if eq .UserReaction "like" }}active-reaction{{ end }}">
+            </button>
+          </form>
+          <span>{{ .Likes }} Likes</span>
+
+          <form action="/react-comment" method="POST" style="display:inline-block; margin-left: 10px;">
+            <input type="hidden" name="comment_id" value="{{ .ID }}">
+            <input type="hidden" name="reaction" value="dislike">
+            <button type="submit" style="border:none; background:none;">
+              <img src="/static/dislike.png" alt="Dislike" style="width:20px; height:20px;" class="{{ if eq .UserReaction "dislike" }}active-reaction{{ end }}">
+            </button>
+          </form>
+          <span>{{ .Dislikes }} Dislikes</span>
         </div>
         {{ else }}
-        <p>No posts match your filter criteria.</p>
+        <p>No comments yet.</p>
         {{ end }}
+      </div>
 
-    </main>
+      {{ if $.isLoggedIn }}
+      <a href="/filter?category={{ .Category }}&showCommentFormForPost={{ .ID }}">Leave a Comment</a>
+      {{ end }}
 
-    <!-- Footer -->
-    <footer>
-        <p>&copy; 2024 Literary Lions Forum. All Rights Reserved.</p>
-    </footer>
+      {{ if eq $.ShowCommentFormForPost .ID }}
+      <form action="/add-comment" method="POST" style="margin-top: 10px;">
+        <input type="hidden" name="post_id" value="{{ .ID }}">
+        <textarea name="content" placeholder="Write your comment here" maxlength="2000" rows="10" cols="50" style="resize: none; padding: 10px; border-radius: 5px;"></textarea><br>
+        <button type="submit">Comment</button>
+      </form>
+      {{ end }}
+
+    </div>
+    {{ else }}
+    <div class="no-posts-message">
+  <p>No posts match your filter criteria.</p>
+</div>
+    {{ end }}
+  </main>
+
+  <footer>
+    <p>&copy; 2024 Ella’s Corner. Made with care for new parents.</p>
+  </footer>
 </body>
 </html>

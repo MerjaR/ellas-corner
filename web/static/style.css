@@ -346,6 +346,15 @@ form button img:hover {
   background-color: var(--green);
 }
 
+.no-posts-message {
+    text-align: center;
+    margin-top: 20px;
+    color: #666; /* Optional: for softer tone */
+    font-family: 'Quicksand', sans-serif;
+    font-size: 1.2em;
+}
+
+
 /* Create post page styling */
 
 #create-post-title {
@@ -406,6 +415,65 @@ form button img:hover {
 .post-form button:hover {
     background-color: var(--green);
 }
+
+/* Edit Post Page Styling */
+/* Page Heading */
+h1 {
+    font-family: 'Quicksand', sans-serif;
+    color: var(--text-dark);
+    text-align: center;
+    font-size: 2em;
+    margin: 40px 0 20px;
+}
+
+/* Form Container */
+.edit-post-form {
+    margin: 0 auto;
+    padding: 20px;
+    background-color: var(--beige);
+    border-radius: 10px;
+    max-width: 600px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Form Fields */
+.edit-post-form label {
+    font-weight: bold;
+    font-family: 'Quicksand', sans-serif;
+    color: #555;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.edit-post-form input[type="text"],
+.edit-post-form textarea {
+    font-family: 'Quicksand', sans-serif;
+    width: 100%;
+    padding: 10px;
+    font-size: 1em;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+}
+
+/* Submit Button */
+.edit-post-form button {
+    background-color: var(--blue);
+    color: white;
+    padding: 10px 20px;
+    font-size: 1em;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.edit-post-form button:hover {
+    background-color: var(--green);
+}
+
 
 /* Dropdown (category) styling */
 .post-form select {
@@ -839,4 +907,34 @@ form button img:hover {
     font-size: 0.9em;
     color: #666;
     background-color: transparent;
+}
+
+/* Styling for edit post page */
+.edit-post-form select {
+    font-family: 'Quicksand', sans-serif;
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-size: 1em;
+    background-color: #fff;
+    margin-bottom: 15px;
+    display: block;
+}
+
+.edit-post-form button {
+    padding: 10px 20px;
+    background-color: var(--blue);
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: bold;
+    display: block;
+    width: 100%;
+}
+
+.edit-post-form button:hover {
+    background-color: var(--green);
 }

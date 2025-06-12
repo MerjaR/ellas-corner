@@ -224,8 +224,9 @@ func FetchCategories() ([]string, error) {
 // FetchFilteredPosts retrieves posts based on the given filter criteria.
 func FetchFilteredPosts(category, createdPosts, likedPosts, startDate, endDate string, userID int, isLoggedIn bool) ([]Post, error) {
 	query := `
-        SELECT posts.id, posts.title, posts.content, posts.category, posts.created_at
+        SELECT posts.id, posts.title, posts.content, posts.category, posts.created_at, users.username, users.profile_picture
         FROM posts
+		JOIN users ON posts.user_id = users.id
         WHERE 1=1`
 
 	// Filter by category if specified
@@ -263,11 +264,12 @@ func FetchFilteredPosts(category, createdPosts, likedPosts, startDate, endDate s
 	var posts []Post
 	for rows.Next() {
 		var post Post
-		err = rows.Scan(&post.ID, &post.Title, &post.Content, &post.Category, &post.CreatedAt)
+		err = rows.Scan(&post.ID, &post.Title, &post.Content, &post.Category, &post.CreatedAt, &post.Username, &post.ProfilePicture)
 		if err != nil {
 			log.Println("Error scanning post:", err)
 			return nil, err
 		}
+
 		posts = append(posts, post)
 	}
 
