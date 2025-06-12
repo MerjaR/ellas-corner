@@ -299,7 +299,73 @@ form button img:hover {
     margin-left: 20px; /* Slightly indent the title of the comments section */
 }
 
+/* Leave a comment button style */
+.comment-button {
+    display: inline-block;
+    padding: 6px 14px; /* Match filter button padding */
+    margin-left: 8px;  /* Match margin */
+    background-color: var(--blue);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: 'Quicksand', sans-serif;
+    font-weight: bold;
+    text-decoration: none;
+}
 
+.comment-button:hover {
+    background-color: var(--green);
+}
+
+.comment-content {
+    background-color: #f8f4ef;
+    border: none;
+    font-family: 'Roboto', sans-serif;
+    font-size: 16px;
+    padding: 15px 30px;
+    border-radius: 8px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    color: #333;
+    margin: 0 20px;
+}
+
+/* Comments Section Styling */
+.comments-section .comment {
+    background-color: white;
+    border-left: 4px solid #ddd;
+    margin: 15px 0;
+    padding: 12px 20px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+/* Header section with profile and user/date */
+.comment-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.comment-profile-pic {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+}
+
+/* Comment body styling */
+.comment-body {
+    margin-left: 10px;
+}
+
+.comment-text {
+    font-size: 15px;
+    line-height: 1.5;
+    color: #444;
+    margin: 0;
+}
 
 
 /* Filter section styles */
@@ -685,16 +751,7 @@ form button img:hover {
     transition: all 0.2s ease;
 }
 
-.comments-section .comment {
-    margin: 20px auto;
-    max-width: 640px;
-    padding: 10px 20px;
-    border-left: 4px solid var(--green);
-    background-color: var(--beige);
-    border-radius: 6px;
-    color: #444;
-    line-height: 1.4;
-}
+
 /* Login Page Styling */
 
 .login-container {
@@ -936,5 +993,76 @@ form button img:hover {
 }
 
 .edit-post-form button:hover {
+    background-color: var(--green);
+}
+
+/* Unified interaction bar for reactions and comment link */
+.interaction-bar {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin: 15px 0;
+}
+
+/* Reaction buttons */
+.reaction-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+/* Reaction icons */
+.reaction-icon {
+    width: 20px;
+    height: 20px;
+}
+
+/* Highlight when active */
+.reaction-icon.active-reaction {
+    filter: brightness(0.7);
+    transform: scale(1.2);
+    transition: all 0.2s ease;
+}
+
+/* Hover effect */
+.reaction-icon:hover {
+    filter: brightness(1.2);
+    transform: scale(1.1);
+    transition: all 0.2s ease;
+}
+
+
+/* Comment Form Styling */
+.comment-form {
+    margin-top: 15px;
+    margin-left: 20px;
+}
+
+.comment-textarea {
+    width: 100%;
+    padding: 10px 15px;
+    font-size: 15px;
+    font-family: 'Quicksand', sans-serif;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    resize: none;
+    background-color: #f9f9f9;
+    box-sizing: border-box;
+}
+
+.comment-submit-button {
+    margin-top: 8px;
+    background-color: var(--blue);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-weight: bold;
+    font-family: 'Quicksand', sans-serif;
+    cursor: pointer;
+}
+
+.comment-submit-button:hover {
     background-color: var(--green);
 }
