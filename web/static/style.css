@@ -282,6 +282,16 @@ form button img:hover {
     transition: all 0.2s ease;
 }
 
+.post-image {
+    display: block;
+    width: 100%;
+    max-width: 400px;       /* adjust based on your layout */
+    height: auto;           /* maintain aspect ratio */
+    border-radius: 10px;    /* rounded corners */
+    margin: 10px 0;         /* space above and below */
+}
+
+
 /* Comments section styles */
 
 /* Style the comments to be indented */

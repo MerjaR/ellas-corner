@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS posts (
     title TEXT NOT NULL,
     content TEXT NOT NULL,
     category TEXT DEFAULT 'General',
+    image TEXT,  -- New column to store the image filename/path
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(user_id) REFERENCES users(id)
 );

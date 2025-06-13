@@ -59,11 +59,20 @@ func CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Handle POST request to create a new post
 	if r.Method == http.MethodPost {
-		// Get form values from the request
+		// Parse multipart form data to handle file uploads
+		err := r.ParseMultipartForm(10 << 20) // Limit to ~10MB
+		if err != nil {
+			log.Println("Error parsing multipart form:", err)
+			utils.RenderServerErrorPage(w)
+			return
+		}
+
+		// Get form values
 		title := r.FormValue("title")
 		content := r.FormValue("content")
 		category := r.FormValue("category")
 
+		// Get user again
 		user, err := repository.GetUserByID(userID)
 		if err != nil {
 			log.Println("Could not fetch user:", err)
@@ -71,17 +80,27 @@ func CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Validate title and content (not empty or just whitespace)
-		if strings.TrimSpace(title) == "" || strings.TrimSpace(content) == "" {
-			// Render the form with an error message
-			tmpl, err := template.ParseFiles("web/templates/create_post.html", "web/templates/partials/navbar.html")
-			if err != nil {
-				log.Println("Could not load template:", err)
-				w.WriteHeader(http.StatusInternalServerError)
-				utils.RenderServerErrorPage(w)
-				return
-			}
+		// Handle image upload
+		var imageFilename string
+		file, header, err := r.FormFile("image")
+		if err == nil {
+			defer file.Close()
 
+			imageFilename = header.Filename
+			dest, err := utils.SaveUploadedFile(file, imageFilename, "web/static/uploads")
+			if err != nil {
+				log.Println("Error saving uploaded image:", err)
+				imageFilename = "" // fallback to no image
+			} else {
+				imageFilename = dest // saved path or filename
+			}
+		} else {
+			log.Println("No image uploaded:", err)
+		}
+
+		// Validate title and content
+		if strings.TrimSpace(title) == "" || strings.TrimSpace(content) == "" {
+			tmpl, _ := template.ParseFiles("web/templates/create_post.html", "web/templates/partials/navbar.html")
 			data := map[string]interface{}{
 				"Error":          "Post title and content cannot be empty or spaces only.",
 				"Title":          title,
@@ -90,24 +109,18 @@ func CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 				"ProfilePicture": user.ProfilePicture,
 				"isLoggedIn":     true,
 			}
-			if err := tmpl.Execute(w, data); err != nil {
-				log.Println("Error executing template:", err)
-				w.WriteHeader(http.StatusInternalServerError)
-				utils.RenderServerErrorPage(w)
-			}
+			tmpl.Execute(w, data)
 			return
 		}
 
-		// Save the post to the database
-		err = repository.CreatePost(userID, title, content, category)
+		// Save post with image
+		err = repository.CreatePost(userID, title, content, category, imageFilename)
 		if err != nil {
 			log.Println("Error creating post:", err)
-			w.WriteHeader(http.StatusInternalServerError)
 			utils.RenderServerErrorPage(w)
 			return
 		}
 
-		// Redirect to the homepage after successful post creation
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}

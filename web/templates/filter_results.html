@@ -62,9 +62,10 @@
       </div>
 
       <!-- Comments Section -->
-      <div class="comments-section">
-        <h3>Comments ({{ len .Comments }}):</h3>
-        {{ range .Comments }}
+     <div class="comments-section">
+  {{ if gt (len .Comments) 0 }}
+    <h3>Comments ({{ len .Comments }}):</h3>
+    {{ range .Comments }}
         <div class="comment">
           <div style="display: flex; align-items: center; gap: 10px;">
             <img src="/static/profile_pictures/{{ .ProfilePicture }}" alt="Profile Picture" style="width: 30px; height: 30px; border-radius: 50%;" />
@@ -128,5 +129,22 @@
   <footer>
     <p>&copy; 2024 Ella’s Corner. Made with care for new parents.</p>
   </footer>
+
+   <script>
+  // Save scroll position before navigating away
+  window.addEventListener("beforeunload", function () {
+    localStorage.setItem("scrollY", window.scrollY);
+  });
+
+  // Restore scroll position after page has fully rendered
+  window.addEventListener("load", function () {
+    const scrollY = localStorage.getItem("scrollY");
+    if (scrollY !== null) {
+      requestAnimationFrame(() => {
+        window.scrollTo(0, parseInt(scrollY));
+      });
+    }
+  });
+</script>
 </body>
 </html>

@@ -22,14 +22,13 @@ type Post struct {
 	Likes              int
 	Dislikes           int
 	UserReaction       string
+	Image              string
 }
 
 // CreatePost saves a new post to the database
-func CreatePost(userID int, title, content, category string) error {
-	// SQL query to insert a new post, including the category
-	query := "INSERT INTO posts (user_id, title, content, category) VALUES (?, ?, ?, ?)"
-
-	_, err := db.DB.Exec(query, userID, title, content, category)
+func CreatePost(userID int, title, content, category, image string) error {
+	query := "INSERT INTO posts (user_id, title, content, category, image) VALUES (?, ?, ?, ?, ?)"
+	_, err := db.DB.Exec(query, userID, title, content, category, image)
 	if err != nil {
 		log.Println("Error creating post:", err)
 		return err
@@ -39,7 +38,8 @@ func CreatePost(userID int, title, content, category string) error {
 
 func FetchPosts() ([]Post, error) {
 	query := `
-        SELECT posts.id, posts.title, posts.content, posts.user_id, posts.category, posts.created_at, users.username, users.profile_picture
+        SELECT posts.id, posts.title, posts.content, posts.user_id, posts.category, posts.created_at, users.username, users.profile_picture, COALESCE(posts.image, '') AS image
+
         FROM posts
         JOIN users ON posts.user_id = users.id
         ORDER BY posts.created_at DESC`
@@ -54,7 +54,7 @@ func FetchPosts() ([]Post, error) {
 	var posts []Post
 	for rows.Next() {
 		var post Post
-		err = rows.Scan(&post.ID, &post.Title, &post.Content, &post.UserID, &post.Category, &post.CreatedAt, &post.Username, &post.ProfilePicture) // Include ProfilePicture
+		err = rows.Scan(&post.ID, &post.Title, &post.Content, &post.UserID, &post.Category, &post.CreatedAt, &post.Username, &post.ProfilePicture, &post.Image)
 		if err != nil {
 			log.Println("Error scanning post:", err)
 			return nil, err
@@ -83,7 +83,8 @@ func FetchPosts() ([]Post, error) {
 
 func GetPostByID(postID string) (*Post, error) {
 	query := `
-        SELECT posts.id, posts.title, posts.content, posts.user_id, posts.category, posts.created_at, users.username, users.profile_picture
+        SELECT posts.id, posts.title, posts.content, posts.user_id, posts.category, posts.created_at, users.username, users.profile_picture, COALESCE(posts.image, '') AS image
+
         FROM posts
         JOIN users ON posts.user_id = users.id
         WHERE posts.id = ?`
@@ -97,7 +98,8 @@ func GetPostByID(postID string) (*Post, error) {
 		&post.Category,
 		&post.CreatedAt,
 		&post.Username,
-		&post.ProfilePicture) // Include ProfilePicture
+		&post.ProfilePicture,
+		&post.Image)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			log.Printf("No post found with ID: %s", postID)

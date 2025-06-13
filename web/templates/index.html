@@ -95,6 +95,7 @@
 </div>
            <!-- Display Comments Section -->
 <div class="comments-section">
+    {{ if gt (len .Comments) 0 }}
     <h3>Comments ({{ len .Comments }}):</h3>
 
     {{ range .Comments }}
@@ -136,6 +137,9 @@
         <button type="submit" class="comment-submit-button">Comment</button>
     </form>
     {{ end }}
+
+    {{ end }}
+
 </div>
 </div>
 
@@ -159,6 +163,21 @@
         </div>
     </div>
     {{ end }}
+
+    <script>
+  // Save scroll position before navigating away
+  window.addEventListener("beforeunload", function () {
+    localStorage.setItem("scrollY", window.scrollY);
+  });
+
+  // Restore scroll position on load
+  window.addEventListener("load", function () {
+    const scrollY = localStorage.getItem("scrollY");
+    if (scrollY !== null) {
+      window.scrollTo(0, parseInt(scrollY));
+    }
+  });
+</script>
 
 </body>
 </html>
