@@ -138,7 +138,7 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Step 4: Parse the index template
-	tmpl, err := template.ParseFiles("web/templates/index.html", "web/templates/partials/navbar.html")
+	tmpl, err := template.ParseFiles("web/templates/index.html", "web/templates/partials/navbar.html", "web/templates/partials/post.html")
 	if err != nil {
 		log.Println("HomeHandler: Error parsing template", err)
 		w.WriteHeader(http.StatusInternalServerError)

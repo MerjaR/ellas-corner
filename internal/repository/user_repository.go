@@ -141,9 +141,12 @@ func GetUserByID(userID int) (User, error) {
 func FetchPostsByUser(userID int) ([]Post, error) {
 	query := `
 		SELECT posts.id, posts.title, posts.content, posts.category, posts.created_at,
+		       users.username, users.profile_picture,
+		       COALESCE(posts.image, '') AS image,
 		       (SELECT COUNT(*) FROM post_reactions WHERE post_id = posts.id AND reaction_type = 'like') AS likes,
 		       (SELECT COUNT(*) FROM post_reactions WHERE post_id = posts.id AND reaction_type = 'dislike') AS dislikes
 		FROM posts
+		JOIN users ON posts.user_id = users.id
 		WHERE posts.user_id = ?
 		ORDER BY posts.created_at DESC`
 
@@ -156,19 +159,39 @@ func FetchPostsByUser(userID int) ([]Post, error) {
 	var posts []Post
 	for rows.Next() {
 		var post Post
-		// Scan the data from the query into the Post struct
-		err := rows.Scan(&post.ID, &post.Title, &post.Content, &post.Category, &post.CreatedAt, &post.Likes, &post.Dislikes)
+		err := rows.Scan(
+			&post.ID,
+			&post.Title,
+			&post.Content,
+			&post.Category,
+			&post.CreatedAt,
+			&post.Username,
+			&post.ProfilePicture,
+			&post.Image,
+			&post.Likes,
+			&post.Dislikes,
+		)
 		if err != nil {
 			return nil, err
 		}
 
-		// Parse and format the CreatedAt timestamp
+		// Format CreatedAt
 		parsedTime, err := time.Parse(time.RFC3339, post.CreatedAt)
 		if err == nil {
 			post.FormattedCreatedAt = parsedTime.Format("02 Jan 2006, 15:04")
 		} else {
-			post.FormattedCreatedAt = post.CreatedAt // Fallback to raw date if parsing fails
+			post.FormattedCreatedAt = post.CreatedAt
 		}
+
+		// Fetch and attach comments
+		comments, err := FetchCommentsForPost(post.ID)
+		if err != nil {
+			return nil, err
+		}
+		post.Comments = comments
+
+		// Note: UserReaction is optional here, since you're fetching the user's own posts
+		// You can skip it unless you want to display your own likes/dislikes
 
 		posts = append(posts, post)
 	}
@@ -179,9 +202,11 @@ func FetchPostsByUser(userID int) ([]Post, error) {
 // FetchCommentsByUser retrieves all comments made by a specific user, along with the post titles
 func FetchCommentsByUser(userID int) ([]Comment, error) {
 	query := `
-        SELECT comments.id, comments.content, comments.created_at, posts.title 
+        SELECT comments.id, comments.content, comments.created_at, posts.title,
+               users.username, users.profile_picture
         FROM comments 
         JOIN posts ON comments.post_id = posts.id 
+        JOIN users ON comments.user_id = users.id
         WHERE comments.user_id = ? 
         ORDER BY comments.created_at DESC`
 
@@ -195,17 +220,23 @@ func FetchCommentsByUser(userID int) ([]Comment, error) {
 	for rows.Next() {
 		var comment Comment
 		var createdAt string
-		err := rows.Scan(&comment.ID, &comment.Content, &createdAt, &comment.PostTitle)
+		err := rows.Scan(
+			&comment.ID,
+			&comment.Content,
+			&createdAt,
+			&comment.PostTitle,
+			&comment.Username,
+			&comment.ProfilePicture,
+		)
 		if err != nil {
 			return nil, err
 		}
 
-		// Parse and format the CreatedAt string
 		parsedTime, err := time.Parse(time.RFC3339, createdAt)
 		if err != nil {
-			comment.FormattedCreatedAt = createdAt // Use raw string if parsing fails
+			comment.FormattedCreatedAt = createdAt
 		} else {
-			comment.FormattedCreatedAt = parsedTime.Format("02 Jan 2006, 15:04") // Desired format
+			comment.FormattedCreatedAt = parsedTime.Format("02 Jan 2006, 15:04")
 		}
 
 		comments = append(comments, comment)
@@ -216,9 +247,13 @@ func FetchCommentsByUser(userID int) ([]Comment, error) {
 
 func FetchLikedPostsByUser(userID int) ([]Post, error) {
 	query := `
-        SELECT posts.id, posts.title, posts.created_at
+        SELECT posts.id, posts.title, posts.content, posts.category, posts.created_at,
+               users.username, users.profile_picture, COALESCE(posts.image, '') AS image,
+               (SELECT COUNT(*) FROM post_reactions WHERE post_id = posts.id AND reaction_type = 'like') AS likes,
+               (SELECT COUNT(*) FROM post_reactions WHERE post_id = posts.id AND reaction_type = 'dislike') AS dislikes
         FROM posts
         JOIN post_reactions ON posts.id = post_reactions.post_id
+        JOIN users ON posts.user_id = users.id
         WHERE post_reactions.user_id = ? AND post_reactions.reaction_type = 'like'
         ORDER BY posts.created_at DESC`
 
@@ -231,19 +266,36 @@ func FetchLikedPostsByUser(userID int) ([]Post, error) {
 	var likedPosts []Post
 	for rows.Next() {
 		var post Post
-		err := rows.Scan(&post.ID, &post.Title, &post.CreatedAt)
+		err := rows.Scan(
+			&post.ID,
+			&post.Title,
+			&post.Content,
+			&post.Category,
+			&post.CreatedAt,
+			&post.Username,
+			&post.ProfilePicture,
+			&post.Image,
+			&post.Likes,
+			&post.Dislikes,
+		)
 		if err != nil {
 			return nil, err
 		}
 
-		// Parse the CreatedAt string using the ISO 8601 format
 		parsedTime, err := time.Parse(time.RFC3339, post.CreatedAt)
+		if err == nil {
+			post.FormattedCreatedAt = parsedTime.Format("02 Jan 2006, 15:04")
+		} else {
+			post.FormattedCreatedAt = post.CreatedAt
+		}
+
+		comments, err := FetchCommentsForPost(post.ID)
 		if err != nil {
 			return nil, err
 		}
+		post.Comments = comments
 
-		// Format the parsed time into a human-readable format
-		post.FormattedCreatedAt = parsedTime.Format("02 Jan 2006, 15:04")
+		post.UserReaction = "like" // For consistency in the template
 		likedPosts = append(likedPosts, post)
 	}
 
@@ -252,9 +304,13 @@ func FetchLikedPostsByUser(userID int) ([]Post, error) {
 
 func FetchDislikedPostsByUser(userID int) ([]Post, error) {
 	query := `
-        SELECT posts.id, posts.title, posts.created_at
+        SELECT posts.id, posts.title, posts.content, posts.category, posts.created_at,
+               users.username, users.profile_picture, COALESCE(posts.image, '') AS image,
+               (SELECT COUNT(*) FROM post_reactions WHERE post_id = posts.id AND reaction_type = 'like') AS likes,
+               (SELECT COUNT(*) FROM post_reactions WHERE post_id = posts.id AND reaction_type = 'dislike') AS dislikes
         FROM posts
         JOIN post_reactions ON posts.id = post_reactions.post_id
+        JOIN users ON posts.user_id = users.id
         WHERE post_reactions.user_id = ? AND post_reactions.reaction_type = 'dislike'
         ORDER BY posts.created_at DESC`
 
@@ -267,19 +323,36 @@ func FetchDislikedPostsByUser(userID int) ([]Post, error) {
 	var dislikedPosts []Post
 	for rows.Next() {
 		var post Post
-		err := rows.Scan(&post.ID, &post.Title, &post.CreatedAt)
+		err := rows.Scan(
+			&post.ID,
+			&post.Title,
+			&post.Content,
+			&post.Category,
+			&post.CreatedAt,
+			&post.Username,
+			&post.ProfilePicture,
+			&post.Image,
+			&post.Likes,
+			&post.Dislikes,
+		)
 		if err != nil {
 			return nil, err
 		}
 
-		// Parse the CreatedAt string using the ISO 8601 format
 		parsedTime, err := time.Parse(time.RFC3339, post.CreatedAt)
+		if err == nil {
+			post.FormattedCreatedAt = parsedTime.Format("02 Jan 2006, 15:04")
+		} else {
+			post.FormattedCreatedAt = post.CreatedAt
+		}
+
+		comments, err := FetchCommentsForPost(post.ID)
 		if err != nil {
 			return nil, err
 		}
+		post.Comments = comments
 
-		// Format the parsed time into a human-readable format
-		post.FormattedCreatedAt = parsedTime.Format("02 Jan 2006, 15:04")
+		post.UserReaction = "dislike"
 		dislikedPosts = append(dislikedPosts, post)
 	}
 

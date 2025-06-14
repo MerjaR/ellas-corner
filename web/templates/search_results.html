@@ -8,96 +8,19 @@
 </head>
 <body>
 
-  <!-- Include the shared navbar -->
   {{ template "navbar" . }}
 
   <main>
     <h1 class="page-title">Search Results for "{{ .SearchQuery }}"</h1>
 
     {{ if .Posts }}
-      {{ range .Posts }}
-      <div class="post">
-        <h2>{{ .Title }}</h2>
-        <div style="display: flex; align-items: center; gap: 10px;">
-          <img src="/static/profile_pictures/{{ .ProfilePicture }}" alt="Profile Picture" style="width: 40px; height: 40px; border-radius: 50%;">
-          <p><strong>Posted by {{ .Username }}</strong> on {{ .FormattedCreatedAt }}</p>
-        </div>
-
-        <pre style="
-          background-color: #f8f4ef;
-          border: none;
-          font-family: 'Roboto', sans-serif;
-          font-size: 16px;
-          padding: 15px 30px;
-          border-radius: 8px;
-          white-space: pre-wrap;
-          word-wrap: break-word;
-          color: #333;
-          margin: 0 20px;">{{ .Content }}</pre>
-
-        <p><strong>Category:</strong> {{ .Category }}</p>
-
-        <div class="reactions-section">
-          <form action="/react" method="POST" style="display:inline-block;">
-            <input type="hidden" name="post_id" value="{{ .ID }}">
-            <input type="hidden" name="reaction" value="like">
-            <button type="submit" style="border:none; background:none;">
-              <img src="/static/like.png" alt="Like" style="width:20px; height:20px;" class="{{ if eq .UserReaction "like" }}active-reaction{{ end }}">
-            </button>
-          </form>
-          <span>{{ .Likes }} Likes</span>
-
-          <form action="/react" method="POST" style="display:inline-block; margin-left: 10px;">
-            <input type="hidden" name="post_id" value="{{ .ID }}">
-            <input type="hidden" name="reaction" value="dislike">
-            <button type="submit" style="border:none; background:none;">
-              <img src="/static/dislike.png" alt="Dislike" style="width:20px; height:20px;" class="{{ if eq .UserReaction "dislike" }}active-reaction{{ end }}">
-            </button>
-          </form>
-          <span>{{ .Dislikes }} Dislikes</span>
-        </div>
-        <div class="comments-section">
-  <h3>Comments ({{ len .Comments }}):</h3>
-  {{ range .Comments }}
-  <div class="comment">
-    <div style="display: flex; align-items: center; gap: 10px;">
-      <img src="/static/profile_pictures/{{ .ProfilePicture }}" alt="Profile Picture" style="width: 30px; height: 30px; border-radius: 50%;">
-      <p><strong>Commented by {{ .Username }}</strong> on {{ .FormattedCreatedAt }}</p>
-    </div>
-    <pre style="background-color: #f8f4ef; padding: 15px 30px; border-radius: 8px; margin: 0 20px;">{{ .Content }}</pre>
-
-    <form action="/react-comment" method="POST" style="display:inline-block;">
-      <input type="hidden" name="comment_id" value="{{ .ID }}">
-      <input type="hidden" name="reaction" value="like">
-      <button type="submit" style="border:none; background:none;">
-        <img src="/static/like.png" alt="Like" style="width:20px; height:20px;" class="{{ if eq .UserReaction "like" }}active-reaction{{ end }}">
-      </button>
-    </form>
-    <span>{{ .Likes }} Likes</span>
-
-    <form action="/react-comment" method="POST" style="display:inline-block; margin-left: 10px;">
-      <input type="hidden" name="comment_id" value="{{ .ID }}">
-      <input type="hidden" name="reaction" value="dislike">
-      <button type="submit" style="border:none; background:none;">
-        <img src="/static/dislike.png" alt="Dislike" style="width:20px; height:20px;" class="{{ if eq .UserReaction "dislike" }}active-reaction{{ end }}">
-      </button>
-    </form>
-    <span>{{ .Dislikes }} Dislikes</span>
-  </div>
-  {{ else }}
-  <p>No comments yet.</p>
-  {{ end }}
-</div>
-
-      </div>
-      
-      {{ end }}
-
+      {{ template "post" . }}
     {{ else }}
-    <div class="no-posts-message">
-      <p>No posts found for "{{ .SearchQuery }}".</p>
-    </div>
+      <div class="no-posts-message">
+        <p>No posts found for "{{ .SearchQuery }}".</p>
+      </div>
     {{ end }}
+    
   </main>
 
   <footer>

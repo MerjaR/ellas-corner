@@ -226,30 +226,25 @@ func FetchCategories() ([]string, error) {
 // FetchFilteredPosts retrieves posts based on the given filter criteria.
 func FetchFilteredPosts(category, createdPosts, likedPosts, startDate, endDate string, userID int, isLoggedIn bool) ([]Post, error) {
 	query := `
-        SELECT posts.id, posts.title, posts.content, posts.category, posts.created_at, users.username, users.profile_picture
-        FROM posts
+		SELECT posts.id, posts.title, posts.content, posts.user_id, posts.category, posts.created_at,
+		       users.username, users.profile_picture, COALESCE(posts.image, '') AS image
+		FROM posts
 		JOIN users ON posts.user_id = users.id
-        WHERE 1=1`
+		WHERE 1=1`
 
-	// Filter by category if specified
+	// Dynamic filters
 	if category != "" {
 		query += " AND posts.category = '" + category + "'"
 	}
-
-	// Filter by date range (make sure start and end dates are inclusive)
 	if startDate != "" {
 		query += " AND DATE(posts.created_at) >= DATE('" + startDate + "')"
 	}
 	if endDate != "" {
 		query += " AND DATE(posts.created_at) <= DATE('" + endDate + "')"
 	}
-
-	// Filter by created posts if specified (for logged-in users)
 	if createdPosts == "true" && isLoggedIn {
 		query += " AND posts.user_id = " + strconv.Itoa(userID)
 	}
-
-	// Filter by liked posts if specified (for logged-in users)
 	if likedPosts == "true" && isLoggedIn {
 		query += ` AND posts.id IN (SELECT post_id FROM post_reactions WHERE user_id = ` + strconv.Itoa(userID) + ` AND reaction_type = 'like')`
 	}
@@ -266,10 +261,42 @@ func FetchFilteredPosts(category, createdPosts, likedPosts, startDate, endDate s
 	var posts []Post
 	for rows.Next() {
 		var post Post
-		err = rows.Scan(&post.ID, &post.Title, &post.Content, &post.Category, &post.CreatedAt, &post.Username, &post.ProfilePicture)
+		var createdAt time.Time
+
+		err := rows.Scan(&post.ID, &post.Title, &post.Content, &post.UserID, &post.Category, &createdAt, &post.Username, &post.ProfilePicture, &post.Image)
 		if err != nil {
-			log.Println("Error scanning post:", err)
+			log.Println("Error scanning filtered post:", err)
 			return nil, err
+		}
+
+		post.CreatedAt = createdAt.Format(time.RFC3339)
+		post.FormattedCreatedAt = createdAt.Format("02 Jan 2006, 15:04")
+
+		// ✅ Fetch comments
+		comments, err := FetchCommentsForPost(post.ID)
+		if err != nil {
+			log.Println("Error fetching comments:", err)
+			return nil, err
+		}
+		post.Comments = comments
+
+		// ✅ Fetch reactions
+		likes, dislikes, err := FetchReactionsCount(post.ID)
+		if err != nil {
+			log.Println("Error fetching reactions count:", err)
+			return nil, err
+		}
+		post.Likes = likes
+		post.Dislikes = dislikes
+
+		// ✅ If logged in, fetch user reaction
+		if isLoggedIn {
+			reaction, err := FetchUserReaction(userID, post.ID)
+			if err != nil {
+				log.Println("Error fetching user reaction:", err)
+				return nil, err
+			}
+			post.UserReaction = reaction
 		}
 
 		posts = append(posts, post)
@@ -280,9 +307,10 @@ func FetchFilteredPosts(category, createdPosts, likedPosts, startDate, endDate s
 
 //Search
 
-func SearchPosts(searchQuery string) ([]Post, error) {
+func SearchPosts(searchQuery string, userID int, isLoggedIn bool) ([]Post, error) {
 	query := `
-        SELECT posts.id, posts.title, posts.content, posts.category, posts.created_at, users.username, users.profile_picture
+        SELECT posts.id, posts.title, posts.content, posts.category, posts.created_at,
+               users.username, users.profile_picture, COALESCE(posts.image, '') AS image
         FROM posts
         JOIN users ON posts.user_id = users.id
         WHERE posts.title LIKE '%' || ? || '%' 
@@ -300,19 +328,55 @@ func SearchPosts(searchQuery string) ([]Post, error) {
 	var posts []Post
 	for rows.Next() {
 		var post Post
-		err := rows.Scan(&post.ID, &post.Title, &post.Content, &post.Category, &post.CreatedAt, &post.Username, &post.ProfilePicture) // Include ProfilePicture
+		err := rows.Scan(
+			&post.ID,
+			&post.Title,
+			&post.Content,
+			&post.Category,
+			&post.CreatedAt,
+			&post.Username,
+			&post.ProfilePicture,
+			&post.Image,
+		)
 		if err != nil {
 			log.Println("Error scanning post during search:", err)
 			return nil, err
 		}
 
-		// Parse and format CreatedAt
+		// Format date
 		parsedTime, err := time.Parse(time.RFC3339, post.CreatedAt)
 		if err != nil {
 			log.Println("Error parsing CreatedAt:", err)
-			post.FormattedCreatedAt = post.CreatedAt // Fallback if parsing fails
+			post.FormattedCreatedAt = post.CreatedAt
 		} else {
 			post.FormattedCreatedAt = parsedTime.Format("02 Jan 2006, 15:04")
+		}
+
+		// Fetch comments
+		comments, err := FetchCommentsForPost(post.ID)
+		if err != nil {
+			log.Println("Error fetching comments for post:", err)
+			return nil, err
+		}
+		post.Comments = comments
+
+		// Fetch reaction counts
+		likes, dislikes, err := FetchReactionsCount(post.ID)
+		if err != nil {
+			log.Println("Error fetching reaction counts:", err)
+			return nil, err
+		}
+		post.Likes = likes
+		post.Dislikes = dislikes
+
+		// If logged in, get user's reaction
+		if isLoggedIn {
+			userReaction, err := FetchUserReaction(userID, post.ID)
+			if err != nil {
+				log.Println("Error fetching user reaction for post:", err)
+				return nil, err
+			}
+			post.UserReaction = userReaction
 		}
 
 		posts = append(posts, post)

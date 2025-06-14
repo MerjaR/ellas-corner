@@ -43,6 +43,7 @@ func main() {
 	mux.HandleFunc("/add-comment", handlers.AddCommentHandler)
 	mux.HandleFunc("/react", handlers.ReactionHandler)
 	mux.HandleFunc("/react-comment", handlers.CommentReactionHandler)
+	mux.HandleFunc("/delete-comment", handlers.DeleteCommentHandler)
 
 	//Filtering and search
 	mux.HandleFunc("/filter", handlers.FilterHandler)

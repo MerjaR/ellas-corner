@@ -60,7 +60,7 @@ func FilterHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("Categories fetched:", categories) // Log categories fetched
 
 	// Parse the filtered posts template
-	tmpl, err := template.ParseFiles("web/templates/filter_results.html", "web/templates/partials/navbar.html")
+	tmpl, err := template.ParseFiles("web/templates/filter_results.html", "web/templates/partials/navbar.html", "web/templates/partials/post.html")
 	if err != nil {
 		log.Println("FilteringHandler: Error parsing template", err)
 		utils.RenderServerErrorPage(w)

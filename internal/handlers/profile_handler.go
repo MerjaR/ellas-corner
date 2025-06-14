@@ -3,6 +3,7 @@ package handlers
 import (
 	"ellas-corner/internal/repository"
 	"ellas-corner/internal/utils" // Import the utils package for the custom error page
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -74,11 +75,27 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Println("ProfileHandler: Successfully fetched all data")
+	funcMap := template.FuncMap{
+		"dict": func(values ...interface{}) (map[string]interface{}, error) {
+			if len(values)%2 != 0 {
+				return nil, fmt.Errorf("dict expects even number of arguments")
+			}
+			dict := make(map[string]interface{}, len(values)/2)
+			for i := 0; i < len(values); i += 2 {
+				key, ok := values[i].(string)
+				if !ok {
+					return nil, fmt.Errorf("dict keys must be strings")
+				}
+				dict[key] = values[i+1]
+			}
+			return dict, nil
+		},
+	}
 
-	// Render the profile page template
-	tmpl, err := template.New("profile.html").ParseFiles(
+	tmpl, err := template.New("profile.html").Funcs(funcMap).ParseFiles(
 		"web/templates/profile.html",
 		"web/templates/partials/navbar.html",
+		"web/templates/partials/post.html",
 	)
 	if err != nil {
 		log.Println("ProfileHandler: Error loading template:", err)

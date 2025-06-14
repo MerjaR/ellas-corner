@@ -37,7 +37,7 @@ func SearchHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Fetch posts matching the query
-	posts, err := repository.SearchPosts(searchQuery)
+	posts, err := repository.SearchPosts(searchQuery, userID, isLoggedIn)
 	if err != nil {
 		log.Println("Error searching posts:", err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -55,7 +55,7 @@ func SearchHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Parse the search results template and navbar
-	tmpl, err := template.ParseFiles("web/templates/search_results.html", "web/templates/partials/navbar.html")
+	tmpl, err := template.ParseFiles("web/templates/search_results.html", "web/templates/partials/navbar.html", "web/templates/partials/post.html")
 	if err != nil {
 		log.Println("SearchHandler: Error parsing template", err)
 		w.WriteHeader(http.StatusInternalServerError)

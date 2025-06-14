@@ -144,3 +144,12 @@ func FetchUserCommentReaction(userID int, commentID int) (string, error) {
 
 	return reaction, nil
 }
+
+func DeleteComment(commentID int) error {
+	query := "DELETE FROM comments WHERE id = ?"
+	_, err := db.DB.Exec(query, commentID)
+	if err != nil {
+		log.Println("Error deleting comment:", err)
+	}
+	return err
+}
