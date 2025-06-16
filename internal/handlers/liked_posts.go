@@ -4,12 +4,10 @@ import (
 	"ellas-corner/internal/repository"
 	"ellas-corner/internal/utils"
 	"html/template"
-	"log"
 	"net/http"
 )
 
 func LikedPostsHandler(w http.ResponseWriter, r *http.Request) {
-	// Get session
 	sessionCookie, err := r.Cookie("session_token")
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
@@ -22,33 +20,22 @@ func LikedPostsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Fetch liked posts
-	posts, err := repository.FetchLikedPosts(userID)
+	likedPosts, err := repository.FetchLikedPostsByUser(userID)
 	if err != nil {
-		log.Println("Error fetching liked posts:", err)
-		w.WriteHeader(http.StatusInternalServerError)
 		utils.RenderServerErrorPage(w)
 		return
 	}
 
-	tmpl, err := template.ParseFiles("web/templates/liked_posts.html")
+	tmpl, err := template.ParseFiles("web/templates/liked_posts.html", "web/templates/partials/navbar.html")
 	if err != nil {
-		log.Println("Error parsing liked posts template:", err)
-		w.WriteHeader(http.StatusInternalServerError)
 		utils.RenderServerErrorPage(w)
 		return
 	}
 
 	data := map[string]interface{}{
-		"IsLoggedIn": true,
-		"Posts":      posts,
-		"PageTitle":  "Liked Posts",
+		"LikedPosts": likedPosts,
+		"isLoggedIn": true,
 	}
 
-	err = tmpl.Execute(w, data)
-	if err != nil {
-		log.Println("Error rendering liked posts:", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		utils.RenderServerErrorPage(w)
-	}
+	tmpl.Execute(w, data)
 }

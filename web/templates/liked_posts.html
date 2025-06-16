@@ -11,24 +11,26 @@
     {{ template "navbar" . }}
 
     <main>
-        <h1 class="page-title">Posts You've Liked</h1>
+  <h1 class="page-title">Your Curated Baby Box</h1>
+  <p class="page-subtitle">Items you liked and may want to keep track of as your parenting journey unfolds.</p>
 
-        {{ if .Posts }}
-            {{ range .Posts }}
-                <div class="post">
-                    <h2>{{ .Title }}</h2>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <img src="/static/profile_pictures/{{ .ProfilePicture }}" alt="Profile Picture" style="width: 40px; height: 40px; border-radius: 50%;">
-                        <p><strong>Posted by {{ .Username }}</strong> on {{ .FormattedCreatedAt }}</p>
-                    </div>
-                    <pre>{{ .Content }}</pre>
-                    <p><strong>Category:</strong> {{ .Category }}</p>
-                </div>
-            {{ end }}
-        {{ else }}
-            <p style="margin-top: 20px;">You haven’t liked any posts yet.</p>
-        {{ end }}
-    </main>
+  <div class="filter-section">
+    <label><input type="checkbox" name="category" value="Winter Clothes"> Winter Clothes</label>
+    <label><input type="checkbox" name="category" value="Baby's Health"> Baby's Health</label>
+    <label><input type="checkbox" name="category" value="Mother's Health"> Mother's Health & Comfort</label>
+    <!-- Add more -->
+  </div>
+
+  <div class="liked-items-grid">
+    {{ range .LikedPosts }}
+    <div class="liked-item-card">
+      <img src="/static/images/{{ .Image }}" alt="{{ .Title }}" class="liked-item-image">
+      <h3>{{ .Title }}</h3>
+      <p class="item-category">{{ .Category }}</p>
+    </div>
+    {{ end }}
+  </div>
+</main>
 
     <footer>
         <p>&copy; 2024 Ella's Corner. All Rights Reserved.</p>

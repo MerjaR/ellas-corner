@@ -1143,3 +1143,49 @@ form button img:hover {
 .delete-button:hover {
   background-color: #a71d2a;
 }
+
+/* Liked posts - babybox page */
+
+
+.page-subtitle {
+  text-align: center;
+  font-size: 1.2em;
+  color: #777;
+}
+
+.filter-section {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.liked-items-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  padding: 0 20px;
+}
+
+.liked-item-card {
+  width: 220px;
+  background: #fffdf9;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 15px;
+  text-align: center;
+}
+
+.liked-item-image {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.item-category {
+  font-size: 0.9em;
+  color: #888;
+}
