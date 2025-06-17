@@ -11,29 +11,75 @@
     {{ template "navbar" . }}
 
     <main>
-  <h1 class="page-title">Your Curated Baby Box</h1>
-  <p class="page-subtitle">Items you liked and may want to keep track of as your parenting journey unfolds.</p>
+  <h1 class="page-title">Create The Perfect Baby Box For Your Family</h1>
+  
+  <p class="babybox-intro">
+  In Finland, every new family receives a Baby Box with newborn essentials. Inspired by this tradition, we've created our own version: a guide to creating your own baby box filled with items our community of parents has truly loved and recommended.
+</p>
 
-  <div class="filter-section">
-    <label><input type="checkbox" name="category" value="Winter Clothes"> Winter Clothes</label>
-    <label><input type="checkbox" name="category" value="Baby's Health"> Baby's Health</label>
-    <label><input type="checkbox" name="category" value="Mother's Health"> Mother's Health & Comfort</label>
-    <!-- Add more -->
+<p class="babybox-intro">
+  Below you'll find the items you've liked while browsing Ella’s Corner. Want to add something? Select from the themes below, which highlight essentials that real parents have found most helpful during the first year with their little one. Make your Baby Box uniquely yours and create a checklist to add to a registry or share with family and friends. 
+</p>
+
+
+
+<form method="GET" action="/liked-posts" class="checkbox-form">
+  <div class="checkbox-group">
+    <label><input type="checkbox" name="category" value="Winter clothes"> Winter clothes</label>
+    <label><input type="checkbox" name="category" value="Baby's health"> Baby's health</label>
+    <label><input type="checkbox" name="category" value="Mother's health and comfort"> Mother's health and comfort</label>
+    <label><input type="checkbox" name="category" value="Development books"> Development books</label>
+    <label><input type="checkbox" name="category" value="Recommended for parents"> Recommended for parents</label>
+    <label><input type="checkbox" name="category" value="Travel essentials"> Travel essentials</label>
   </div>
+  <button type="submit" class="view-box-button">View Your Baby Box</button>
+</form>
+
+  <div class="curated-items-grid">
+  {{ if .CuratedItems }}
+    <h2 class="section-title">Here We Go, This Is What You Need:</h2>
+    <div class="liked-items-grid"> <!-- Reuse the existing class for grid layout -->
+      {{ range .CuratedItems }}
+      <div class="liked-item-card"> <!-- Reuse the card styling -->
+        <img src="/static/uploads/{{ .Image }}" alt="{{ .Title }}" class="liked-item-image">
+        <h4>{{ .Title }}</h4>
+      </div>
+      {{ end }}
+    </div>
+  {{ else }}
+    <p class="info-note">Select categories to build your curated baby box.</p>
+  {{ end }}
+</div>
 
   <div class="liked-items-grid">
     {{ range .LikedPosts }}
     <div class="liked-item-card">
-      <img src="/static/images/{{ .Image }}" alt="{{ .Title }}" class="liked-item-image">
+      <img src="/static/uploads/{{ .Image }}" alt="{{ .Title }}" class="liked-item-image">
       <h3>{{ .Title }}</h3>
       <p class="item-category">{{ .Category }}</p>
     </div>
     {{ end }}
   </div>
+
 </main>
 
     <footer>
         <p>&copy; 2024 Ella's Corner. All Rights Reserved.</p>
     </footer>
+     <script>
+  // Save scroll position before navigating away
+  window.addEventListener("beforeunload", function () {
+    localStorage.setItem("scrollY", window.scrollY);
+  });
+
+  // Restore scroll position on load
+  window.addEventListener("load", function () {
+    const scrollY = localStorage.getItem("scrollY");
+    if (scrollY !== null) {
+      window.scrollTo(0, parseInt(scrollY));
+    }
+  });
+</script>
+
 </body>
 </html>
