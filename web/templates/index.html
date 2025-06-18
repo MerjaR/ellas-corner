@@ -15,6 +15,39 @@
 
 
     <main>
+      {{ if .TopPosts }}
+<section class="popular-section">
+  <h2 class="popular-title">Most Loved by Parents</h2>
+  <div class="popular-items">
+    {{ range .TopPosts }}
+    <div class="popular-card">
+      <img src="/static/uploads/{{ .Image }}" alt="{{ .Title }}" class="popular-image">
+      <h4 class="popular-item-title">{{ .Title }}</h4>
+      <div class="reactions-section">
+        <form action="/react" method="POST" style="display:inline-block;">
+          <input type="hidden" name="post_id" value="{{ .ID }}">
+          <input type="hidden" name="reaction" value="like">
+          <button type="submit" style="border:none; background:none;">
+            <img src="/static/like.png" alt="Like" style="width:20px; height:20px;" class="{{ if eq .UserReaction "like" }}active-reaction{{ end }}">
+          </button>
+        </form>
+        <span>{{ .Likes }}</span>
+
+        <form action="/react" method="POST" style="display:inline-block; margin-left: 10px;">
+          <input type="hidden" name="post_id" value="{{ .ID }}">
+          <input type="hidden" name="reaction" value="dislike">
+          <button type="submit" style="border:none; background:none;">
+            <img src="/static/dislike.png" alt="Dislike" style="width:20px; height:20px;" class="{{ if eq .UserReaction "dislike" }}active-reaction{{ end }}">
+          </button>
+        </form>
+        <span>{{ .Dislikes }}</span>
+      </div>
+    </div>
+    {{ end }}
+  </div>
+</section>
+{{ end }}
+
     <!-- Date filtering -->     
 <div class="date-filter-container">
   <form action="/filter" method="GET" class="date-filter-form">

@@ -107,6 +107,19 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Println("HomeHandler: Posts fetched successfully with profile pictures")
 
+	topPosts, err := repository.FetchTopPostsByLikes(5)
+	if err != nil {
+		log.Println("Error fetching top liked posts:", err)
+		topPosts = []repository.Post{}
+	} else {
+		for i := range topPosts {
+			topPosts[i].Likes, topPosts[i].Dislikes, _ = repository.FetchReactionsCount(topPosts[i].ID)
+			if isLoggedIn {
+				topPosts[i].UserReaction, _ = repository.FetchUserReaction(userID, topPosts[i].ID)
+			}
+		}
+	}
+
 	// Fetch categories
 	categories, err := repository.FetchCategories()
 	if err != nil {
@@ -155,6 +168,7 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 		"ShowCommentFormForPost": showCommentFormForPost, // Pass the post ID for displaying the comment form
 		"Categories":             categories,
 		"ProfilePicture":         profilePicture,
+		"TopPosts":               topPosts,
 	}
 	log.Printf("isLoggedIn: %v\n", isLoggedIn) // Log if the user is logged in
 

@@ -90,12 +90,13 @@ func CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 			dest, err := utils.SaveUploadedFile(file, imageFilename, "web/static/uploads")
 			if err != nil {
 				log.Println("Error saving uploaded image:", err)
-				imageFilename = "" // fallback to no image
+				imageFilename = "placeholder.jpg"
 			} else {
-				imageFilename = dest // saved path or filename
+				imageFilename = dest
 			}
 		} else {
-			log.Println("No image uploaded:", err)
+			log.Println("No image uploaded; using placeholder.")
+			imageFilename = "placeholder.jpg"
 		}
 
 		// Validate title and content

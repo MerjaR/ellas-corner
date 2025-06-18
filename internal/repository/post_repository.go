@@ -457,3 +457,35 @@ func FetchLikedPosts(userID int) ([]Post, error) {
 
 	return posts, nil
 }
+
+func FetchTopPostsByLikes(limit int) ([]Post, error) {
+	query := `
+		SELECT posts.id, posts.title, posts.content, posts.category, posts.image, posts.created_at,
+		       users.username, users.profile_picture
+		FROM posts
+		JOIN users ON posts.user_id = users.id
+		LEFT JOIN post_reactions AS likes ON posts.id = likes.post_id AND likes.reaction_type = 'like'
+		GROUP BY posts.id
+		ORDER BY COUNT(likes.id) DESC
+		LIMIT ?`
+
+	rows, err := db.DB.Query(query, limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var posts []Post
+	for rows.Next() {
+		var post Post
+		var createdAt time.Time
+		err := rows.Scan(&post.ID, &post.Title, &post.Content, &post.Category, &post.Image, &createdAt, &post.Username, &post.ProfilePicture)
+		if err != nil {
+			return nil, err
+		}
+		post.CreatedAt = createdAt.Format(time.RFC3339)
+		post.FormattedCreatedAt = createdAt.Format("02 Jan 2006, 15:04")
+		posts = append(posts, post)
+	}
+	return posts, nil
+}
