@@ -19,8 +19,9 @@ func main() {
 	// Handle static files
 	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("web/static"))))
 
-	// Home page
+	// Home page and about page
 	mux.HandleFunc("/", handlers.HomeHandler)
+	mux.HandleFunc("/about", handlers.AboutHandler)
 
 	// Posts
 	mux.HandleFunc("/api/posts", handlers.PostsHandler)
@@ -38,6 +39,7 @@ func main() {
 	mux.HandleFunc("/profile", handlers.ProfileHandler)
 	mux.HandleFunc("/upload-profile-picture", handlers.UploadProfilePictureHandler)
 	mux.HandleFunc("/liked-posts", handlers.LikedPostsHandler)
+	mux.HandleFunc("/update-profile-settings", handlers.UpdateProfileSettingsHandler)
 
 	//Comments and reactions
 	mux.HandleFunc("/add-comment", handlers.AddCommentHandler)

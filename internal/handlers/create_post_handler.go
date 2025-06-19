@@ -99,6 +99,8 @@ func CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 			imageFilename = "placeholder.jpg"
 		}
 
+		isDonation := r.FormValue("is_donation") == "on"
+
 		// Validate title and content
 		if strings.TrimSpace(title) == "" || strings.TrimSpace(content) == "" {
 			tmpl, _ := template.ParseFiles("web/templates/create_post.html", "web/templates/partials/navbar.html")
@@ -115,7 +117,8 @@ func CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Save post with image
-		err = repository.CreatePost(userID, title, content, category, imageFilename)
+		err = repository.CreatePost(userID, title, content, category, imageFilename, isDonation, user.Country)
+
 		if err != nil {
 			log.Println("Error creating post:", err)
 			utils.RenderServerErrorPage(w)

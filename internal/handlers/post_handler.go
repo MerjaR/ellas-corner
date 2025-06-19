@@ -26,6 +26,14 @@ func PostsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	var currentUser repository.User
+	if isLoggedIn {
+		currentUser, err = repository.GetUserByID(userID)
+		if err != nil {
+			log.Println("Failed to fetch user info for donation filtering:", err)
+		}
+	}
+
 	if postID != "" {
 		// Fetch the specific post by ID, including its comments (handled in GetPostByID)
 		post, err := repository.GetPostByID(postID)
@@ -118,6 +126,22 @@ func PostsHandler(w http.ResponseWriter, r *http.Request) {
 				posts[i].UserReaction = userReaction
 			}
 		}
+
+		if isLoggedIn && posts[i].IsDonation {
+			if currentUser.ShowDonationsInCountryOnly {
+				posts[i].ShowDonatedLabel = (posts[i].DonationCountry == currentUser.Country)
+			} else {
+				posts[i].ShowDonatedLabel = true
+			}
+		} else {
+			posts[i].ShowDonatedLabel = false
+		}
+
+		log.Printf("Post %d | IsDonation: %v | Country: %s | Show: %v\n",
+			posts[i].ID,
+			posts[i].IsDonation,
+			posts[i].DonationCountry,
+			posts[i].ShowDonatedLabel)
 	}
 
 	// Render the posts in the index template with like/dislike functionality

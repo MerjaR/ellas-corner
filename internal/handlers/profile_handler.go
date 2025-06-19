@@ -108,14 +108,16 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Data to pass to the template
 	data := map[string]interface{}{
-		"Username":       user.Username,
-		"Email":          user.Email,
-		"ProfilePicture": user.ProfilePicture,
-		"Posts":          posts,         // Posts the user made
-		"Comments":       comments,      // Comments the user made
-		"LikedPosts":     likedPosts,    // Posts the user liked
-		"DislikedPosts":  dislikedPosts, // Posts the user disliked
-		"isLoggedIn":     true,          // Indicate that the user is logged in
+		"Username":                   user.Username,
+		"Email":                      user.Email,
+		"ProfilePicture":             user.ProfilePicture,
+		"Posts":                      posts,         // Posts the user made
+		"Comments":                   comments,      // Comments the user made
+		"LikedPosts":                 likedPosts,    // Posts the user liked
+		"DislikedPosts":              dislikedPosts, // Posts the user disliked
+		"isLoggedIn":                 true,          // Indicate that the user is logged in
+		"Country":                    user.Country,
+		"ShowDonationsInCountryOnly": user.ShowDonationsInCountryOnly,
 	}
 
 	// Execute the template
@@ -128,4 +130,37 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Println("ProfileHandler: Template executed successfully")
+}
+
+func UpdateProfileSettingsHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Redirect(w, r, "/profile", http.StatusSeeOther)
+		return
+	}
+
+	sessionCookie, err := r.Cookie("session_token")
+	if err != nil {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	userID, err := repository.GetUserIDBySession(sessionCookie.Value)
+	if err != nil || userID == 0 {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	// Parse the submitted form values
+	country := r.FormValue("country")
+	showDonations := r.FormValue("show_donations_in_country_only") == "on"
+
+	// Update user preferences in the DB
+	err = repository.UpdateUserPreferences(userID, country, showDonations)
+	if err != nil {
+		log.Println("UpdateProfileSettingsHandler: Failed to update preferences:", err)
+		http.Error(w, "Could not save preferences", http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, "/profile", http.StatusSeeOther)
 }

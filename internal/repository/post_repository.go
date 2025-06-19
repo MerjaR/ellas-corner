@@ -3,7 +3,11 @@ package repository
 import (
 	"database/sql"
 	"ellas-corner/internal/db"
+	"io"
 	"log"
+	"mime/multipart"
+	"os"
+	"path/filepath"
 	"strconv"
 	"time"
 )
@@ -23,12 +27,18 @@ type Post struct {
 	Dislikes           int
 	UserReaction       string
 	Image              string
+	ShowDonatedLabel   bool
+	IsDonation         bool
+	DonationCountry    string
 }
 
 // CreatePost saves a new post to the database
-func CreatePost(userID int, title, content, category, image string) error {
-	query := "INSERT INTO posts (user_id, title, content, category, image) VALUES (?, ?, ?, ?, ?)"
-	_, err := db.DB.Exec(query, userID, title, content, category, image)
+func CreatePost(userID int, title, content, category, image string, isDonation bool, donationCountry string) error {
+	query := `
+	INSERT INTO posts (user_id, title, content, category, image, is_donation, donation_country)
+	VALUES (?, ?, ?, ?, ?, ?, ?)
+`
+	_, err := db.DB.Exec(query, userID, title, content, category, image, isDonation, donationCountry)
 	if err != nil {
 		log.Println("Error creating post:", err)
 		return err
@@ -38,7 +48,7 @@ func CreatePost(userID int, title, content, category, image string) error {
 
 func FetchPosts() ([]Post, error) {
 	query := `
-        SELECT posts.id, posts.title, posts.content, posts.user_id, posts.category, posts.created_at, users.username, users.profile_picture, COALESCE(posts.image, '') AS image
+        SELECT posts.id, posts.title, posts.content, posts.user_id, posts.category, posts.created_at, users.username, users.profile_picture, COALESCE(posts.image, '') AS image, posts.is_donation, posts.donation_country
 
         FROM posts
         JOIN users ON posts.user_id = users.id
@@ -54,7 +64,7 @@ func FetchPosts() ([]Post, error) {
 	var posts []Post
 	for rows.Next() {
 		var post Post
-		err = rows.Scan(&post.ID, &post.Title, &post.Content, &post.UserID, &post.Category, &post.CreatedAt, &post.Username, &post.ProfilePicture, &post.Image)
+		err = rows.Scan(&post.ID, &post.Title, &post.Content, &post.UserID, &post.Category, &post.CreatedAt, &post.Username, &post.ProfilePicture, &post.Image, &post.IsDonation, &post.DonationCountry)
 		if err != nil {
 			log.Println("Error scanning post:", err)
 			return nil, err
@@ -399,16 +409,14 @@ func DeletePost(postID int) error {
 }
 
 // UpdatePost updates a post's title, content, and category in the database
-func UpdatePost(postID int, title, content, category string) error {
-	query := "UPDATE posts SET title = ?, content = ?, category = ? WHERE id = ?"
-
-	_, err := db.DB.Exec(query, title, content, category, postID)
-	if err != nil {
-		log.Println("Error updating post:", err)
-		return err
-	}
-
-	return nil
+func UpdatePost(postID int, title, content, category string, isDonation bool) error {
+	query := `
+		UPDATE posts
+		SET title = ?, content = ?, category = ?, is_donation = ?
+		WHERE id = ?
+	`
+	_, err := db.DB.Exec(query, title, content, category, isDonation, postID)
+	return err
 }
 
 func FetchLikedPosts(userID int) ([]Post, error) {
@@ -458,6 +466,20 @@ func FetchLikedPosts(userID int) ([]Post, error) {
 	return posts, nil
 }
 
+// UpdatePostWithImage updates a post's title, content, category, donation flag, and image in the database
+func UpdatePostWithImage(postID int, title, content, category string, isDonation bool, image string) error {
+	query := `
+		UPDATE posts
+		SET title = ?, content = ?, category = ?, is_donation = ?, image = ?
+		WHERE id = ?
+	`
+	_, err := db.DB.Exec(query, title, content, category, isDonation, image, postID)
+	if err != nil {
+		log.Println("Error updating post with image:", err)
+	}
+	return err
+}
+
 func FetchTopPostsByLikes(limit int) ([]Post, error) {
 	query := `
 		SELECT posts.id, posts.title, posts.content, posts.category, posts.image, posts.created_at,
@@ -488,4 +510,29 @@ func FetchTopPostsByLikes(limit int) ([]Post, error) {
 		posts = append(posts, post)
 	}
 	return posts, nil
+}
+
+func SaveImageFile(file multipart.File, handler *multipart.FileHeader) (string, error) {
+	// Ensure the target directory exists
+	err := os.MkdirAll("web/static/uploads", os.ModePerm)
+	if err != nil {
+		return "", err
+	}
+
+	// Use the original filename
+	filename := filepath.Base(handler.Filename)
+	dstPath := filepath.Join("web/static/uploads", filename)
+
+	dst, err := os.Create(dstPath)
+	if err != nil {
+		return "", err
+	}
+	defer dst.Close()
+
+	_, err = io.Copy(dst, file)
+	if err != nil {
+		return "", err
+	}
+
+	return filename, nil
 }

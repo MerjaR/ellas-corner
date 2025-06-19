@@ -9,11 +9,14 @@ import (
 
 // User represents the user entity in the database
 type User struct {
-	ID             int
-	Username       string
-	Email          string
-	Password       string
-	ProfilePicture string // Path to the user's profile picture
+	ID                         int
+	Username                   string
+	Email                      string
+	Password                   string
+	ProfilePicture             string
+	Country                    string
+	ShowDonationsInCountryOnly bool
+	IsDonation                 bool
 }
 
 // CreateUser inserts a new user into the database, including the profile picture
@@ -117,12 +120,14 @@ func DeleteSession(sessionToken string) error {
 
 // GetUserByID retrieves a user by their ID and handles NULL values for profile_picture
 func GetUserByID(userID int) (User, error) {
-	query := "SELECT id, username, email, password, profile_picture FROM users WHERE id = ?"
+	query := "SELECT id, username, email, password, profile_picture, country, show_donations_in_country_only FROM users WHERE id = ?"
 
 	var user User
-	var profilePicture sql.NullString // Use sql.NullString to handle NULL values
+	var profilePicture sql.NullString
+	var country sql.NullString
+	var showDonations bool
 
-	err := db.DB.QueryRow(query, userID).Scan(&user.ID, &user.Username, &user.Email, &user.Password, &profilePicture)
+	err := db.DB.QueryRow(query, userID).Scan(&user.ID, &user.Username, &user.Email, &user.Password, &profilePicture, &country, &showDonations)
 	if err != nil {
 		return User{}, err
 	}
@@ -134,6 +139,14 @@ func GetUserByID(userID int) (User, error) {
 		user.ProfilePicture = "" // Or set a default picture like "/static/default.png"
 	}
 
+	if country.Valid {
+		user.Country = country.String
+	} else {
+		user.Country = "no_location"
+	}
+
+	user.ShowDonationsInCountryOnly = showDonations
+
 	return user, nil
 }
 
@@ -141,7 +154,7 @@ func GetUserByID(userID int) (User, error) {
 func FetchPostsByUser(userID int) ([]Post, error) {
 	query := `
 		SELECT posts.id, posts.title, posts.content, posts.category, posts.created_at,
-		       users.username, users.profile_picture,
+		       users.username, users.profile_picture, posts.is_donation,
 		       COALESCE(posts.image, '') AS image,
 		       (SELECT COUNT(*) FROM post_reactions WHERE post_id = posts.id AND reaction_type = 'like') AS likes,
 		       (SELECT COUNT(*) FROM post_reactions WHERE post_id = posts.id AND reaction_type = 'dislike') AS dislikes
@@ -167,6 +180,7 @@ func FetchPostsByUser(userID int) ([]Post, error) {
 			&post.CreatedAt,
 			&post.Username,
 			&post.ProfilePicture,
+			&post.IsDonation,
 			&post.Image,
 			&post.Likes,
 			&post.Dislikes,
@@ -367,5 +381,21 @@ func UpdateProfilePicture(userID int, filePath string) error {
 		log.Println("Error updating profile picture:", err)
 		return err
 	}
+	return nil
+}
+
+func UpdateUserPreferences(userID int, country string, showDonations bool) error {
+	query := `
+		UPDATE users 
+		SET country = ?, show_donations_in_country_only = ? 
+		WHERE id = ?
+	`
+
+	_, err := db.DB.Exec(query, country, showDonations, userID)
+	if err != nil {
+		log.Println("Error updating user preferences:", err)
+		return err
+	}
+
 	return nil
 }

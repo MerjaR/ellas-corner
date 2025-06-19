@@ -73,20 +73,40 @@ func EditPostHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Handle POST request: Update the post
 	if r.Method == http.MethodPost {
-		// Get form values
+		err := r.ParseMultipartForm(10 << 20) // Max 10MB
+		if err != nil {
+			log.Println("Error parsing form:", err)
+			http.Error(w, "Invalid form", http.StatusBadRequest)
+			return
+		}
+
 		title := r.FormValue("title")
 		content := r.FormValue("content")
 		category := r.FormValue("category")
+		isDonation := r.FormValue("is_donation") != "on"
 
-		// Update the post in the database
-		err = repository.UpdatePost(postID, title, content, category)
+		// Check if a new image was uploaded
+		var imagePath string
+		file, header, err := r.FormFile("image")
+		if err == nil && header.Size > 0 {
+			defer file.Close()
+			imagePath, err = repository.SaveImageFile(file, header)
+			if err != nil {
+				log.Println("Failed to save image:", err)
+				http.Error(w, "Failed to save image", http.StatusInternalServerError)
+				return
+			}
+		} else {
+			imagePath = post.Image // keep existing image
+		}
+
+		err = repository.UpdatePostWithImage(postID, title, content, category, isDonation, imagePath)
 		if err != nil {
 			log.Println("Error updating post:", err)
 			http.Error(w, "Error updating post", http.StatusInternalServerError)
 			return
 		}
 
-		// Redirect to the profile page after updating
 		http.Redirect(w, r, "/profile", http.StatusSeeOther)
 	}
 }

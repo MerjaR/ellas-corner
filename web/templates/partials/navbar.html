@@ -15,9 +15,11 @@
 
   <div class="nav-right">
     {{ if not .isLoggedIn }}
+      <a href="/about" class="nav-link">About</a>
       <a href="/login" class="nav-button login">Login</a>
       <a href="/register" class="nav-button register">Register</a>
     {{ else }}
+      <a href="/about" class="nav-link">About</a>
       <a href="/create-post" class="nav-link">Share an Item</a>
       <a href="/liked-posts">
         <img src="/static/heart.png" alt="Liked Posts" class="heart-icon">

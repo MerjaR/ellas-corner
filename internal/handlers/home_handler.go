@@ -81,12 +81,15 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var profilePicture string
+	var currentUser repository.User
+
 	if isLoggedIn {
 		user, err := repository.GetUserByID(userID)
 		if err != nil {
 			log.Println("Error fetching user profile:", err)
 		} else {
 			profilePicture = user.ProfilePicture
+			currentUser = user // Save full user for donation filtering
 		}
 	}
 
@@ -147,6 +150,17 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 				log.Println("Error fetching user reaction for post:", posts[i].ID, err)
 			}
 			posts[i].UserReaction = userReaction
+
+			if isLoggedIn && posts[i].IsDonation {
+				if currentUser.ShowDonationsInCountryOnly {
+					posts[i].ShowDonatedLabel = (posts[i].DonationCountry == currentUser.Country)
+				} else {
+					posts[i].ShowDonatedLabel = true
+				}
+			} else {
+				posts[i].ShowDonatedLabel = false
+			}
+
 		}
 	}
 

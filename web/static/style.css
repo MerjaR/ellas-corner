@@ -745,14 +745,16 @@ footer {
 }
 
 .upload-button {
-    background-color: var(--light-blue, #cbe8f7);
-    border: none;
-    padding: 8px 14px;
-    border-radius: 6px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+    background-color: var(--blue);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 6px 14px;
+  margin-left: 8px;
+  cursor: pointer;
+  font-weight: bold;
 }
+
 
 .upload-button:hover {
     background-color: #add8f0;
@@ -1258,6 +1260,7 @@ form button img:hover {
   font-family: 'Quicksand', sans-serif;
   color: #cc3366;
   margin-bottom: 20px;
+  text-align: center;
 }
 
 .popular-items {
@@ -1270,8 +1273,8 @@ form button img:hover {
 .popular-card {
   width: 180px;
   background: #ffffff;
-  border: 2px solid #f8c6d8;
-  border-radius: 12px;
+  /*border: 2px solid #f8c6d8;
+  border-radius: 12px; */
   padding: 10px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
@@ -1288,4 +1291,78 @@ form button img:hover {
   font-size: 1em;
   color: #333;
   margin: 5px 0 10px;
+}
+
+.save-settings-button{
+  background-color: var(--blue);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 6px 14px;
+  margin-left: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.donation-label {
+  display: inline-block;
+  background-color: #e0ffe0;
+  color: #006600;
+  padding: 3px 8px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  margin-left: 10px;
+}
+
+.about-section {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: var(--text-dark);
+    background-color: #fafafa;
+    border-radius: 12px;
+    box-shadow: 0 0 8px rgba(179, 183, 238, 0.15); /* subtle blue shadow */
+}
+
+.about-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.about-logo {
+    width: 300px;
+    height: auto;
+    margin-bottom: 1rem;
+}
+
+.about-header h1 {
+    font-size: 2.4rem;
+    margin-bottom: 0.3rem;
+    color: var(--text-dark); /* strong but gentle */
+}
+
+.about-tagline {
+    font-size: 1.2rem;
+    font-style: italic;
+    color: var(--text-dark); /* soft blue tone */
+    margin-bottom: 1rem;
+}
+
+blockquote {
+    margin: 1.5rem 0;
+    padding: 1rem 1.5rem;
+    background-color: var(--beige); /* soft neutral */
+    font-style: italic;
+    color: var(--text-dark);
+    border-radius: 6px;
+}
+
+.quote-author {
+    display: block;
+    margin-top: 0.5rem;
+    font-weight: bold;
+    text-align: right;
+    color: var(--green);
 }

@@ -3,7 +3,9 @@ CREATE TABLE IF NOT EXISTS users (
     username TEXT NOT NULL UNIQUE,
     email TEXT NOT NULL UNIQUE,
     password TEXT NOT NULL,
-    profile_picture TEXT
+    profile_picture TEXT,
+    country TEXT DEFAULT 'no_location',
+    show_donations_in_country_only BOOLEAN DEFAULT FALSE
 );
 
 CREATE TABLE IF NOT EXISTS posts (
@@ -12,9 +14,12 @@ CREATE TABLE IF NOT EXISTS posts (
     title TEXT NOT NULL,
     content TEXT NOT NULL,
     category TEXT DEFAULT 'General',
-    image TEXT,  -- New column to store the image filename/path
+    image TEXT,  -- Optional image path
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    is_donation BOOLEAN DEFAULT FALSE,
+    donation_country TEXT DEFAULT 'no_location',
     FOREIGN KEY(user_id) REFERENCES users(id)
+
 );
 
 CREATE TABLE IF NOT EXISTS comments (
