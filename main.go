@@ -10,7 +10,7 @@ import (
 
 func main() {
 	// Initialize the SQLite database
-	db.InitDB("forum.db")
+	db.InitDB("data/forum.db")
 	db.RunMigrations()
 
 	// Create a new multiplexer (router)
