@@ -10,14 +10,14 @@ Originally developed as a project for the Go module of the
 
 This application was built under the following constraints as part of the training requirements:
 
-- ✅ Written **entirely in Go**, using only the **Go standard library**
+- ✅ Written **entirely in Go**, using only the **Go standard library** except for the following
 - ✅ Uses **SQLite** for data storage
 - ✅ Passwords secured using **bcrypt**
 - ✅ Session management and **cookie-based login**
 - ✅ Public can view all posts and comments
 - ✅ Only **logged-in users** can post, comment, or react
 - ✅ Includes **categories, filtering, and search**
-- ✅ No JavaScript or frontend frameworks (e.g., no Tailwind)
+- ✅ No JavaScript or frontend frameworks (e.g., no Tailwind) unless it is a bonus feature
 - ✅ Must be packaged and runnable via **Docker**
 
 ---
@@ -33,12 +33,10 @@ As part of a portfolio refinement effort, the project was reimagined to better s
   - Age/stage tags (e.g. Newborn, 3–6 months)
   - Donation flag (users can offer to donate)
 - Homepage redesigned to show **top items by age group**
-- New **“Item Detail”** pages with feedback and comments
 - Submit page for users to contribute items with context
 - **Filters** now include:
   - By age group
-  - “Only show donations”
-  - “Only donations in my country” (optional profile setting)
+  - By date
 
 ### User Experience Enhancements
 - User profiles updated to show:
@@ -47,11 +45,17 @@ As part of a portfolio refinement effort, the project was reimagined to better s
   - Optional country (used only for donation matching)
 - Default **avatars** for users without a profile picture
 
+Users now have the ability to delete or edit their own posts, including changing the image. They are not able to edit or delete anyone else's posts. They can also remove the up for donation tag when the item has been donated. 
 
+Two JavaScript features were added, which could have been originally accepted as bonus features. One is to stop the page from resetting to the top of the page when a user for example likes a post. The second is allowing to use the dropdown menu under the profile picture more smoothly. 
 
-## How to Build and Run the Application
+## How to Run the Application
 
-To be added
+After cloning the repository, run with go run main.go .
+Alternatively, run in Docker with docker-compose up .
+
+The website is accessible at localhost:8080 .
+
 
 ## 🔐 Features Summary
 
@@ -60,7 +64,7 @@ To be added
 - Browse all items publicly
 - Image upload support for items and user profile
 - Categories: by baby age/stage
-- Filtering: by donation, popularity, age group, and location (country)
+- Filtering: by popularity, age group, and location (country)
 - Profiles: editable with liked/submitted items and optional location
 - Secure password handling via `bcrypt`
 - Clean templating with Go’s `html/template`
@@ -81,4 +85,4 @@ To be added
 ## Acknowledgments
 
 Originally built for the [kood/Sisu](https://koodsisu.fi) Full Stack Developer Program.  
-Transformed with love into *Ella’s Corner* — a portfolio project focused on accessibility, usability, and real-world user needs.
+Transformed with love into *Ella’s Corner* — a portfolio project focused on usability and real-world user needs.
