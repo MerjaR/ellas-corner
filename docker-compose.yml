@@ -1,0 +1,16 @@
+services:
+  forum:
+    # Build the image using the Dockerfile in the current directory
+    build:
+      context: .
+      dockerfile: Dockerfile
+    
+    # Set a custom name for the container
+    container_name: ellas-corner
+
+    # Port mapping between host machine and container
+    ports:
+      - "8080:8080"
+
+    # Restart policy: restart container unless it is explicitly stopped
+    restart: unless-stopped

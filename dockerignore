@@ -1,0 +1,86 @@
+# ─────────────────────────────
+# Build artifacts
+# ─────────────────────────────
+*.exe               # Windows executable files
+*.exe~              # Backup copies of .exe files
+*.dll               # Windows dynamic libraries
+*.so                # Unix shared object files
+*.dylib             # macOS dynamic libraries
+*.test              # Go test binaries
+*.out               # General compiled outputs
+
+# ─────────────────────────────
+# Cache and workspace
+# ─────────────────────────────
+bin/                # Build output directory
+pkg/                # Go package cache
+build/              # Generic build directory
+.cache/             # Tooling or framework-level cache (e.g., npm, pip, etc.)
+*.coverprofile      # Code coverage output files
+
+# ─────────────────────────────
+# SQLite databases
+# ─────────────────────────────
+*.sqlite            # SQLite database files
+*.db                # Other generic database files
+
+# ─────────────────────────────
+# Logs, temp, and swap files
+# ─────────────────────────────
+*.log               # Log files
+*.tmp               # Temporary files
+*.swp               # Vim/Neovim swap files
+*.bak               # Backup files
+*.old               # Old/renamed files
+
+# ─────────────────────────────
+# Environment/config files
+# ─────────────────────────────
+.env                # Environment variables
+.env.local          # Local overrides for environment variables
+
+# ─────────────────────────────
+# Version control
+# ─────────────────────────────
+.git/               # Git repository metadata
+.gitignore          # Ignore rules
+
+# ─────────────────────────────
+# Frontend build artifacts
+# ─────────────────────────────
+node_modules/       # Node.js dependencies
+dist/               # Build output from frontend frameworks (React, Vue, etc.)
+public/build/       # Framework-specific public build directory
+
+# ─────────────────────────────
+# Editor/IDE settings
+# ─────────────────────────────
+.vscode/            # Visual Studio Code settings
+.idea/              # JetBrains IDE settings (e.g., GoLand, WebStorm)
+*.code-workspace    # VS Code workspace files
+
+# ─────────────────────────────
+# OS-specific system files
+# ─────────────────────────────
+.DS_Store           # macOS Finder metadata
+Thumbs.db           # Windows thumbnail cache
+
+# ─────────────────────────────
+# CI/CD artifacts and test coverage
+# ─────────────────────────────
+coverage/           # Code coverage output directory
+*.coverprofile      # Go coverage profiles
+*.lcov              # Test coverage data format used by JavaScript tooling
+*.lcov.info         # Human-readable lcov output
+.nyc_output/        # Output from the nyc test coverage tool
+build-logs/         # CI-generated build logs
+
+# ─────────────────────────────
+# Project-specific folders
+# ─────────────────────────────
+
+
+# ─────────────────────────────
+# Project-specific files
+# ─────────────────────────────
+
