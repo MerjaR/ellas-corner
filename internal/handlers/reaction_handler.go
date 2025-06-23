@@ -65,30 +65,34 @@ func renderHomeWithError(w http.ResponseWriter, errorMessage string) {
 	// Fetch the posts
 	posts, err := repository.FetchPosts()
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError) // Send 500 status
-		utils.RenderServerErrorPage(w)                // Render custom error page
+		w.WriteHeader(http.StatusInternalServerError)
+		utils.RenderServerErrorPage(w)
 		return
 	}
 
-	// Parse the index template
-	tmpl, err := template.ParseFiles("web/templates/index.html")
+	tmpl, err := template.ParseFiles(
+		"web/templates/index.html",
+		"web/templates/partials/post.html",
+		"web/templates/partials/navbar.html",
+	)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError) // Send 500 status
-		utils.RenderServerErrorPage(w)                // Render custom error page
+		w.WriteHeader(http.StatusInternalServerError)
+		utils.RenderServerErrorPage(w)
 		return
 	}
 
-	// Render the template with the posts and the error message
+	// ✅ Don't set w.WriteHeader here — it's just a validation message
 	data := map[string]interface{}{
 		"Posts":        posts,
 		"ErrorMessage": errorMessage,
-		"IsLoggedIn":   false, // The user is not logged in
+		"IsLoggedIn":   false,
 	}
 
 	err = tmpl.Execute(w, data)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError) // Send 500 status
-		utils.RenderServerErrorPage(w)                // Render custom error page
+		log.Println("Error rendering index with error message:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		utils.RenderServerErrorPage(w)
 	}
 }
 

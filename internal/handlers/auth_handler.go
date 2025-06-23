@@ -22,28 +22,35 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		tmpl.Execute(w, nil)
 	} else if r.Method == http.MethodPost {
-		// Handle form submission
 		username := r.FormValue("username")
 		email := r.FormValue("email")
 		password := r.FormValue("password")
+
+		// Validate empty fields
+		if username == "" || email == "" || password == "" {
+			tmpl, _ := template.ParseFiles("web/templates/register.html", "web/templates/partials/navbar_register.html")
+			tmpl.Execute(w, map[string]interface{}{
+				"Error": "Please fill in all fields.",
+			})
+			return
+		}
 
 		// Encrypt the password
 		hashedPassword, err := utils.HashPassword(password)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			utils.RenderServerErrorPage(w) // Error handling
+			utils.RenderServerErrorPage(w)
 			return
 		}
 
-		// Randomly assign a profile picture (no need to seed)
+		// Random profile picture
 		pictureOptions := []string{"1.png", "2.png", "3.png"}
 		randomPicture := pictureOptions[rand.Intn(len(pictureOptions))]
 
-		// Save the user to the database with the random profile picture
+		// Attempt to create user
 		err = repository.CreateUser(username, email, hashedPassword, randomPicture)
 		if err != nil {
 			if strings.Contains(err.Error(), "UNIQUE constraint failed") {
-				// Render the registration form again with an error message
 				tmpl, _ := template.ParseFiles("web/templates/register.html", "web/templates/partials/navbar_register.html")
 				tmpl.Execute(w, map[string]interface{}{
 					"Error": "Email or username already in use. Please try a different one.",
@@ -51,12 +58,11 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 			} else {
 				log.Println("Error creating user:", err)
 				w.WriteHeader(http.StatusInternalServerError)
-				utils.RenderServerErrorPage(w) // Error handling
+				utils.RenderServerErrorPage(w)
 			}
 			return
 		}
 
-		// Redirect to login page with a success message
 		http.Redirect(w, r, "/login?message=Thank+you+for+joining+Ella's+Corner!+Your+registration+was+successful,+please+log+in.", http.StatusSeeOther)
 	} else {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)

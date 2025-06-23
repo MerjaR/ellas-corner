@@ -1366,3 +1366,10 @@ blockquote {
     text-align: right;
     color: var(--green);
 }
+
+.info-note {
+  text-align: center;
+  margin-top: 1.5rem;
+  font-size: 1.1rem;
+  color: var(--text-dark);
+}

@@ -129,7 +129,12 @@ func PostsHandler(w http.ResponseWriter, r *http.Request) {
 
 		if isLoggedIn && posts[i].IsDonation {
 			if currentUser.ShowDonationsInCountryOnly {
-				posts[i].ShowDonatedLabel = (posts[i].DonationCountry == currentUser.Country)
+				// Only show if DonationCountry is set and matches user's country
+				if posts[i].DonationCountry != "" && posts[i].DonationCountry == currentUser.Country {
+					posts[i].ShowDonatedLabel = true
+				} else {
+					posts[i].ShowDonatedLabel = false
+				}
 			} else {
 				posts[i].ShowDonatedLabel = true
 			}

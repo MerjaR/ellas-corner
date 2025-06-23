@@ -15,6 +15,11 @@
 
 
     <main>
+       {{ if .ErrorMessage }}
+  <div class="error-message" style="color: red; text-align: center; margin-top: 20px;">
+      <p>{{ .ErrorMessage }}</p>
+  </div>
+  {{ end }}
       {{ if .TopPosts }}
 <section class="popular-section">
   <h2 class="popular-title">Most Loved by Parents</h2>
@@ -67,12 +72,7 @@
 
 
 
-        <!-- Global Error message section below the filters -->
-        {{ if .ErrorMessage }}
-        <div class="error-message" style="color: red; text-align: center; margin-top: 10px;">
-            <p>{{ .ErrorMessage }}</p>
-        </div>
-        {{ end }}
+     
 
         <!-- Display Posts -->
     {{ template "post" . }}
@@ -104,12 +104,14 @@
   });
 
   // Restore scroll position on load
-  window.addEventListener("load", function () {
-    const scrollY = localStorage.getItem("scrollY");
-    if (scrollY !== null) {
-      window.scrollTo(0, parseInt(scrollY));
-    }
-  });
+window.addEventListener("load", function () {
+  const scrollY = localStorage.getItem("scrollY");
+  const hasError = document.querySelector(".error-message");
+  if (scrollY !== null && !hasError) {
+    window.scrollTo(0, parseInt(scrollY));
+  }
+});
+
 </script>
 
 

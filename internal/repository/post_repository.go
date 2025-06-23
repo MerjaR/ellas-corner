@@ -319,16 +319,17 @@ func FetchFilteredPosts(category, createdPosts, likedPosts, startDate, endDate s
 
 func SearchPosts(searchQuery string, userID int, isLoggedIn bool) ([]Post, error) {
 	query := `
-        SELECT posts.id, posts.title, posts.content, posts.category, posts.created_at,
-               users.username, users.profile_picture, COALESCE(posts.image, '') AS image
-        FROM posts
-        JOIN users ON posts.user_id = users.id
-        WHERE posts.title LIKE '%' || ? || '%' 
-           OR posts.content LIKE '%' || ? || '%'
-           OR posts.category LIKE '%' || ? || '%'
-        ORDER BY posts.created_at DESC`
+    SELECT posts.id, posts.title, posts.content, posts.category, posts.created_at,
+           users.username, users.profile_picture, COALESCE(posts.image, '') AS image
+    FROM posts
+    JOIN users ON posts.user_id = users.id
+    WHERE posts.title LIKE '%' || ? || '%' 
+       OR posts.content LIKE '%' || ? || '%'
+       OR posts.category LIKE '%' || ? || '%'
+       OR users.username LIKE '%' || ? || '%'
+    ORDER BY posts.created_at DESC`
 
-	rows, err := db.DB.Query(query, searchQuery, searchQuery, searchQuery)
+	rows, err := db.DB.Query(query, searchQuery, searchQuery, searchQuery, searchQuery)
 	if err != nil {
 		log.Println("Error searching posts:", err)
 		return nil, err
