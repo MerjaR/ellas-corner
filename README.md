@@ -64,7 +64,7 @@ The website is accessible at localhost:8080 .
 - Browse all items publicly
 - Image upload support for items and user profile
 - Categories: by baby age/stage
-- Filtering: by popularity, age group, and location (country)
+- Filtering: by popularity and age group
 - Profiles: editable with liked/submitted items and optional location
 - Secure password handling via `bcrypt`
 - Clean templating with Go’s `html/template`
