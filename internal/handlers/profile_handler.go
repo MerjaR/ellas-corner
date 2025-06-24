@@ -150,9 +150,24 @@ func UpdateProfileSettingsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	currentUser, err := repository.GetUserByID(userID)
+	if err != nil {
+		log.Println("Error fetching current user:", err)
+		utils.RenderServerErrorPage(w)
+		return
+	}
+
 	// Parse the submitted form values
 	country := r.FormValue("country")
 	showDonations := r.FormValue("show_donations_in_country_only") == "on"
+
+	// After updating the user, update old donation posts if country has changed
+	if country != "" && country != currentUser.Country {
+		err := repository.UpdateDonationCountryForUser(userID, country)
+		if err != nil {
+			log.Println("Error updating donation posts with new country:", err)
+		}
+	}
 
 	// Update user preferences in the DB
 	err = repository.UpdateUserPreferences(userID, country, showDonations)

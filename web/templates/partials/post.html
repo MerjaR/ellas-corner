@@ -3,9 +3,10 @@
   <div class="post">
     <h2>{{ .Title }}</h2>
 
-    {{ if .IsDonation }}
+    {{ if .ShowDonatedLabel }}
   <span class="donation-label">I have one to donate!</span>
 {{ end }}
+
 
     {{ if .Image }}
       <img src="/static/uploads/{{ .Image }}" alt="Post Image" class="post-image">

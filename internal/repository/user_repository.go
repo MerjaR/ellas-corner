@@ -399,3 +399,13 @@ func UpdateUserPreferences(userID int, country string, showDonations bool) error
 
 	return nil
 }
+
+func UpdateDonationCountryForUser(userID int, newCountry string) error {
+	query := `
+		UPDATE posts
+		SET donation_country = ?
+		WHERE user_id = ? AND is_donation = 1
+	`
+	_, err := db.DB.Exec(query, newCountry, userID)
+	return err
+}

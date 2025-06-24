@@ -48,7 +48,7 @@ func CreatePost(userID int, title, content, category, image string, isDonation b
 
 func FetchPosts() ([]Post, error) {
 	query := `
-        SELECT posts.id, posts.title, posts.content, posts.user_id, posts.category, posts.created_at, users.username, users.profile_picture, COALESCE(posts.image, '') AS image, posts.is_donation, posts.donation_country
+        SELECT posts.id, posts.title, posts.content, posts.user_id, posts.category, posts.created_at, users.username, users.profile_picture, COALESCE(posts.image, '') AS image, posts.is_donation, COALESCE(posts.donation_country, '') AS donation_country
 
         FROM posts
         JOIN users ON posts.user_id = users.id

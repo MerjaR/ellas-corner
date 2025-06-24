@@ -129,16 +129,20 @@ func PostsHandler(w http.ResponseWriter, r *http.Request) {
 
 		if isLoggedIn && posts[i].IsDonation {
 			if currentUser.ShowDonationsInCountryOnly {
-				// Only show if DonationCountry is set and matches user's country
-				if posts[i].DonationCountry != "" && posts[i].DonationCountry == currentUser.Country {
+				// ✅ Show donation tag only if it has a valid country AND matches user’s country
+				if posts[i].DonationCountry != "" &&
+					posts[i].DonationCountry != "no_location" &&
+					posts[i].DonationCountry == currentUser.Country {
 					posts[i].ShowDonatedLabel = true
 				} else {
 					posts[i].ShowDonatedLabel = false
 				}
 			} else {
+				// ✅ If user wants to see all donations regardless of country
 				posts[i].ShowDonatedLabel = true
 			}
 		} else {
+			// ✅ Not a donation or user not logged in
 			posts[i].ShowDonatedLabel = false
 		}
 
