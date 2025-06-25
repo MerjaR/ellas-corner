@@ -9,14 +9,14 @@ import (
 )
 
 func main() {
-	// Initialize the SQLite database
+	// Initialise the SQLite database
 	db.InitDB("data/forum.db")
 	db.RunMigrations()
 
 	// Create a new multiplexer (router)
 	mux := http.NewServeMux()
 
-	// Handle static files
+	// Serve static files from "web/static" when requested at "/static/..." (web added to keep frontend assets in one place)
 	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("web/static"))))
 
 	// Home page and about page
