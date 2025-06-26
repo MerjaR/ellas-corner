@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"ellas-corner/internal/repository"
+	"ellas-corner/internal/utils"
 	"html/template"
 	"log"
 	"net/http"
@@ -18,16 +18,10 @@ func AboutHandler(w http.ResponseWriter, r *http.Request) {
 	var profilePicture string
 
 	// Check for session cookie
-	cookie, err := r.Cookie("session_token")
+	sessionUser, err := utils.GetSessionUser(r)
 	if err == nil {
-		userID, err := repository.GetUserIDBySession(cookie.Value)
-		if err == nil && userID != 0 {
-			isLoggedIn = true
-			user, err := repository.GetUserByID(userID)
-			if err == nil {
-				profilePicture = user.ProfilePicture
-			}
-		}
+		isLoggedIn = true
+		profilePicture = sessionUser.ProfilePicture
 	}
 
 	data := map[string]interface{}{

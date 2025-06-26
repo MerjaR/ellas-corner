@@ -26,7 +26,6 @@ This application was built under the following constraints as part of the traini
 
 As part of a portfolio refinement effort, the project was reimagined to better showcase real-world product thinking, user-centered design, and practical UX considerations. Changes include:
 
-### Feature Reframing
 - Forum **posts** are now **baby item recommendations**
 - Each item includes:
   - Image upload
@@ -37,8 +36,6 @@ As part of a portfolio refinement effort, the project was reimagined to better s
 - **Filters** now include:
   - By age group
   - By date
-
-### User Experience Enhancements
 - User profiles updated to show:
   - Liked items
   - Submitted items
@@ -57,7 +54,7 @@ Alternatively, run in Docker with docker-compose up .
 The website is accessible at localhost:8080 .
 
 
-## 🔐 Features Summary
+## Features Summary
 
 - User Registration & Login (cookie sessions)
 - Submit, like, and comment on items (only when logged in)
@@ -72,13 +69,25 @@ The website is accessible at localhost:8080 .
 
 ---
 
-## 💻 Tech Stack
+## Tech Stack
 
 - **Language**: Go (net/http, html/template, database/sql)
 - **Database**: SQLite (with `github.com/mattn/go-sqlite3`)
 - **Authentication**: bcrypt, cookies
 - **Frontend**: Custom CSS 
 - **Containerization**: Docker
+
+## Some considerations for future development
+
+This project currently uses a traditional, form-friendly routing style (e.g., /create-post, /edit-post) optimised for server-rendered HTML and Go's net/http standard library.
+
+The codebase is structured in a way that could support RESTful API endpoints which could make it easier to work with.  
+
+Hardcoded paths (e.g., DB location, migration file) could be replaced with environment variables for scaling. 
+
+Images could have UUID based filenames to avoid the same names being used for uploaded images.
+
+
 
 ---
 

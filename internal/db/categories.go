@@ -1,5 +1,10 @@
 package db
 
+// CuratedBabyBox provides hardcoded example items grouped by category.
+// This is used to render themed suggestions on the baby box feature page.
+// Eventually, this could be moved or an admin could update it as part of other categories.
+// For now, this is a simple structure to demonstrate how the babybox page would work.
+
 type BabyBoxItem struct {
 	Title string
 	Image string
@@ -22,7 +27,7 @@ var CuratedBabyBox = map[string][]BabyBoxItem{
 		{Title: "Relaxation Tea", Image: "mother3.jpg"},
 	},
 	"Development books": {
-		{Title: "Baby Dvelopment", Image: "book1.jpg"},
+		{Title: "Baby Development", Image: "book1.jpg"},
 		{Title: "New Mother Mindset", Image: "book2.jpg"},
 		{Title: "Parenting Psychology", Image: "book3.jpg"},
 	},

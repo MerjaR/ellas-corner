@@ -15,16 +15,8 @@ func AddCommentHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Check if the user is logged in
-	cookie, err := r.Cookie("session_token")
+	sessionUser, err := utils.GetSessionUser(r)
 	if err != nil {
-		http.Error(w, "Unauthorized. Please log in to comment.", http.StatusUnauthorized)
-		return
-	}
-
-	// Get the user ID from the session token
-	userID, err := repository.GetUserIDBySession(cookie.Value)
-	if err != nil || userID == 0 {
 		http.Error(w, "Unauthorized. Please log in to comment.", http.StatusUnauthorized)
 		return
 	}
@@ -80,7 +72,7 @@ func AddCommentHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Save the comment to the database
-	err = repository.CreateComment(userID, postID, content)
+	err = repository.CreateComment(sessionUser.ID, postID, content)
 	if err != nil {
 		log.Println("Error creating comment:", err)
 		w.WriteHeader(http.StatusInternalServerError)
