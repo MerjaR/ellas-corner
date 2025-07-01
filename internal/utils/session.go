@@ -16,10 +16,11 @@ func GenerateSessionToken() string {
 }
 
 type SessionUser struct {
-	ID             int
-	Username       string
-	ProfilePicture string
-	Country        string
+	ID                         int
+	Username                   string
+	ProfilePicture             string
+	ShowDonationsInCountryOnly bool
+	Country                    string
 }
 
 var ErrUnauthenticated = errors.New("user not authenticated")

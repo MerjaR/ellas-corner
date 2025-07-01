@@ -11,26 +11,14 @@ import (
 func FilterHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("FilteringHandler: Request received")
 
-	// Check if the user is logged in
-	sessionCookie, err := r.Cookie("session_token")
-	isLoggedIn := false
-	var userID int
+	sessionUser, err := utils.GetSessionUser(r)
+	isLoggedIn := err == nil
+	userID := 0
+	profilePicture := ""
 
-	if err == nil {
-		// Validate session token and check if user is logged in
-		userID, err = repository.GetUserIDBySession(sessionCookie.Value)
-		if err == nil && userID != 0 {
-			isLoggedIn = true
-		}
-	}
-
-	// If user is logged in, fetch profile picture
-	var ProfilePicture string
 	if isLoggedIn {
-		user, err := repository.GetUserByID(userID)
-		if err == nil {
-			ProfilePicture = user.ProfilePicture
-		}
+		userID = sessionUser.ID
+		profilePicture = sessionUser.ProfilePicture
 	}
 
 	// Capture filter parameters from the query string
@@ -71,8 +59,8 @@ func FilterHandler(w http.ResponseWriter, r *http.Request) {
 	data := map[string]interface{}{
 		"isLoggedIn":     isLoggedIn,
 		"Posts":          posts,
-		"Categories":     categories, // Pass categories to the template
-		"ProfilePicture": ProfilePicture,
+		"Categories":     categories,
+		"ProfilePicture": profilePicture,
 		"Category":       category,
 	}
 	err = tmpl.Execute(w, data)

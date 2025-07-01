@@ -18,21 +18,13 @@ func ReactionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Check if the user is logged in
-	cookie, err := r.Cookie("session_token")
+	sessionUser, err := utils.GetSessionUser(r)
 	if err != nil {
-		log.Println("ReactionHandler: User not logged in, rendering index with error")
-		renderHomeWithError(w, "You must be logged in to like or dislike a post.")
+		log.Println("User not logged in or invalid session")
+		renderHomeWithError(w, "You must be logged in to react.")
 		return
 	}
-
-	// Get user ID from session
-	userID, err := repository.GetUserIDBySession(cookie.Value)
-	if err != nil || userID == 0 {
-		log.Println("Unauthorized: Invalid session or user ID")
-		renderHomeWithError(w, "Only registered users can react to posts. Please log in to react.")
-		return
-	}
+	userID := sessionUser.ID
 
 	// Get form values
 	postIDStr := r.FormValue("post_id")
@@ -105,21 +97,13 @@ func CommentReactionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Check if the user is logged in
-	cookie, err := r.Cookie("session_token")
+	sessionUser, err := utils.GetSessionUser(r)
 	if err != nil {
-		log.Println("CommentReactionHandler: User not logged in")
-		renderHomeWithError(w, "You must be logged in to like or dislike a comment.")
+		log.Println("User not logged in or invalid session")
+		renderHomeWithError(w, "You must be logged in to react.")
 		return
 	}
-
-	// Get user ID from session
-	userID, err := repository.GetUserIDBySession(cookie.Value)
-	if err != nil || userID == 0 {
-		log.Println("Unauthorized: Invalid session or user ID")
-		renderHomeWithError(w, "Only registered users can react to comments. Please log in to react.")
-		return
-	}
+	userID := sessionUser.ID
 
 	// Get form values
 	commentIDStr := r.FormValue("comment_id")

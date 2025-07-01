@@ -12,19 +12,13 @@ import (
 
 // UploadProfilePictureHandler handles the profile picture upload
 func UploadProfilePictureHandler(w http.ResponseWriter, r *http.Request) {
-	// Check if the user is logged in
-	sessionCookie, err := r.Cookie("session_token")
+	sessionUser, err := utils.GetSessionUser(r)
 	if err != nil {
 		http.Error(w, "Please log in to upload a profile picture", http.StatusUnauthorized)
 		return
 	}
 
-	// Get the user ID from the session
-	userID, err := repository.GetUserIDBySession(sessionCookie.Value)
-	if err != nil || userID == 0 {
-		http.Error(w, "Unauthorized user", http.StatusUnauthorized)
-		return
-	}
+	userID := sessionUser.ID
 
 	// Parse the form to retrieve the file
 	err = r.ParseMultipartForm(10 << 20) // Max 10MB file size

@@ -9,25 +9,13 @@ import (
 )
 
 func LikedPostsHandler(w http.ResponseWriter, r *http.Request) {
-	sessionCookie, err := r.Cookie("session_token")
+	sessionUser, err := utils.GetSessionUser(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
 
-	userID, err := repository.GetUserIDBySession(sessionCookie.Value)
-	if err != nil {
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
-		return
-	}
-
-	user, err := repository.GetUserByID(userID)
-	if err != nil {
-		utils.RenderServerErrorPage(w)
-		return
-	}
-
-	likedPosts, err := repository.FetchLikedPostsByUser(userID)
+	likedPosts, err := repository.FetchLikedPostsByUser(sessionUser.ID)
 	if err != nil {
 		utils.RenderServerErrorPage(w)
 		return
@@ -51,8 +39,8 @@ func LikedPostsHandler(w http.ResponseWriter, r *http.Request) {
 	data := map[string]interface{}{
 		"LikedPosts":     likedPosts,
 		"isLoggedIn":     true,
-		"ProfilePicture": user.ProfilePicture,
-		"Username":       user.Username,
+		"ProfilePicture": sessionUser.ProfilePicture,
+		"Username":       sessionUser.Username,
 		"CuratedItems":   curatedItems,
 	}
 

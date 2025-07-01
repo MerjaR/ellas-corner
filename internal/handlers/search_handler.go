@@ -18,22 +18,15 @@ func SearchHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Check if the user is logged in
-	sessionCookie, err := r.Cookie("session_token")
+	sessionUser, err := utils.GetSessionUser(r)
 	isLoggedIn := false
 	var userID int
 	var profilePicture string
 
 	if err == nil {
-		userID, err = repository.GetUserIDBySession(sessionCookie.Value)
-		if err == nil && userID != 0 {
-			isLoggedIn = true
-			// Fetch user to get profile picture
-			user, err := repository.GetUserByID(userID)
-			if err == nil {
-				profilePicture = user.ProfilePicture
-			}
-		}
+		isLoggedIn = true
+		userID = sessionUser.ID
+		profilePicture = sessionUser.ProfilePicture
 	}
 
 	// Fetch posts matching the query
