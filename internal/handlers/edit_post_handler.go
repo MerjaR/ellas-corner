@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"ellas-corner/internal/repository"
+	"ellas-corner/internal/utils"
 	"html/template"
 	"log"
 	"net/http"
@@ -36,19 +37,11 @@ func EditPostHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Handle GET request: Show the edit form
 	if r.Method == http.MethodGet {
-		// Check for user session (if navbar needs it)
-		var isLoggedIn bool
-		var profilePicture string
-		cookie, err := r.Cookie("session_token")
-		if err == nil {
-			userID, err := repository.GetUserIDBySession(cookie.Value)
-			if err == nil && userID != 0 {
-				isLoggedIn = true
-				user, err := repository.GetUserByID(userID)
-				if err == nil {
-					profilePicture = user.ProfilePicture
-				}
-			}
+		sessionUser, err := utils.GetSessionUser(r)
+		isLoggedIn := err == nil
+		profilePicture := ""
+		if isLoggedIn {
+			profilePicture = sessionUser.ProfilePicture
 		}
 
 		tmpl, err := template.ParseFiles("web/templates/edit_post.html", "web/templates/partials/navbar.html")
