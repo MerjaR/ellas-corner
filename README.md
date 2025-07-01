@@ -87,6 +87,10 @@ Hardcoded paths (e.g., DB location, migration file) could be replaced with envir
 
 Images could have UUID based filenames to avoid the same names being used for uploaded images.
 
+Hard coded categories could be managed through an admin account, which could also delete or update user accounts. 
+
+In general, there are many features that would add usability like updating your e-mail address. They are entirely possible to add with similar logic already added to the project, but the project has to have some boundaries to free time to learn new things.
+
 
 
 ---

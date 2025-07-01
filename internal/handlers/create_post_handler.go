@@ -11,30 +11,15 @@ import (
 
 func CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 	// Check if the user is logged in (session token)
-	cookie, err := r.Cookie("session_token")
+	sessionUser, err := utils.GetSessionUser(r)
 	if err != nil {
-		// Redirect to login page with a custom message
-		http.Redirect(w, r, "/login?message=Please+log+in+to+create+a+post.", http.StatusSeeOther)
-		return
-	}
-
-	// Get the user ID from the session token
-	userID, err := repository.GetUserIDBySession(cookie.Value)
-	if err != nil || userID == 0 {
-		// Redirect to login page with a custom message
 		http.Redirect(w, r, "/login?message=Please+log+in+to+create+a+post.", http.StatusSeeOther)
 		return
 	}
 
 	// Handle GET request to show the post creation form
 	if r.Method == http.MethodGet {
-		//Get the user object
-		user, err := repository.GetUserByID(userID)
-		if err != nil {
-			log.Println("Error fetching user by ID:", err)
-			utils.RenderServerErrorPage(w)
-			return
-		}
+
 		// Render the create_post.html form
 		tmpl, err := template.ParseFiles("web/templates/create_post.html", "web/templates/partials/navbar.html")
 		if err != nil {
@@ -46,7 +31,7 @@ func CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 		//Pass the user's profile picture and login status to the template
 		data := map[string]interface{}{
 			"isLoggedIn":     true,
-			"ProfilePicture": user.ProfilePicture,
+			"ProfilePicture": sessionUser.ProfilePicture,
 		}
 
 		if err := tmpl.Execute(w, data); err != nil {
@@ -73,7 +58,7 @@ func CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 		category := r.FormValue("category")
 
 		// Get user again
-		user, err := repository.GetUserByID(userID)
+		user, err := repository.GetUserByID(sessionUser.ID)
 		if err != nil {
 			log.Println("Could not fetch user:", err)
 			utils.RenderServerErrorPage(w)
@@ -117,7 +102,7 @@ func CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Save post with image
-		err = repository.CreatePost(userID, title, content, category, imageFilename, isDonation, user.Country)
+		err = repository.CreatePost(sessionUser.ID, title, content, category, imageFilename, isDonation, user.Country)
 
 		if err != nil {
 			log.Println("Error creating post:", err)

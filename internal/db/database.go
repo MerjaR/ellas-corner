@@ -10,7 +10,7 @@ import (
 
 var DB *sql.DB
 
-// InitDB initializes the SQLite database connection
+// InitDB initialises the SQLite database connection
 func InitDB(dataSourceName string) {
 	var err error
 	DB, err = sql.Open("sqlite3", dataSourceName)
@@ -38,7 +38,7 @@ func RunMigrations() {
 		log.Fatalf("Error reading migration file: %v", err)
 	}
 
-	log.Println("Migration file content:", string(sqlBytes)) // Log the SQL content for debugging
+	//log.Println("Migration file content:", string(sqlBytes)) // Log the SQL content for debugging
 
 	_, err = DB.Exec(string(sqlBytes))
 	if err != nil {
