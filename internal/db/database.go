@@ -8,26 +8,28 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-var DB *sql.DB
+type Database struct {
+	Conn *sql.DB
+}
 
 // InitDB initialises the SQLite database connection
-func InitDB(dataSourceName string) {
-	var err error
-	DB, err = sql.Open("sqlite3", dataSourceName)
+func InitDB(dataSourceName string) *Database {
+	conn, err := sql.Open("sqlite3", dataSourceName)
 	if err != nil {
 		log.Fatalf("Error opening database: %v", err)
 	}
 
 	// Test the connection
-	if err := DB.Ping(); err != nil {
+	if err := conn.Ping(); err != nil {
 		log.Fatalf("Error connecting to the database: %v", err)
 	}
 
 	log.Println("Database connected successfully")
+	return &Database{Conn: conn}
 }
 
-// RunMigrations reads SQL files from the migrations folder and executes them
-func RunMigrations() {
+// RunMigrations executes migrations using the current DB connection
+func (db *Database) RunMigrations() {
 	migrationFile := "migrations/create_tables.sql"
 
 	// Log to ensure the migration file is being read
@@ -40,7 +42,7 @@ func RunMigrations() {
 
 	//log.Println("Migration file content:", string(sqlBytes)) // Log the SQL content for debugging
 
-	_, err = DB.Exec(string(sqlBytes))
+	_, err = db.Conn.Exec(string(sqlBytes))
 	if err != nil {
 		log.Fatalf("Error executing migration: %v", err)
 	}
