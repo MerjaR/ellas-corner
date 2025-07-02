@@ -3,6 +3,7 @@ package handlers
 import (
 	"ellas-corner/internal/repository"
 	"ellas-corner/internal/utils"
+	"ellas-corner/internal/viewmodels"
 	"html/template"
 	"log"
 	"net/http"
@@ -164,10 +165,12 @@ func PostsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Execute the template and pass the posts data (with comments, reactions) to the template
-	err = tmpl.Execute(w, map[string]interface{}{
-		"Posts":      posts, // Using the unified Post structure with comments, reactions
-		"IsLoggedIn": isLoggedIn,
-	})
+	data := viewmodels.HomePageData{
+		Posts:      posts,
+		IsLoggedIn: isLoggedIn,
+	}
+	err = tmpl.Execute(w, data)
+
 	if err != nil {
 		log.Println("Error executing template:", err)
 		w.WriteHeader(http.StatusInternalServerError)

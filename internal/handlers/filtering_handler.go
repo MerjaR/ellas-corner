@@ -3,6 +3,7 @@ package handlers
 import (
 	"ellas-corner/internal/repository"
 	"ellas-corner/internal/utils"
+	"ellas-corner/internal/viewmodels"
 	"html/template"
 	"log"
 	"net/http"
@@ -56,13 +57,14 @@ func FilterHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Render the template with filtered posts and available categories
-	data := map[string]interface{}{
-		"isLoggedIn":     isLoggedIn,
-		"Posts":          posts,
-		"Categories":     categories,
-		"ProfilePicture": profilePicture,
-		"Category":       category,
+	data := viewmodels.FilterPageData{
+		IsLoggedIn:     isLoggedIn,
+		ProfilePicture: profilePicture,
+		Posts:          posts,
+		Categories:     categories,
+		Category:       category,
 	}
+
 	err = tmpl.Execute(w, data)
 	if err != nil {
 		log.Println("FilteringHandler: Error executing template", err)

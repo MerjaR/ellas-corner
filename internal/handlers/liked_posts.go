@@ -4,6 +4,7 @@ import (
 	"ellas-corner/internal/db"
 	"ellas-corner/internal/repository"
 	"ellas-corner/internal/utils"
+	"ellas-corner/internal/viewmodels"
 	"html/template"
 	"net/http"
 )
@@ -36,12 +37,12 @@ func LikedPostsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := map[string]interface{}{
-		"LikedPosts":     likedPosts,
-		"isLoggedIn":     true,
-		"ProfilePicture": sessionUser.ProfilePicture,
-		"Username":       sessionUser.Username,
-		"CuratedItems":   curatedItems,
+	data := viewmodels.LikedPostsPageData{
+		IsLoggedIn:     true,
+		ProfilePicture: sessionUser.ProfilePicture,
+		Username:       sessionUser.Username,
+		LikedPosts:     likedPosts,
+		CuratedItems:   curatedItems,
 	}
 
 	tmpl.Execute(w, data)

@@ -3,6 +3,7 @@ package handlers
 import (
 	"ellas-corner/internal/repository"
 	"ellas-corner/internal/utils"
+	"ellas-corner/internal/viewmodels"
 	"html/template"
 	"log"
 	"net/http"
@@ -29,9 +30,9 @@ func CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		//Pass the user's profile picture and login status to the template
-		data := map[string]interface{}{
-			"isLoggedIn":     true,
-			"ProfilePicture": sessionUser.ProfilePicture,
+		data := viewmodels.CreatePostPageData{
+			IsLoggedIn:     true,
+			ProfilePicture: sessionUser.ProfilePicture,
 		}
 
 		if err := tmpl.Execute(w, data); err != nil {
@@ -89,14 +90,15 @@ func CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 		// Validate title and content
 		if strings.TrimSpace(title) == "" || strings.TrimSpace(content) == "" {
 			tmpl, _ := template.ParseFiles("web/templates/create_post.html", "web/templates/partials/navbar.html")
-			data := map[string]interface{}{
-				"Error":          "Post title and content cannot be empty or spaces only.",
-				"Title":          title,
-				"Content":        content,
-				"Category":       category,
-				"ProfilePicture": user.ProfilePicture,
-				"isLoggedIn":     true,
+			data := viewmodels.CreatePostPageData{
+				Error:          "Post title and content cannot be empty or spaces only.",
+				Title:          title,
+				Content:        content,
+				Category:       category,
+				ProfilePicture: user.ProfilePicture,
+				IsLoggedIn:     true,
 			}
+
 			tmpl.Execute(w, data)
 			return
 		}

@@ -1,6 +1,9 @@
 package viewmodels
 
-import "ellas-corner/internal/repository"
+import (
+	"ellas-corner/internal/db"
+	"ellas-corner/internal/repository"
+)
 
 type HomePageData struct {
 	IsLoggedIn             bool
@@ -12,4 +15,36 @@ type HomePageData struct {
 	ShowCommentFormForPost int
 	ShowEditControls       bool
 	ErrorMessage           string
+}
+
+type CreatePostPageData struct {
+	IsLoggedIn     bool
+	ProfilePicture string
+	Error          string
+	Title          string
+	Content        string
+	Category       string
+}
+
+type EditPostPageData struct {
+	IsLoggedIn     bool
+	ProfilePicture string
+	Post           repository.Post
+	Categories     []string
+}
+
+type FilterPageData struct {
+	IsLoggedIn     bool
+	ProfilePicture string
+	Posts          []repository.Post
+	Categories     []string
+	Category       string // selected category
+}
+
+type LikedPostsPageData struct {
+	IsLoggedIn     bool
+	ProfilePicture string
+	Username       string
+	LikedPosts     []repository.Post
+	CuratedItems   []db.BabyBoxItem
 }

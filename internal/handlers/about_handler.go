@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"ellas-corner/internal/utils"
+	"ellas-corner/internal/viewmodels"
 	"html/template"
 	"log"
 	"net/http"
@@ -24,9 +25,9 @@ func AboutHandler(w http.ResponseWriter, r *http.Request) {
 		profilePicture = sessionUser.ProfilePicture
 	}
 
-	data := map[string]interface{}{
-		"isLoggedIn":     isLoggedIn,
-		"ProfilePicture": profilePicture,
+	data := viewmodels.HomePageData{
+		IsLoggedIn:     isLoggedIn,
+		ProfilePicture: profilePicture,
 	}
 
 	if err := tmpl.Execute(w, data); err != nil {

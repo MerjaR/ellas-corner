@@ -3,6 +3,7 @@ package handlers
 import (
 	"ellas-corner/internal/repository"
 	"ellas-corner/internal/utils"
+	"ellas-corner/internal/viewmodels"
 	"html/template"
 	"log"
 	"net/http"
@@ -58,11 +59,11 @@ func EditPostHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		data := map[string]interface{}{
-			"Post":           post,
-			"isLoggedIn":     isLoggedIn,
-			"ProfilePicture": profilePicture,
-			"Categories":     categories,
+		data := viewmodels.EditPostPageData{
+			IsLoggedIn:     isLoggedIn,
+			ProfilePicture: profilePicture,
+			Post:           *post,
+			Categories:     categories,
 		}
 
 		if err := tmpl.Execute(w, data); err != nil {

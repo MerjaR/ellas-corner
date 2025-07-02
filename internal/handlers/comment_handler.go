@@ -3,6 +3,7 @@ package handlers
 import (
 	"ellas-corner/internal/repository"
 	"ellas-corner/internal/utils"
+	"ellas-corner/internal/viewmodels"
 	"html/template"
 	"log"
 	"net/http"
@@ -54,12 +55,11 @@ func AddCommentHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Pass the error message and comment content to the template
-		data := map[string]interface{}{
-			"Posts":                  []repository.Post{*post},
-			"ErrorMessage":           "Comment cannot be empty or only spaces",
-			"CommentContent":         content, // Preserve user input
-			"ShowCommentFormForPost": post.ID, // Show form again for this post
-			"IsLoggedIn":             true,    // Make sure to pass this correctly
+		data := viewmodels.HomePageData{
+			Posts:                  []repository.Post{*post},
+			ErrorMessage:           "Comment cannot be empty or only spaces",
+			ShowCommentFormForPost: post.ID,
+			IsLoggedIn:             true,
 		}
 
 		// Show the error on the same post page
