@@ -28,14 +28,14 @@ func AddCommentHandler(w http.ResponseWriter, r *http.Request) {
 	// Check if the comment is empty or contains only whitespace
 	if strings.TrimSpace(content) == "" {
 		// Fetch the post again, as well as its comments, and show the error in the template
-		post, err := repository.GetPostByID(postID)
+		post, err := repository.GetPostByID(postID, sessionUser.ID)
 		if err != nil {
 			log.Println("Error fetching post:", err)
 			w.WriteHeader(http.StatusInternalServerError)
 			utils.RenderServerErrorPage(w)
 			return
 		}
-		comments, err := repository.FetchCommentsForPost(post.ID)
+		comments, err := repository.FetchCommentsForPost(post.ID, sessionUser.ID)
 		if err != nil {
 			log.Println("Error fetching comments:", err)
 			w.WriteHeader(http.StatusInternalServerError)

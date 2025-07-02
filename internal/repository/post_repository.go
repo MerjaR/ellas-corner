@@ -45,7 +45,7 @@ func CreatePost(userID int, title, content, category, image string, isDonation b
 	return nil
 }
 
-func FetchPosts() ([]Post, error) {
+func FetchPosts(userID int) ([]Post, error) {
 	query := `
         SELECT posts.id, posts.title, posts.content, posts.user_id, posts.category, posts.created_at, users.username, users.profile_picture, COALESCE(posts.image, '') AS image, posts.is_donation, COALESCE(posts.donation_country, '') AS donation_country
 
@@ -79,7 +79,7 @@ func FetchPosts() ([]Post, error) {
 		}
 
 		// Fetch comments
-		comments, err := FetchCommentsForPost(post.ID)
+		comments, err := FetchCommentsForPost(post.ID, userID)
 		if err != nil {
 			log.Println("Error fetching comments for post:", err)
 			return nil, err
@@ -90,7 +90,7 @@ func FetchPosts() ([]Post, error) {
 	return posts, nil
 }
 
-func GetPostByID(postID string) (*Post, error) {
+func GetPostByID(postID string, userID int) (*Post, error) {
 	query := `
         SELECT posts.id, posts.title, posts.content, posts.user_id, posts.category, posts.created_at, users.username, users.profile_picture, COALESCE(posts.image, '') AS image
 
@@ -128,7 +128,7 @@ func GetPostByID(postID string) (*Post, error) {
 	}
 
 	// Fetch comments
-	comments, err := FetchCommentsForPost(post.ID)
+	comments, err := FetchCommentsForPost(post.ID, userID)
 	if err != nil {
 		log.Println("Error fetching comments for post:", err)
 		return nil, err
@@ -282,7 +282,7 @@ func FetchFilteredPosts(category, createdPosts, likedPosts, startDate, endDate s
 		post.FormattedCreatedAt = createdAt.Format("02 Jan 2006, 15:04")
 
 		// ✅ Fetch comments
-		comments, err := FetchCommentsForPost(post.ID)
+		comments, err := FetchCommentsForPost(post.ID, userID)
 		if err != nil {
 			log.Println("Error fetching comments:", err)
 			return nil, err
@@ -363,7 +363,7 @@ func SearchPosts(searchQuery string, userID int, isLoggedIn bool) ([]Post, error
 		}
 
 		// Fetch comments
-		comments, err := FetchCommentsForPost(post.ID)
+		comments, err := FetchCommentsForPost(post.ID, userID)
 		if err != nil {
 			log.Println("Error fetching comments for post:", err)
 			return nil, err

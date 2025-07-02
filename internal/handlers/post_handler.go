@@ -36,7 +36,7 @@ func PostsHandler(w http.ResponseWriter, r *http.Request) {
 
 	if postID != "" {
 		// Fetch the specific post by ID, including its comments (handled in GetPostByID)
-		post, err := repository.GetPostByID(postID)
+		post, err := repository.GetPostByID(postID, userID)
 		if err != nil {
 			log.Println("Error fetching post:", err)
 			w.WriteHeader(http.StatusInternalServerError)
@@ -45,7 +45,8 @@ func PostsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Fetch comments for this post and attach them to the post structure
-		comments, err := repository.FetchCommentsForPost(post.ID)
+		comments, err := repository.FetchCommentsForPost(post.ID, userID) // or just userID if already available
+
 		if err != nil {
 			log.Printf("Error fetching comments for post %d: %v", post.ID, err)
 			w.WriteHeader(http.StatusInternalServerError)
@@ -97,7 +98,7 @@ func PostsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Fetch all posts if no post ID is provided
-	posts, err := repository.FetchPosts()
+	posts, err := repository.FetchPosts(userID)
 	if err != nil {
 		log.Println("Error fetching posts:", err)
 		w.WriteHeader(http.StatusInternalServerError)

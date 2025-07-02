@@ -18,13 +18,14 @@ func ReactionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	userID := 0
 	sessionUser, err := utils.GetSessionUser(r)
 	if err != nil {
 		log.Println("User not logged in or invalid session")
-		renderHomeWithError(w, "You must be logged in to react.")
+		renderHomeWithError(w, "You must be logged in to react.", userID)
 		return
 	}
-	userID := sessionUser.ID
+	userID = sessionUser.ID
 
 	// Get form values
 	postIDStr := r.FormValue("post_id")
@@ -53,9 +54,9 @@ func ReactionHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // Helper function to render the home page with an error message (without r *http.Request)
-func renderHomeWithError(w http.ResponseWriter, errorMessage string) {
+func renderHomeWithError(w http.ResponseWriter, errorMessage string, userID int) {
 	// Fetch the posts
-	posts, err := repository.FetchPosts()
+	posts, err := repository.FetchPosts(userID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		utils.RenderServerErrorPage(w)
@@ -98,12 +99,14 @@ func CommentReactionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sessionUser, err := utils.GetSessionUser(r)
-	if err != nil {
+	userID := 0
+	if err == nil {
+		userID = sessionUser.ID
+	} else {
 		log.Println("User not logged in or invalid session")
-		renderHomeWithError(w, "You must be logged in to react.")
+		renderHomeWithError(w, "You must be logged in to react.", userID)
 		return
 	}
-	userID := sessionUser.ID
 
 	// Get form values
 	commentIDStr := r.FormValue("comment_id")

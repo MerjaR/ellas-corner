@@ -197,7 +197,8 @@ func FetchPostsByUser(userID int) ([]Post, error) {
 		}
 
 		// Fetch and attach comments
-		comments, err := FetchCommentsForPost(post.ID)
+		comments, err := FetchCommentsForPost(post.ID, userID)
+
 		if err != nil {
 			return nil, err
 		}
@@ -302,7 +303,7 @@ func FetchLikedPostsByUser(userID int) ([]Post, error) {
 			post.FormattedCreatedAt = post.CreatedAt
 		}
 
-		comments, err := FetchCommentsForPost(post.ID)
+		comments, err := FetchCommentsForPost(post.ID, userID)
 		if err != nil {
 			return nil, err
 		}
@@ -359,7 +360,7 @@ func FetchDislikedPostsByUser(userID int) ([]Post, error) {
 			post.FormattedCreatedAt = post.CreatedAt
 		}
 
-		comments, err := FetchCommentsForPost(post.ID)
+		comments, err := FetchCommentsForPost(post.ID, userID)
 		if err != nil {
 			return nil, err
 		}

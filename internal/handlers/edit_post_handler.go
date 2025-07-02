@@ -20,8 +20,15 @@ func EditPostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	sessionUser, err := utils.GetSessionUser(r)
+	if err != nil {
+		log.Println("User not logged in")
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
 	// Fetch the post by its ID
-	post, err := repository.GetPostByID(postIDStr)
+	post, err := repository.GetPostByID(postIDStr, sessionUser.ID)
 	if err != nil {
 		log.Println("Error fetching post for edit:", err)
 		http.Error(w, "Error fetching post", http.StatusInternalServerError)

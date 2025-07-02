@@ -43,7 +43,7 @@
       <span>{{ .Dislikes }}</span>
 
       <!-- Leave a Comment -->
-      {{ if $.isLoggedIn }}
+      {{ if $.IsLoggedIn }}
         <a href="/?showCommentFormForPost={{ .ID }}" class="comment-button">Leave a Comment</a>
       {{ end }}
     </div>

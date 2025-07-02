@@ -39,7 +39,7 @@ func SearchHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for i := range posts {
-		comments, err := repository.FetchCommentsForPost(posts[i].ID)
+		comments, err := repository.FetchCommentsForPost(posts[i].ID, userID)
 		if err != nil {
 			log.Println("Error fetching comments for post ID", posts[i].ID, ":", err)
 			continue // skip adding comments if there's an error

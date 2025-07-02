@@ -3,6 +3,7 @@ package handlers
 import (
 	"ellas-corner/internal/repository"
 	"ellas-corner/internal/utils"
+	"ellas-corner/internal/viewmodels"
 	"html/template"
 	"log"
 	"net/http"
@@ -101,7 +102,7 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Step 3: Fetch posts from the database (ensure profile pictures are fetched)
-	posts, err := repository.FetchPosts() // FetchPosts should now include ProfilePicture for each post
+	posts, err := repository.FetchPosts(userID) // FetchPosts should now include ProfilePicture for each post
 	if err != nil {
 		log.Println("Error loading posts:", err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -175,15 +176,18 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("HomeHandler: Template parsed successfully")
 
 	// Step 5: Render the template with the correct data
-	data := map[string]interface{}{
-		"isLoggedIn":             isLoggedIn,             // Pass the login status to the template
-		"ShowConsentBanner":      showConsentBanner,      // Pass consent banner visibility status
-		"Posts":                  posts,                  // Pass the fetched posts
-		"ShowCommentFormForPost": showCommentFormForPost, // Pass the post ID for displaying the comment form
-		"Categories":             categories,
-		"ProfilePicture":         profilePicture,
-		"TopPosts":               topPosts,
+	data := viewmodels.HomePageData{
+		IsLoggedIn:             isLoggedIn,
+		ProfilePicture:         profilePicture,
+		ShowConsentBanner:      showConsentBanner,
+		TopPosts:               topPosts,
+		Posts:                  posts,
+		Categories:             categories,
+		ShowCommentFormForPost: showCommentFormForPost,
+		ShowEditControls:       false, // set true only if the user is the post author in future
+		ErrorMessage:           "",    // fill if you later support error messages
 	}
+
 	log.Printf("isLoggedIn: %v\n", isLoggedIn) // Log if the user is logged in
 
 	err = tmpl.Execute(w, data)

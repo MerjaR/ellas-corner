@@ -24,8 +24,8 @@ type Comment struct {
 	ParentCommentID    *int   // Nullable field to store parent comment ID
 }
 
-// FetchCommentsForPost retrieves comments for a specific post, including the user's profile picture.
-func FetchCommentsForPost(postID int) ([]Comment, error) {
+// FetchCommentsForPost retrieves comments for a specific post, including the user's profile picture and their reaction if logged in.
+func FetchCommentsForPost(postID int, userID int) ([]Comment, error) {
 	query := `
 		SELECT comments.id, comments.post_id, comments.user_id, comments.content, comments.created_at, users.username, users.profile_picture
 		FROM comments
@@ -52,16 +52,24 @@ func FetchCommentsForPost(postID int) ([]Comment, error) {
 		parsedTime, err := time.Parse(time.RFC3339, comment.CreatedAt)
 		if err != nil {
 			log.Println("Error parsing CreatedAt for comment:", comment.ID, ":", err)
-			comment.FormattedCreatedAt = comment.CreatedAt // Use raw string if parsing fails
+			comment.FormattedCreatedAt = comment.CreatedAt
 		} else {
-			comment.FormattedCreatedAt = parsedTime.Format("02 Jan 2006, 15:04") // Desired format
+			comment.FormattedCreatedAt = parsedTime.Format("02 Jan 2006, 15:04")
 		}
 
-		// Fetch likes and dislikes for the comment
+		// Fetch likes and dislikes
 		likes, dislikes, err := FetchCommentReactionsCount(comment.ID)
 		if err == nil {
 			comment.Likes = likes
 			comment.Dislikes = dislikes
+		}
+
+		// Fetch user's reaction if logged in
+		if userID != 0 {
+			reaction, err := FetchUserCommentReaction(userID, comment.ID)
+			if err == nil {
+				comment.UserReaction = reaction
+			}
 		}
 
 		comments = append(comments, comment)
