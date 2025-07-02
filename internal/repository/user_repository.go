@@ -2,7 +2,6 @@ package repository
 
 import (
 	"database/sql"
-	"ellas-corner/internal/db"
 	"log"
 	"time"
 )
@@ -22,7 +21,7 @@ type User struct {
 // CreateUser inserts a new user into the database, including the profile picture
 func CreateUser(username, email, password, profilePicture string) error {
 	query := "INSERT INTO users (username, email, password, profile_picture) VALUES (?, ?, ?, ?)"
-	_, err := db.DB.Exec(query, username, email, password, profilePicture)
+	_, err := database.Conn.Exec(query, username, email, password, profilePicture)
 	if err != nil {
 		log.Println("Error creating user:", err)
 		return err
@@ -35,7 +34,7 @@ func GetUserByEmail(email string) (*User, error) {
 	var user User
 	query := "SELECT id, username, email, password, profile_picture FROM users WHERE email = ?"
 	var profilePicture sql.NullString // Use sql.NullString to handle NULL values
-	err := db.DB.QueryRow(query, email).Scan(&user.ID, &user.Username, &user.Email, &user.Password, &profilePicture)
+	err := database.Conn.QueryRow(query, email).Scan(&user.ID, &user.Username, &user.Email, &user.Password, &profilePicture)
 
 	// If profile_picture is NULL, assign an empty string or a default picture
 	if profilePicture.Valid {
@@ -56,7 +55,7 @@ func GetUserByEmail(email string) (*User, error) {
 func GetUserIDBySession(sessionToken string) (int, error) {
 	var userID int
 	query := "SELECT user_id FROM sessions WHERE session_token = ?"
-	err := db.DB.QueryRow(query, sessionToken).Scan(&userID)
+	err := database.Conn.QueryRow(query, sessionToken).Scan(&userID)
 	if err == sql.ErrNoRows {
 		log.Println("No session found for the given token")
 		return 0, nil
@@ -70,7 +69,7 @@ func GetUserIDBySession(sessionToken string) (int, error) {
 // SaveSessionToken stores the session token in the database
 func SaveSessionToken(userID int, sessionToken string) error {
 	query := "INSERT INTO sessions (user_id, session_token) VALUES (?, ?) ON CONFLICT(user_id) DO UPDATE SET session_token = ?"
-	_, err := db.DB.Exec(query, userID, sessionToken, sessionToken)
+	_, err := database.Conn.Exec(query, userID, sessionToken, sessionToken)
 	if err != nil {
 		log.Println("Error saving session token:", err)
 		return err
@@ -82,7 +81,7 @@ func SaveSessionToken(userID int, sessionToken string) error {
 func CheckCookieConsent(userID int) (bool, error) {
 	var consentGiven bool
 	query := "SELECT consent_given FROM cookie_consent WHERE user_id = ?"
-	err := db.DB.QueryRow(query, userID).Scan(&consentGiven)
+	err := database.Conn.QueryRow(query, userID).Scan(&consentGiven)
 	if err == sql.ErrNoRows {
 		// No consent record found, treat this as consent not given
 		return false, nil
@@ -97,7 +96,7 @@ func CheckCookieConsent(userID int) (bool, error) {
 // SaveCookieConsent saves the user's consent decision
 func SaveCookieConsent(userID int, consentGiven bool) error {
 	query := "INSERT INTO cookie_consent (user_id, consent_given) VALUES (?, ?) ON CONFLICT(user_id) DO UPDATE SET consent_given = ?"
-	_, err := db.DB.Exec(query, userID, consentGiven, consentGiven)
+	_, err := database.Conn.Exec(query, userID, consentGiven, consentGiven)
 	if err != nil {
 		log.Println("Error saving cookie consent:", err)
 		return err
@@ -108,7 +107,7 @@ func SaveCookieConsent(userID int, consentGiven bool) error {
 // DeleteSession removes a session from the database based on the session token
 func DeleteSession(sessionToken string) error {
 	query := "DELETE FROM sessions WHERE session_token = ?"
-	_, err := db.DB.Exec(query, sessionToken)
+	_, err := database.Conn.Exec(query, sessionToken)
 	if err != nil {
 		log.Println("Error deleting session:", err)
 		return err
@@ -127,7 +126,7 @@ func GetUserByID(userID int) (User, error) {
 	var country sql.NullString
 	var showDonations bool
 
-	err := db.DB.QueryRow(query, userID).Scan(&user.ID, &user.Username, &user.Email, &user.Password, &profilePicture, &country, &showDonations)
+	err := database.Conn.QueryRow(query, userID).Scan(&user.ID, &user.Username, &user.Email, &user.Password, &profilePicture, &country, &showDonations)
 	if err != nil {
 		return User{}, err
 	}
@@ -163,7 +162,7 @@ func FetchPostsByUser(userID int) ([]Post, error) {
 		WHERE posts.user_id = ?
 		ORDER BY posts.created_at DESC`
 
-	rows, err := db.DB.Query(query, userID)
+	rows, err := database.Conn.Query(query, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -224,7 +223,7 @@ func FetchCommentsByUser(userID int) ([]Comment, error) {
         WHERE comments.user_id = ? 
         ORDER BY comments.created_at DESC`
 
-	rows, err := db.DB.Query(query, userID)
+	rows, err := database.Conn.Query(query, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -271,7 +270,7 @@ func FetchLikedPostsByUser(userID int) ([]Post, error) {
         WHERE post_reactions.user_id = ? AND post_reactions.reaction_type = 'like'
         ORDER BY posts.created_at DESC`
 
-	rows, err := db.DB.Query(query, userID)
+	rows, err := database.Conn.Query(query, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -328,7 +327,7 @@ func FetchDislikedPostsByUser(userID int) ([]Post, error) {
         WHERE post_reactions.user_id = ? AND post_reactions.reaction_type = 'dislike'
         ORDER BY posts.created_at DESC`
 
-	rows, err := db.DB.Query(query, userID)
+	rows, err := database.Conn.Query(query, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -376,7 +375,7 @@ func FetchDislikedPostsByUser(userID int) ([]Post, error) {
 // UpdateProfilePicture updates the profile picture path in the database
 func UpdateProfilePicture(userID int, filePath string) error {
 	query := "UPDATE users SET profile_picture = ? WHERE id = ?"
-	_, err := db.DB.Exec(query, filePath, userID)
+	_, err := database.Conn.Exec(query, filePath, userID)
 	if err != nil {
 		log.Println("Error updating profile picture:", err)
 		return err
@@ -391,7 +390,7 @@ func UpdateUserPreferences(userID int, country string, showDonations bool) error
 		WHERE id = ?
 	`
 
-	_, err := db.DB.Exec(query, country, showDonations, userID)
+	_, err := database.Conn.Exec(query, country, showDonations, userID)
 	if err != nil {
 		log.Println("Error updating user preferences:", err)
 		return err
@@ -406,6 +405,6 @@ func UpdateDonationCountryForUser(userID int, newCountry string) error {
 		SET donation_country = ?
 		WHERE user_id = ? AND is_donation = 1
 	`
-	_, err := db.DB.Exec(query, newCountry, userID)
+	_, err := database.Conn.Exec(query, newCountry, userID)
 	return err
 }

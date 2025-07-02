@@ -2,7 +2,6 @@ package repository
 
 import (
 	"database/sql"
-	"ellas-corner/internal/db"
 	"log"
 	"strconv"
 	"time"
@@ -34,7 +33,7 @@ func FetchCommentsForPost(postID int) ([]Comment, error) {
 		WHERE comments.post_id = ?
 		ORDER BY comments.created_at ASC`
 
-	rows, err := db.DB.Query(query, postID)
+	rows, err := database.Conn.Query(query, postID)
 	if err != nil {
 		log.Println("Error fetching comments for post:", err)
 		return nil, err
@@ -81,7 +80,7 @@ func CreateComment(userID int, postIDStr string, content string) error {
 
 	// Insert the comment into the database
 	query := "INSERT INTO comments (user_id, post_id, content) VALUES (?, ?, ?)"
-	_, err = db.DB.Exec(query, userID, postID, content)
+	_, err = database.Conn.Exec(query, userID, postID, content)
 	if err != nil {
 		log.Println("Error creating comment:", err)
 		return err
@@ -94,12 +93,12 @@ func AddCommentReaction(userID int, commentID int, reactionType string) error {
 	// First, check if the user already reacted to this comment
 	query := `SELECT reaction_type FROM comment_reactions WHERE comment_id = ? AND user_id = ?`
 	var existingReaction string
-	err := db.DB.QueryRow(query, commentID, userID).Scan(&existingReaction)
+	err := database.Conn.QueryRow(query, commentID, userID).Scan(&existingReaction)
 
 	if err == sql.ErrNoRows {
 		// No previous reaction, insert a new one
 		insertQuery := `INSERT INTO comment_reactions (comment_id, user_id, reaction_type) VALUES (?, ?, ?)`
-		_, err := db.DB.Exec(insertQuery, commentID, userID, reactionType)
+		_, err := database.Conn.Exec(insertQuery, commentID, userID, reactionType)
 		return err
 	} else if err != nil {
 		return err
@@ -108,7 +107,7 @@ func AddCommentReaction(userID int, commentID int, reactionType string) error {
 	// If the user has already reacted, update the reaction
 	if existingReaction != reactionType {
 		updateQuery := `UPDATE comment_reactions SET reaction_type = ? WHERE comment_id = ? AND user_id = ?`
-		_, err = db.DB.Exec(updateQuery, reactionType, commentID, userID)
+		_, err = database.Conn.Exec(updateQuery, reactionType, commentID, userID)
 		return err
 	}
 
@@ -123,7 +122,7 @@ func FetchCommentReactionsCount(commentID int) (likes int, dislikes int, err err
 			COALESCE(SUM(CASE WHEN reaction_type = 'like' THEN 1 ELSE 0 END), 0) AS likes,
 			COALESCE(SUM(CASE WHEN reaction_type = 'dislike' THEN 1 ELSE 0 END), 0) AS dislikes
 		FROM comment_reactions WHERE comment_id = ?`
-	err = db.DB.QueryRow(query, commentID).Scan(&likes, &dislikes)
+	err = database.Conn.QueryRow(query, commentID).Scan(&likes, &dislikes)
 	return likes, dislikes, err
 }
 
@@ -134,7 +133,7 @@ func FetchUserCommentReaction(userID int, commentID int) (string, error) {
 	// SQL query to check if the user has reacted to the comment
 	query := `SELECT reaction_type FROM comment_reactions WHERE user_id = ? AND comment_id = ?`
 
-	err := db.DB.QueryRow(query, userID, commentID).Scan(&reaction)
+	err := database.Conn.QueryRow(query, userID, commentID).Scan(&reaction)
 	if err == sql.ErrNoRows {
 		// No reaction found, return an empty string
 		return "", nil
@@ -147,7 +146,7 @@ func FetchUserCommentReaction(userID int, commentID int) (string, error) {
 
 func DeleteComment(commentID int) error {
 	query := "DELETE FROM comments WHERE id = ?"
-	_, err := db.DB.Exec(query, commentID)
+	_, err := database.Conn.Exec(query, commentID)
 	if err != nil {
 		log.Println("Error deleting comment:", err)
 	}

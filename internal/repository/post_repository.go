@@ -2,7 +2,6 @@ package repository
 
 import (
 	"database/sql"
-	"ellas-corner/internal/db"
 	"io"
 	"log"
 	"mime/multipart"
@@ -38,7 +37,7 @@ func CreatePost(userID int, title, content, category, image string, isDonation b
 	INSERT INTO posts (user_id, title, content, category, image, is_donation, donation_country)
 	VALUES (?, ?, ?, ?, ?, ?, ?)
 `
-	_, err := db.DB.Exec(query, userID, title, content, category, image, isDonation, donationCountry)
+	_, err := database.Conn.Exec(query, userID, title, content, category, image, isDonation, donationCountry)
 	if err != nil {
 		log.Println("Error creating post:", err)
 		return err
@@ -54,7 +53,7 @@ func FetchPosts() ([]Post, error) {
         JOIN users ON posts.user_id = users.id
         ORDER BY posts.created_at DESC`
 
-	rows, err := db.DB.Query(query)
+	rows, err := database.Conn.Query(query)
 	if err != nil {
 		log.Println("Error fetching posts:", err)
 		return nil, err
@@ -100,7 +99,7 @@ func GetPostByID(postID string) (*Post, error) {
         WHERE posts.id = ?`
 
 	var post Post
-	err := db.DB.QueryRow(query, postID).Scan(
+	err := database.Conn.QueryRow(query, postID).Scan(
 		&post.ID,
 		&post.Title,
 		&post.Content,
@@ -144,13 +143,13 @@ func AddReaction(userID int, postID int, reactionType string) error {
 	// First, check if the user already reacted to this post
 	query := `SELECT reaction_type FROM post_reactions WHERE post_id = ? AND user_id = ?`
 	var existingReaction string
-	err := db.DB.QueryRow(query, postID, userID).Scan(&existingReaction)
+	err := database.Conn.QueryRow(query, postID, userID).Scan(&existingReaction)
 
 	if err == sql.ErrNoRows {
 		// No previous reaction, insert a new one
 		insertQuery := `INSERT INTO post_reactions (post_id, user_id, reaction_type) VALUES (?, ?, ?)`
 		log.Printf("AddReaction: Inserting new reaction for userID=%d, postID=%d, reactionType=%s", userID, postID, reactionType)
-		_, err := db.DB.Exec(insertQuery, postID, userID, reactionType)
+		_, err := database.Conn.Exec(insertQuery, postID, userID, reactionType)
 		return err
 	} else if err != nil {
 		log.Println("AddReaction: Error checking reaction:", err)
@@ -161,7 +160,7 @@ func AddReaction(userID int, postID int, reactionType string) error {
 	log.Printf("AddReaction: Updating reaction for userID=%d, postID=%d, existingReaction=%s, newReaction=%s", userID, postID, existingReaction, reactionType)
 	if existingReaction != reactionType {
 		updateQuery := `UPDATE post_reactions SET reaction_type = ? WHERE post_id = ? AND user_id = ?`
-		_, err = db.DB.Exec(updateQuery, reactionType, postID, userID)
+		_, err = database.Conn.Exec(updateQuery, reactionType, postID, userID)
 		return err
 	}
 
@@ -177,7 +176,7 @@ func FetchReactionsCount(postID int) (likes int, dislikes int, err error) {
             COALESCE(SUM(CASE WHEN reaction_type = 'like' THEN 1 ELSE 0 END), 0) AS likes,
             COALESCE(SUM(CASE WHEN reaction_type = 'dislike' THEN 1 ELSE 0 END), 0) AS dislikes
         FROM post_reactions WHERE post_id = ?`
-	err = db.DB.QueryRow(query, postID).Scan(&likes, &dislikes)
+	err = database.Conn.QueryRow(query, postID).Scan(&likes, &dislikes)
 	if err != nil {
 		log.Println("Error fetching reactions count:", err)
 	}
@@ -191,7 +190,7 @@ func FetchUserReaction(userID int, postID int) (string, error) {
 	// SQL query to check if the user has reacted to the post
 	query := `SELECT reaction_type FROM post_reactions WHERE user_id = ? AND post_id = ?`
 
-	err := db.DB.QueryRow(query, userID, postID).Scan(&reaction)
+	err := database.Conn.QueryRow(query, userID, postID).Scan(&reaction)
 	if err == sql.ErrNoRows {
 		// No reaction found, return an empty string
 		return "", nil
@@ -207,7 +206,7 @@ func FetchUserReaction(userID int, postID int) (string, error) {
 
 func FetchCategories() ([]string, error) {
 	query := `SELECT DISTINCT category FROM posts ORDER BY category`
-	rows, err := db.DB.Query(query)
+	rows, err := database.Conn.Query(query)
 	if err != nil {
 		log.Println("Error fetching categories from DB:", err)
 		return nil, err
@@ -261,7 +260,7 @@ func FetchFilteredPosts(category, createdPosts, likedPosts, startDate, endDate s
 
 	query += " ORDER BY posts.created_at DESC"
 
-	rows, err := db.DB.Query(query)
+	rows, err := database.Conn.Query(query)
 	if err != nil {
 		log.Println("Error fetching filtered posts:", err)
 		return nil, err
@@ -329,7 +328,7 @@ func SearchPosts(searchQuery string, userID int, isLoggedIn bool) ([]Post, error
        OR users.username LIKE '%' || ? || '%'
     ORDER BY posts.created_at DESC`
 
-	rows, err := db.DB.Query(query, searchQuery, searchQuery, searchQuery, searchQuery)
+	rows, err := database.Conn.Query(query, searchQuery, searchQuery, searchQuery, searchQuery)
 	if err != nil {
 		log.Println("Error searching posts:", err)
 		return nil, err
@@ -400,7 +399,7 @@ func SearchPosts(searchQuery string, userID int, isLoggedIn bool) ([]Post, error
 func DeletePost(postID int) error {
 	query := "DELETE FROM posts WHERE id = ?"
 
-	_, err := db.DB.Exec(query, postID)
+	_, err := database.Conn.Exec(query, postID)
 	if err != nil {
 		log.Println("Error deleting post:", err)
 		return err
@@ -416,7 +415,7 @@ func UpdatePost(postID int, title, content, category string, isDonation bool) er
 		SET title = ?, content = ?, category = ?, is_donation = ?
 		WHERE id = ?
 	`
-	_, err := db.DB.Exec(query, title, content, category, isDonation, postID)
+	_, err := database.Conn.Exec(query, title, content, category, isDonation, postID)
 	return err
 }
 
@@ -431,7 +430,7 @@ func FetchLikedPosts(userID int) ([]Post, error) {
 		ORDER BY posts.created_at DESC
 	`
 
-	rows, err := db.DB.Query(query, userID)
+	rows, err := database.Conn.Query(query, userID)
 	if err != nil {
 		log.Println("Error fetching liked posts:", err)
 		return nil, err
@@ -474,7 +473,7 @@ func UpdatePostWithImage(postID int, title, content, category string, isDonation
 		SET title = ?, content = ?, category = ?, is_donation = ?, image = ?
 		WHERE id = ?
 	`
-	_, err := db.DB.Exec(query, title, content, category, isDonation, image, postID)
+	_, err := database.Conn.Exec(query, title, content, category, isDonation, image, postID)
 	if err != nil {
 		log.Println("Error updating post with image:", err)
 	}
@@ -492,7 +491,7 @@ func FetchTopPostsByLikes(limit int) ([]Post, error) {
 		ORDER BY COUNT(likes.id) DESC
 		LIMIT ?`
 
-	rows, err := db.DB.Query(query, limit)
+	rows, err := database.Conn.Query(query, limit)
 	if err != nil {
 		return nil, err
 	}
