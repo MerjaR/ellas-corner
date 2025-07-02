@@ -11,9 +11,14 @@ import (
 
 func main() {
 	// Initialise the SQLite database
-	dbInstance := db.InitDB("data/forum.db")
+	dbInstance, err := db.InitDB("data/forum.db")
+	if err != nil {
+		log.Fatalf("Failed to initialize database: %v", err)
+	}
 	repository.SetDatabase(dbInstance)
-	dbInstance.RunMigrations()
+	if err := dbInstance.RunMigrations(); err != nil {
+		log.Fatalf("Failed to run migrations: %v", err)
+	}
 
 	// Create router
 	mux := http.NewServeMux()
@@ -57,8 +62,7 @@ func main() {
 
 	// Start the server on port 8080
 	log.Println("Starting server on :8080")
-	err := http.ListenAndServe(":8080", mux)
-	if err != nil {
+	if err := http.ListenAndServe(":8080", mux); err != nil {
 		log.Fatalf("Server failed: %v", err)
 	}
 }

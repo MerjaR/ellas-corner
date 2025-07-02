@@ -2,7 +2,7 @@ package db
 
 import (
 	"database/sql"
-	"log"
+	"fmt"
 	"os"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -13,39 +13,33 @@ type Database struct {
 }
 
 // InitDB initialises the SQLite database connection
-func InitDB(dataSourceName string) *Database {
+func InitDB(dataSourceName string) (*Database, error) {
 	conn, err := sql.Open("sqlite3", dataSourceName)
 	if err != nil {
-		log.Fatalf("Error opening database: %v", err)
+		return nil, fmt.Errorf("error opening database: %w", err)
 	}
 
 	// Test the connection
 	if err := conn.Ping(); err != nil {
-		log.Fatalf("Error connecting to the database: %v", err)
+		return nil, fmt.Errorf("error connecting to the database: %w", err)
 	}
 
-	log.Println("Database connected successfully")
-	return &Database{Conn: conn}
+	return &Database{Conn: conn}, nil
 }
 
 // RunMigrations executes migrations using the current DB connection
-func (db *Database) RunMigrations() {
+func (db *Database) RunMigrations() error {
 	migrationFile := "migrations/create_tables.sql"
-
-	// Log to ensure the migration file is being read
-	log.Println("Running migrations from:", migrationFile)
 
 	sqlBytes, err := os.ReadFile(migrationFile)
 	if err != nil {
-		log.Fatalf("Error reading migration file: %v", err)
+		return fmt.Errorf("error reading migration file: %w", err)
 	}
-
-	//log.Println("Migration file content:", string(sqlBytes)) // Log the SQL content for debugging
 
 	_, err = db.Conn.Exec(string(sqlBytes))
 	if err != nil {
-		log.Fatalf("Error executing migration: %v", err)
+		return fmt.Errorf("error executing migration: %w", err)
 	}
 
-	log.Println("Migrations executed successfully")
+	return nil
 }
