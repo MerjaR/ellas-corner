@@ -48,3 +48,23 @@ type LikedPostsPageData struct {
 	LikedPosts     []repository.Post
 	CuratedItems   []db.BabyBoxItem
 }
+
+type ProfilePageData struct {
+	Username                   string
+	Email                      string
+	ProfilePicture             string
+	Country                    string
+	ShowDonationsInCountryOnly bool
+	IsLoggedIn                 bool
+	Posts                      []repository.Post
+	Comments                   []repository.Comment
+	LikedPosts                 []repository.Post
+	DislikedPosts              []repository.Post
+}
+
+type SearchPageData struct {
+	IsLoggedIn     bool
+	ProfilePicture string
+	SearchQuery    string
+	Posts          []repository.Post
+}
