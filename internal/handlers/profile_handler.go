@@ -3,6 +3,7 @@ package handlers
 import (
 	"ellas-corner/internal/repository"
 	"ellas-corner/internal/utils" // Import the utils package for the custom error page
+	"ellas-corner/internal/viewmodels"
 	"fmt"
 	"html/template"
 	"log"
@@ -106,18 +107,17 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("ProfileHandler: Template loaded successfully")
 
-	// Data to pass to the template
-	data := map[string]interface{}{
-		"Username":                   user.Username,
-		"Email":                      user.Email,
-		"ProfilePicture":             user.ProfilePicture,
-		"Posts":                      posts,         // Posts the user made
-		"Comments":                   comments,      // Comments the user made
-		"LikedPosts":                 likedPosts,    // Posts the user liked
-		"DislikedPosts":              dislikedPosts, // Posts the user disliked
-		"isLoggedIn":                 true,          // Indicate that the user is logged in
-		"Country":                    user.Country,
-		"ShowDonationsInCountryOnly": user.ShowDonationsInCountryOnly,
+	data := viewmodels.ProfilePageData{
+		Username:                   user.Username,
+		Email:                      user.Email,
+		ProfilePicture:             user.ProfilePicture,
+		Country:                    user.Country,
+		ShowDonationsInCountryOnly: user.ShowDonationsInCountryOnly,
+		IsLoggedIn:                 true,
+		Posts:                      posts,
+		Comments:                   comments,
+		LikedPosts:                 likedPosts,
+		DislikedPosts:              dislikedPosts,
 	}
 
 	// Execute the template

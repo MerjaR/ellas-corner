@@ -3,6 +3,7 @@ package handlers
 import (
 	"ellas-corner/internal/repository"
 	"ellas-corner/internal/utils" // Import the utils package for the custom error page
+	"ellas-corner/internal/viewmodels"
 	"html/template"
 	"log"
 	"net/http"
@@ -75,10 +76,10 @@ func renderHomeWithError(w http.ResponseWriter, errorMessage string, userID int)
 	}
 
 	// ✅ Don't set w.WriteHeader here — it's just a validation message
-	data := map[string]interface{}{
-		"Posts":        posts,
-		"ErrorMessage": errorMessage,
-		"IsLoggedIn":   false,
+	data := viewmodels.HomePageData{
+		IsLoggedIn:   false,
+		Posts:        posts,
+		ErrorMessage: errorMessage,
 	}
 
 	err = tmpl.Execute(w, data)
