@@ -15,14 +15,13 @@ func main() {
 	repository.SetDatabase(dbInstance)
 	dbInstance.RunMigrations()
 
-	//Inject the dbInstance into the repository layer
-	repository.SetDatabase(dbInstance)
-
 	// Create router
 	mux := http.NewServeMux()
 
 	// Serve static files from "web/static" when requested at "/static/..." (web added to keep frontend assets in one place)
 	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("web/static"))))
+
+	// Set up route handlers
 
 	// Home page and about page
 	mux.HandleFunc("/", handlers.HomeHandler)
