@@ -6,14 +6,19 @@ import (
 
 	"ellas-corner/internal/db"
 	"ellas-corner/internal/handlers"
+	"ellas-corner/internal/repository"
 )
 
 func main() {
 	// Initialise the SQLite database
-	db.InitDB("data/forum.db")
-	db.RunMigrations()
+	dbInstance := db.InitDB("data/forum.db")
+	repository.SetDatabase(dbInstance)
+	dbInstance.RunMigrations()
 
-	// Create a new multiplexer (router)
+	//Inject the dbInstance into the repository layer
+	repository.SetDatabase(dbInstance)
+
+	// Create router
 	mux := http.NewServeMux()
 
 	// Serve static files from "web/static" when requested at "/static/..." (web added to keep frontend assets in one place)
