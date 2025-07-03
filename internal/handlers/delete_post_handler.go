@@ -2,36 +2,34 @@ package handlers
 
 import (
 	"ellas-corner/internal/repository"
+	"ellas-corner/internal/utils"
 	"log"
 	"net/http"
 	"strconv"
 )
 
-// DeletePostHandler handles the deletion of a post
+// DeletePostHandler deletes a post based on its ID (requires POST method)
 func DeletePostHandler(w http.ResponseWriter, r *http.Request) {
-	// Check if the request is a POST request
 	if r.Method != http.MethodPost {
-		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	// Get the post ID from the form data
 	postIDStr := r.FormValue("post_id")
 	postID, err := strconv.Atoi(postIDStr)
 	if err != nil {
-		log.Println("Error converting post ID:", err)
+		log.Println("DeletePostHandler: Invalid post ID:", err)
 		http.Error(w, "Invalid post ID", http.StatusBadRequest)
 		return
 	}
 
-	// Delete the post from the database
-	err = repository.DeletePost(postID)
-	if err != nil {
-		log.Println("Error deleting post:", err)
-		http.Error(w, "Error deleting post", http.StatusInternalServerError)
+	if err := repository.DeletePost(postID); err != nil {
+		log.Println("DeletePostHandler: Error deleting post:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		utils.RenderServerErrorPage(w)
 		return
 	}
 
-	// Redirect to the profile page after deletion
+	log.Printf("DeletePostHandler: Post %d deleted successfully\n", postID)
 	http.Redirect(w, r, "/profile", http.StatusSeeOther)
 }

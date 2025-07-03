@@ -10,52 +10,47 @@ import (
 	"strconv"
 )
 
-// EditPostHandler shows the edit form for a post
 func EditPostHandler(w http.ResponseWriter, r *http.Request) {
-	// Get post ID from the query parameters
 	postIDStr := r.FormValue("id")
 	postID, err := strconv.Atoi(postIDStr)
 	if err != nil {
-		log.Println("Error converting post ID:", err)
+		log.Println("EditPostHandler: Invalid post ID:", err)
 		http.Error(w, "Invalid post ID", http.StatusBadRequest)
 		return
 	}
 
 	sessionUser, err := utils.GetSessionUser(r)
 	if err != nil {
-		log.Println("User not logged in")
+		log.Println("EditPostHandler: User not logged in")
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
 
-	// Fetch the post by its ID
 	post, err := repository.GetPostByID(postIDStr, sessionUser.ID)
 	if err != nil {
-		log.Println("Error fetching post for edit:", err)
-		http.Error(w, "Error fetching post", http.StatusInternalServerError)
+		log.Println("EditPostHandler: Error fetching post:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		utils.RenderServerErrorPage(w)
 		return
 	}
 
 	categories, err := repository.FetchCategories()
 	if err != nil {
-		log.Println("Error fetching categories:", err)
-		http.Error(w, "Error loading categories", http.StatusInternalServerError)
+		log.Println("EditPostHandler: Error fetching categories:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		utils.RenderServerErrorPage(w)
 		return
 	}
 
-	// Handle GET request: Show the edit form
 	if r.Method == http.MethodGet {
-		sessionUser, err := utils.GetSessionUser(r)
-		isLoggedIn := err == nil
-		profilePicture := ""
-		if isLoggedIn {
-			profilePicture = sessionUser.ProfilePicture
-		}
+		isLoggedIn := true
+		profilePicture := sessionUser.ProfilePicture
 
 		tmpl, err := template.ParseFiles("web/templates/edit_post.html", "web/templates/partials/navbar.html")
 		if err != nil {
-			log.Println("Error loading edit template:", err)
-			http.Error(w, "Error loading page", http.StatusInternalServerError)
+			log.Println("EditPostHandler: Error parsing template:", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			utils.RenderServerErrorPage(w)
 			return
 		}
 
@@ -67,17 +62,19 @@ func EditPostHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if err := tmpl.Execute(w, data); err != nil {
-			log.Println("Error executing template:", err)
+			log.Println("EditPostHandler: Error executing template:", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			utils.RenderServerErrorPage(w)
 		}
 		return
 	}
 
-	// Handle POST request: Update the post
 	if r.Method == http.MethodPost {
-		err := r.ParseMultipartForm(10 << 20) // Max 10MB
+		err := r.ParseMultipartForm(10 << 20)
 		if err != nil {
-			log.Println("Error parsing form:", err)
-			http.Error(w, "Invalid form", http.StatusBadRequest)
+			log.Println("EditPostHandler: Error parsing form:", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			utils.RenderServerErrorPage(w)
 			return
 		}
 
@@ -86,28 +83,33 @@ func EditPostHandler(w http.ResponseWriter, r *http.Request) {
 		category := r.FormValue("category")
 		isDonation := r.FormValue("is_donation") != "on"
 
-		// Check if a new image was uploaded
 		var imagePath string
 		file, header, err := r.FormFile("image")
 		if err == nil && header.Size > 0 {
 			defer file.Close()
 			imagePath, err = repository.SaveImageFile(file, header)
 			if err != nil {
-				log.Println("Failed to save image:", err)
-				http.Error(w, "Failed to save image", http.StatusInternalServerError)
+				log.Println("EditPostHandler: Failed to save image:", err)
+				w.WriteHeader(http.StatusInternalServerError)
+				utils.RenderServerErrorPage(w)
 				return
 			}
 		} else {
-			imagePath = post.Image // keep existing image
+			imagePath = post.Image
 		}
 
 		err = repository.UpdatePostWithImage(postID, title, content, category, isDonation, imagePath)
 		if err != nil {
-			log.Println("Error updating post:", err)
-			http.Error(w, "Error updating post", http.StatusInternalServerError)
+			log.Println("EditPostHandler: Error updating post:", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			utils.RenderServerErrorPage(w)
 			return
 		}
 
 		http.Redirect(w, r, "/profile", http.StatusSeeOther)
+		return
 	}
+
+	// Unsupported method
+	http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 }

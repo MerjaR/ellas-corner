@@ -10,20 +10,28 @@ import (
 	"path/filepath"
 )
 
-// renderServerErrorPage renders a custom 500 error page
+// RenderServerErrorPage renders a custom 500 error page.
+// It ensures WriteHeader is only called once.
 func RenderServerErrorPage(w http.ResponseWriter) {
-	w.WriteHeader(http.StatusInternalServerError) // Set HTTP status to 500
+	// Check if header was already written
+	if w.Header().Get("Content-Type") == "" {
+		w.WriteHeader(http.StatusInternalServerError)
+	}
 
 	tmpl, err := template.ParseFiles("web/templates/500.html")
 	if err != nil {
-		log.Println("Error loading 500 error template:", err)
+		log.Println("RenderServerErrorPage: error loading 500.html:", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
-	if err := tmpl.Execute(w, nil); err != nil {
-		log.Println("Error executing 500 error template:", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	err = tmpl.Execute(w, nil)
+	if err != nil {
+		log.Println("RenderServerErrorPage: error executing 500 template:", err)
+		// Only call WriteHeader if response hasn’t started
+		if w.Header().Get("Content-Type") == "" {
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
 	}
 }
 
@@ -48,5 +56,3 @@ func SaveUploadedFile(file multipart.File, filename, uploadPath string) (string,
 
 	return filename, nil
 }
-
-

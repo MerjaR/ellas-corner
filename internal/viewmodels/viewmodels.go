@@ -34,11 +34,13 @@ type EditPostPageData struct {
 }
 
 type FilterPageData struct {
-	IsLoggedIn     bool
-	ProfilePicture string
-	Posts          []repository.Post
-	Categories     []string
-	Category       string // selected category
+	IsLoggedIn             bool
+	ProfilePicture         string
+	Posts                  []repository.Post
+	Categories             []string
+	Category               string // selected category
+	ShowCommentFormForPost int
+	ShowEditControls       bool
 }
 
 type LikedPostsPageData struct {
