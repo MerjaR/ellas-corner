@@ -11,31 +11,39 @@ import (
 	"time"
 )
 
-// RegisterHandler handles the registration form and logic
+// RegisterHandler renders the registration form on GET,
+// and handles user registration on POST.
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
+	const registerTemplate = "web/templates/register.html"
+	const navbarTemplate = "web/templates/partials/navbar_register.html"
+
 	if r.Method == http.MethodGet {
-		tmpl, err := template.ParseFiles("web/templates/register.html", "web/templates/partials/navbar_register.html")
+		tmpl, err := template.ParseFiles(registerTemplate, navbarTemplate)
 		if err != nil {
+			log.Println("RegisterHandler: Error parsing template:", err)
 			w.WriteHeader(http.StatusInternalServerError)
-			utils.RenderServerErrorPage(w) // Error handling
+			utils.RenderServerErrorPage(w)
 			return
 		}
 		tmpl.Execute(w, nil)
-	} else if r.Method == http.MethodPost {
+		return
+	}
+
+	if r.Method == http.MethodPost {
 		username := r.FormValue("username")
 		email := r.FormValue("email")
 		password := r.FormValue("password")
 
-		// Validate empty fields
 		if username == "" || email == "" || password == "" {
-			tmpl, _ := template.ParseFiles("web/templates/register.html", "web/templates/partials/navbar_register.html")
-			tmpl.Execute(w, map[string]interface{}{
-				"Error": "Please fill in all fields.",
-			})
+			tmpl, err := template.ParseFiles(registerTemplate, navbarTemplate)
+			if err == nil {
+				tmpl.Execute(w, map[string]interface{}{
+					"Error": "Please fill in all fields.",
+				})
+			}
 			return
 		}
 
-		// Encrypt the password
 		hashedPassword, err := utils.HashPassword(password)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -43,20 +51,18 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Random profile picture
 		pictureOptions := []string{"1.png", "2.png", "3.png"}
 		randomPicture := pictureOptions[rand.Intn(len(pictureOptions))]
 
-		// Attempt to create user
 		err = repository.CreateUser(username, email, hashedPassword, randomPicture)
 		if err != nil {
-			if strings.Contains(err.Error(), "UNIQUE constraint failed") {
-				tmpl, _ := template.ParseFiles("web/templates/register.html", "web/templates/partials/navbar_register.html")
+			log.Println("Error creating user:", err)
+			tmpl, tmplErr := template.ParseFiles(registerTemplate, navbarTemplate)
+			if tmplErr == nil && strings.Contains(err.Error(), "UNIQUE constraint failed") {
 				tmpl.Execute(w, map[string]interface{}{
 					"Error": "Email or username already in use. Please try a different one.",
 				})
 			} else {
-				log.Println("Error creating user:", err)
 				w.WriteHeader(http.StatusInternalServerError)
 				utils.RenderServerErrorPage(w)
 			}
@@ -64,115 +70,123 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		http.Redirect(w, r, "/login?message=Thank+you+for+joining+Ella's+Corner!+Your+registration+was+successful,+please+log+in.", http.StatusSeeOther)
-	} else {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
 	}
+
+	http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 }
 
-// LoginHandler handles user login logic
+// LoginHandler renders the login form on GET,
+// and handles authentication on POST.
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodGet {
-		// Check for a message in the query parameters
-		message := r.URL.Query().Get("message")
+	const loginTemplate = "web/templates/login.html"
+	const navbarTemplate = "web/templates/partials/navbar_minimal.html"
 
-		// Prepare the data for the template
+	switch r.Method {
+	case http.MethodGet:
+		message := r.URL.Query().Get("message")
 		data := map[string]interface{}{}
 		if message != "" {
 			data["Message"] = message
 		}
 
-		// Render the login template with any message
-		tmpl, err := template.ParseFiles("web/templates/login.html", "web/templates/partials/navbar_minimal.html")
+		tmpl, err := template.ParseFiles(loginTemplate, navbarTemplate)
 		if err != nil {
+			log.Println("LoginHandler: Error parsing template:", err)
 			w.WriteHeader(http.StatusInternalServerError)
-			utils.RenderServerErrorPage(w) // Error handling
+			utils.RenderServerErrorPage(w)
 			return
 		}
-		tmpl.Execute(w, data)
-	} else if r.Method == http.MethodPost {
-		// Handle form submission (login logic)
+
+		if err := tmpl.Execute(w, data); err != nil {
+			log.Println("LoginHandler: Error executing template:", err)
+		}
+
+	case http.MethodPost:
 		email := r.FormValue("email")
 		password := r.FormValue("password")
 
-		// Fetch user from database by email
 		user, err := repository.GetUserByEmail(email)
 		if err != nil || user == nil {
-			tmpl, _ := template.ParseFiles("web/templates/login.html", "web/templates/partials/navbar_minimal.html")
-			tmpl.Execute(w, map[string]interface{}{"Error": "Invalid email or password"})
+			log.Println("LoginHandler: Invalid email or user not found")
+			renderLoginError(w, "Invalid email or password")
 			return
 		}
 
-		// Check if the password matches the hashed password
 		if !utils.CheckPasswordHash(password, user.Password) {
-			tmpl, _ := template.ParseFiles("web/templates/login.html", "web/templates/partials/navbar_minimal.html")
-			tmpl.Execute(w, map[string]interface{}{"Error": "Invalid email or password"})
+			log.Println("LoginHandler: Incorrect password for user:", user.Email)
+			renderLoginError(w, "Invalid email or password")
 			return
 		}
 
-		// Generate a session token
 		sessionToken := utils.GenerateSessionToken()
-
-		// Save the session token to the sessions table
-		err = repository.SaveSessionToken(user.ID, sessionToken)
-		if err != nil {
-			log.Println("Error saving session token:", err)
+		if err := repository.SaveSessionToken(user.ID, sessionToken); err != nil {
+			log.Println("LoginHandler: Error saving session token:", err)
 			w.WriteHeader(http.StatusInternalServerError)
-			utils.RenderServerErrorPage(w) // Error handling
+			utils.RenderServerErrorPage(w)
 			return
 		}
 
-		// Set the session token in the cookie
 		http.SetCookie(w, &http.Cookie{
 			Name:    "session_token",
 			Value:   sessionToken,
-			Expires: time.Now().Add(24 * time.Hour), // Cookie expires in 24 hours
+			Expires: time.Now().Add(24 * time.Hour),
+			Path:    "/",
 		})
 
-		// Redirect to the homepage after successful login
 		http.Redirect(w, r, "/", http.StatusSeeOther)
-	} else {
+
+	default:
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
 }
 
-// AcceptCookiesHandler saves the user's cookie consent in the database or browser cookies
+// Helper to render login template with an error
+func renderLoginError(w http.ResponseWriter, errorMsg string) {
+	tmpl, err := template.ParseFiles("web/templates/login.html", "web/templates/partials/navbar_minimal.html")
+	if err != nil {
+		log.Println("renderLoginError: Error loading login template:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		utils.RenderServerErrorPage(w)
+		return
+	}
+
+	if err := tmpl.Execute(w, map[string]interface{}{"Error": errorMsg}); err != nil {
+		log.Println("renderLoginError: Error executing login template:", err)
+	}
+}
+
+// AcceptCookiesHandler records user cookie consent,
+// either in the DB (if logged in) or as a browser cookie.
 func AcceptCookiesHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("AcceptCookiesHandler: Request received")
 
-	// Check if the user is logged in by checking for a valid session associated with a user
+	cookie := &http.Cookie{
+		Name:    "consent_given",
+		Value:   "true",
+		Expires: time.Now().Add(365 * 24 * time.Hour),
+		Path:    "/",
+	}
+
 	sessionCookie, err := r.Cookie("session_token")
 	if err == nil {
 		userID, err := repository.GetUserIDBySession(sessionCookie.Value)
 		if err == nil && userID != 0 {
-			// If a valid session is found for a user, save the cookie consent in the database
-			err = repository.SaveCookieConsent(userID, true)
-			if err != nil {
-				log.Println("Error saving cookie consent:", err)
+			if err := repository.SaveCookieConsent(userID, true); err != nil {
+				log.Println("AcceptCookiesHandler: Error saving consent to DB:", err)
 				w.WriteHeader(http.StatusInternalServerError)
-				utils.RenderServerErrorPage(w) // Error handling
+				utils.RenderServerErrorPage(w)
 				return
 			}
+			log.Println("Consent saved for logged-in user:", userID)
 		} else {
-			// If the session token is not associated with a user, treat as non-logged-in
-			http.SetCookie(w, &http.Cookie{
-				Name:    "consent_given",
-				Value:   "true",
-				Expires: time.Now().Add(365 * 24 * time.Hour), // 1-year expiration
-				Path:    "/",                                  // Site-wide cookie
-			})
-			log.Println("Cookie set for non-logged-in user")
+			http.SetCookie(w, cookie)
+			log.Println("Consent cookie set for unauthenticated session token")
 		}
 	} else {
-		// If no session token is found at all, treat as non-logged-in
-		http.SetCookie(w, &http.Cookie{
-			Name:    "consent_given",
-			Value:   "true",
-			Expires: time.Now().Add(365 * 24 * time.Hour), // 1-year expiration
-			Path:    "/",                                  // Site-wide cookie
-		})
-		log.Println("Cookie set for non-logged-in user (no session token)")
+		http.SetCookie(w, cookie)
+		log.Println("Consent cookie set for user with no session token")
 	}
 
-	// Redirect back to the homepage after consent is saved
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

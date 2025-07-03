@@ -11,6 +11,7 @@ import (
 func AboutHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl, err := template.ParseFiles("web/templates/about.html", "web/templates/partials/navbar.html")
 	if err != nil {
+		log.Println("Error parsing About page templates:", err)
 		http.Error(w, "Error loading About page", http.StatusInternalServerError)
 		return
 	}
@@ -18,7 +19,7 @@ func AboutHandler(w http.ResponseWriter, r *http.Request) {
 	var isLoggedIn bool
 	var profilePicture string
 
-	// Check for session cookie
+	// Determine login state
 	sessionUser, err := utils.GetSessionUser(r)
 	if err == nil {
 		isLoggedIn = true
@@ -31,7 +32,7 @@ func AboutHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := tmpl.Execute(w, data); err != nil {
-		log.Println("Error executing About page template:", err)
+		log.Println("Error rendering About page:", err)
 		http.Error(w, "Error rendering page", http.StatusInternalServerError)
 	}
 }

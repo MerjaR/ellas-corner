@@ -10,6 +10,8 @@ import (
 	"strings"
 )
 
+// AddCommentHandler processes user-submitted comments.
+// Requires user to be logged in and content to be non-empty.
 func AddCommentHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -22,39 +24,32 @@ func AddCommentHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get form values (post_id, content)
 	postID := r.FormValue("post_id")
 	content := r.FormValue("content")
 
-	// Check if the comment is empty or contains only whitespace
 	if strings.TrimSpace(content) == "" {
-		// Fetch the post again, as well as its comments, and show the error in the template
 		post, err := repository.GetPostByID(postID, sessionUser.ID)
-		if err != nil {
-			log.Println("Error fetching post:", err)
+		if err != nil || post == nil {
+			log.Println("AddCommentHandler: Error fetching post:", err)
 			w.WriteHeader(http.StatusInternalServerError)
 			utils.RenderServerErrorPage(w)
 			return
 		}
+
 		comments, err := repository.FetchCommentsForPost(post.ID, sessionUser.ID)
-		if err != nil {
-			log.Println("Error fetching comments:", err)
-			w.WriteHeader(http.StatusInternalServerError)
-			utils.RenderServerErrorPage(w)
-			return
+		if err == nil {
+			post.Comments = comments
 		}
-		post.Comments = comments
 
-		// Render the template with the error message
-		tmpl, err := template.ParseFiles("web/templates/index.html")
+		const indexTemplate = "web/templates/index.html"
+		tmpl, err := template.ParseFiles(indexTemplate)
 		if err != nil {
-			log.Println("Could not load template:", err)
+			log.Println("AddCommentHandler: Error loading template:", err)
 			w.WriteHeader(http.StatusInternalServerError)
 			utils.RenderServerErrorPage(w)
 			return
 		}
 
-		// Pass the error message and comment content to the template
 		data := viewmodels.HomePageData{
 			Posts:                  []repository.Post{*post},
 			ErrorMessage:           "Comment cannot be empty or only spaces",
@@ -62,24 +57,21 @@ func AddCommentHandler(w http.ResponseWriter, r *http.Request) {
 			IsLoggedIn:             true,
 		}
 
-		// Show the error on the same post page
 		if err := tmpl.Execute(w, data); err != nil {
-			log.Println("Error executing template:", err)
+			log.Println("AddCommentHandler: Error executing template:", err)
 			w.WriteHeader(http.StatusInternalServerError)
 			utils.RenderServerErrorPage(w)
 		}
 		return
 	}
 
-	// Save the comment to the database
 	err = repository.CreateComment(sessionUser.ID, postID, content)
 	if err != nil {
-		log.Println("Error creating comment:", err)
+		log.Println("AddCommentHandler: Error creating comment:", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		utils.RenderServerErrorPage(w)
 		return
 	}
 
-	// Redirect back to the post after the comment is added
 	http.Redirect(w, r, "/?showCommentFormForPost="+postID, http.StatusSeeOther)
 }
