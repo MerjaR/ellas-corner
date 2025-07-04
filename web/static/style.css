@@ -1331,3 +1331,120 @@ blockquote {
   font-size: 1.1rem;
   color: var(--text-dark);
 }
+
+/* === MOBILE RESPONSIVENESS FOR NAVIGATION AND DATE FILTERING === */
+@media (max-width: 768px) {
+  /* Prevent horizontal scrolling */
+  html, body {
+    overflow-x: hidden;
+    max-width: 100%;
+  }
+
+  /* General font scaling */
+  body {
+    font-size: 15px;
+  }
+
+  /* Responsive navbar container */
+  .navbar {
+    position: relative;
+    flex-wrap: wrap;
+  }
+
+  /* Hamburger toggle button */
+  .mobile-nav-toggle {
+    display: block;
+    font-size: 1.8rem;
+    padding: 10px;
+    cursor: pointer;
+    position: absolute;
+    right: 20px;
+    top: 10px;
+    z-index: 1001;
+    background: none;
+    border: none;
+    color: #333;
+  }
+
+  /* Hide desktop nav parts by default */
+  .nav-center,
+  .nav-right {
+    display: none;
+  }
+
+  /* Expanded nav when hamburger is toggled */
+  .navbar.expanded {
+    flex-direction: column;
+    align-items: flex-start;
+    background-color: white;
+    padding: 10px 20px;
+    width: 100%;
+    z-index: 1000;
+    border-top: 1px solid #ddd;
+  }
+
+  .navbar.expanded .nav-center,
+  .navbar.expanded .nav-right {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .navbar.expanded .nav-center form,
+  .navbar.expanded .nav-right a {
+    margin: 10px 0;
+    width: 100%;
+  }
+
+  /* Mobile search field */
+  .search-form input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+  }
+
+  /* Date filter layout */
+  .date-filter-form {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .date-filter-form input[type="date"],
+  .date-filter-form button {
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+  }
+
+  /* Resize logo if needed */
+  .nav-logo {
+    max-width: 150px;
+  }
+
+  /* Dropdown menu styling */
+  .dropdown-menu {
+    right: 0;
+    left: auto;
+    width: 100%;
+    background: #f9f9f9;
+    padding: 10px;
+    border: 1px solid #ccc;
+  }
+
+  /* Stack reactions/comments if needed */
+  .reaction-bar,
+  .comment-form,
+  .post-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+/* Hide hamburger menu on desktop */
+@media (min-width: 769px) {
+  .mobile-nav-toggle {
+    display: none;
+  }
+}

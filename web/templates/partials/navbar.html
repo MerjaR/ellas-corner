@@ -1,19 +1,22 @@
 {{ define "navbar" }}
-<nav class="navbar">
+
+<nav class="navbar" id="mainNavbar">
   <div class="nav-left">
     <a href="/">
       <img src="/static/EClogo.png" alt="Ella's Corner Logo" class="nav-logo">
     </a>
   </div>
 
-  <div class="nav-center">
+  <div class="mobile-nav-toggle" id="hamburger">☰</div>
+
+  <div class="nav-center nav-mobile-hide">
     <form action="/search" method="GET" class="search-form">
       <input type="text" name="q" placeholder="Search items..." required>
       <button type="submit">Search</button>
     </form>
   </div>
 
-  <div class="nav-right">
+  <div class="nav-right nav-mobile-hide">
     {{ if not .IsLoggedIn }}
       <a href="/about" class="nav-link">About</a>
       <a href="/login" class="nav-button login">Login</a>
@@ -45,27 +48,31 @@
 </div>
 
 <script>
-    // JavaScript for Dropdown menu. This was added during modifying the project, but bonus features are allowed with JS.
   document.addEventListener("DOMContentLoaded", function () {
+    // Profile dropdown
     const profileIcon = document.getElementById("profileIcon");
     const dropdownMenu = document.getElementById("dropdownMenu");
-
     if (profileIcon && dropdownMenu) {
       profileIcon.addEventListener("click", function (e) {
         dropdownMenu.classList.toggle("show");
-        e.stopPropagation(); // Prevent click from bubbling up
+        e.stopPropagation();
       });
-
       document.addEventListener("click", function () {
         dropdownMenu.classList.remove("show");
       });
-
       dropdownMenu.addEventListener("click", function (e) {
-        e.stopPropagation(); // Keep menu open when clicking inside
+        e.stopPropagation();
       });
     }
+
+    // Mobile hamburger toggle
+    const hamburger = document.getElementById("hamburger");
+    const navbar = document.getElementById("mainNavbar");
+    hamburger.addEventListener("click", function () {
+      navbar.classList.toggle("expanded");
+      const navParts = navbar.querySelectorAll('.nav-mobile-hide');
+      navParts.forEach(part => part.classList.toggle("show"));
+    });
   });
 </script>
-
 {{ end }}
-
