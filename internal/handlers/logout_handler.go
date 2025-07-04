@@ -8,29 +8,33 @@ import (
 	"time"
 )
 
-// LogoutHandler logs the user out by clearing the session cookie and removing the session from the database
+// LogoutHandler logs the user out by clearing the session cookie and deleting the session from the database
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
-	// Get the session token from the cookie
+	log.Println("LogoutHandler: Request received")
+
+	// Only attempt session deletion if cookie is present
 	cookie, err := r.Cookie("session_token")
 	if err == nil {
-		// Delete session from the database
-		err = repository.DeleteSession(cookie.Value)
-		if err != nil {
-			log.Println("Error deleting session from database:", err)
+		// Try deleting session from DB
+		if err := repository.DeleteSession(cookie.Value); err != nil {
+			log.Println("LogoutHandler: Error deleting session from DB:", err)
 			w.WriteHeader(http.StatusInternalServerError)
-			utils.RenderServerErrorPage(w) // Show custom 5xx error page if deleting session fails
+			utils.RenderServerErrorPage(w)
 			return
 		}
+		log.Println("LogoutHandler: Session deleted from DB")
+	} else {
+		log.Println("LogoutHandler: No session token found; user may already be logged out")
 	}
 
-	// Clear the session cookie by setting its expiration to the past
+	// Clear the cookie regardless
 	http.SetCookie(w, &http.Cookie{
 		Name:    "session_token",
 		Value:   "",
-		Path:    "/",             // Make sure to clear the cookie across the entire site
-		Expires: time.Unix(0, 0), // Set expiration to a date in the past
+		Path:    "/",             // Applies site-wide
+		Expires: time.Unix(0, 0), // Expire it immediately
 	})
 
-	// Redirect back to the home page
+	log.Println("LogoutHandler: Session cookie cleared; redirecting to home")
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

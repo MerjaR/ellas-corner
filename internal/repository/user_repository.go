@@ -154,9 +154,9 @@ func FetchPostsByUser(userID int) ([]Post, error) {
 	query := `
 		SELECT posts.id, posts.title, posts.content, posts.category, posts.created_at,
 		       users.username, users.profile_picture, posts.is_donation,
-		       COALESCE(posts.image, '') AS image,
+		       COALESCE(posts.image, '') AS image, 
 		       (SELECT COUNT(*) FROM post_reactions WHERE post_id = posts.id AND reaction_type = 'like') AS likes,
-		       (SELECT COUNT(*) FROM post_reactions WHERE post_id = posts.id AND reaction_type = 'dislike') AS dislikes
+		       (SELECT COUNT(*) FROM post_reactions WHERE post_id = posts.id AND reaction_type = 'dislike') AS dislikes, posts.is_donation, COALESCE(posts.donation_country, '') AS donation_country
 		FROM posts
 		JOIN users ON posts.user_id = users.id
 		WHERE posts.user_id = ?
@@ -183,6 +183,8 @@ func FetchPostsByUser(userID int) ([]Post, error) {
 			&post.Image,
 			&post.Likes,
 			&post.Dislikes,
+			&post.IsDonation,
+			&post.DonationCountry,
 		)
 		if err != nil {
 			return nil, err
@@ -264,7 +266,8 @@ func FetchLikedPostsByUser(userID int) ([]Post, error) {
         SELECT posts.id, posts.title, posts.content, posts.category, posts.created_at,
                users.username, users.profile_picture, COALESCE(posts.image, '') AS image,
                (SELECT COUNT(*) FROM post_reactions WHERE post_id = posts.id AND reaction_type = 'like') AS likes,
-               (SELECT COUNT(*) FROM post_reactions WHERE post_id = posts.id AND reaction_type = 'dislike') AS dislikes
+               (SELECT COUNT(*) FROM post_reactions WHERE post_id = posts.id AND reaction_type = 'dislike') AS dislikes, posts.is_donation, COALESCE(posts.donation_country, '')
+
         FROM posts
         JOIN post_reactions ON posts.id = post_reactions.post_id
         JOIN users ON posts.user_id = users.id
@@ -291,6 +294,8 @@ func FetchLikedPostsByUser(userID int) ([]Post, error) {
 			&post.Image,
 			&post.Likes,
 			&post.Dislikes,
+			&post.IsDonation,
+			&post.DonationCountry,
 		)
 		if err != nil {
 			return nil, err
@@ -321,7 +326,7 @@ func FetchDislikedPostsByUser(userID int) ([]Post, error) {
         SELECT posts.id, posts.title, posts.content, posts.category, posts.created_at,
                users.username, users.profile_picture, COALESCE(posts.image, '') AS image,
                (SELECT COUNT(*) FROM post_reactions WHERE post_id = posts.id AND reaction_type = 'like') AS likes,
-               (SELECT COUNT(*) FROM post_reactions WHERE post_id = posts.id AND reaction_type = 'dislike') AS dislikes
+               (SELECT COUNT(*) FROM post_reactions WHERE post_id = posts.id AND reaction_type = 'dislike') AS dislikes, posts.is_donation, COALESCE(posts.donation_country, '')
         FROM posts
         JOIN post_reactions ON posts.id = post_reactions.post_id
         JOIN users ON posts.user_id = users.id
@@ -348,6 +353,8 @@ func FetchDislikedPostsByUser(userID int) ([]Post, error) {
 			&post.Image,
 			&post.Likes,
 			&post.Dislikes,
+			&post.IsDonation,
+			&post.DonationCountry,
 		)
 		if err != nil {
 			return nil, err

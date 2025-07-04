@@ -17,9 +17,18 @@ func FilterHandler(w http.ResponseWriter, r *http.Request) {
 	isLoggedIn := err == nil
 	userID := 0
 	profilePicture := ""
+	var currentUser repository.User // ✅ Declare outside for later use
+
 	if isLoggedIn {
 		userID = sessionUser.ID
 		profilePicture = sessionUser.ProfilePicture
+
+		currentUser, err = repository.GetUserByID(userID)
+		if err != nil {
+			log.Println("FilterHandler: Error fetching full user profile:", err)
+			utils.RenderServerErrorPage(w)
+			return
+		}
 	}
 
 	// Read query parameters used for filtering
@@ -29,13 +38,23 @@ func FilterHandler(w http.ResponseWriter, r *http.Request) {
 	startDate := r.URL.Query().Get("start_date")
 	endDate := r.URL.Query().Get("end_date")
 
-	// Fetch posts based on filters
 	posts, err := repository.FetchFilteredPosts(category, createdPosts, likedPosts, startDate, endDate, userID, isLoggedIn)
 	if err != nil {
 		log.Println("FilterHandler: Error fetching filtered posts:", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		utils.RenderServerErrorPage(w)
 		return
+	}
+
+	// Set donation label visibility on filtered posts
+	for i := range posts {
+		if posts[i].IsDonation {
+			if isLoggedIn && currentUser.ShowDonationsInCountryOnly {
+				posts[i].ShowDonatedLabel = posts[i].DonationCountry == currentUser.Country
+			} else {
+				posts[i].ShowDonatedLabel = true
+			}
+		}
 	}
 
 	// Fetch available categories for filter options

@@ -65,8 +65,10 @@ type ProfilePageData struct {
 }
 
 type SearchPageData struct {
-	IsLoggedIn     bool
-	ProfilePicture string
-	SearchQuery    string
-	Posts          []repository.Post
+	IsLoggedIn             bool
+	ProfilePicture         string
+	SearchQuery            string
+	Posts                  []repository.Post
+	ShowEditControls       bool
+	ShowCommentFormForPost int
 }

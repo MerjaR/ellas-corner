@@ -2,71 +2,105 @@ package handlers
 
 import (
 	"ellas-corner/internal/repository"
-	"ellas-corner/internal/utils" // Import utils package for custom error page
+	"ellas-corner/internal/utils"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 // UploadProfilePictureHandler handles the profile picture upload
 func UploadProfilePictureHandler(w http.ResponseWriter, r *http.Request) {
+	const maxUploadSize = 10 << 20 // 10MB
+
 	sessionUser, err := utils.GetSessionUser(r)
 	if err != nil {
 		http.Error(w, "Please log in to upload a profile picture", http.StatusUnauthorized)
 		return
 	}
-
 	userID := sessionUser.ID
 
-	// Parse the form to retrieve the file
-	err = r.ParseMultipartForm(10 << 20) // Max 10MB file size
+	// Enforce file size limit before reading body
+	r.Body = http.MaxBytesReader(w, r.Body, maxUploadSize)
+
+	// Parse the multipart form
+	err = r.ParseMultipartForm(maxUploadSize)
 	if err != nil {
-		http.Error(w, "File too large", http.StatusBadRequest)
+		log.Println("UploadProfilePictureHandler: Error parsing multipart form:", err)
+		http.Error(w, "File too large or invalid", http.StatusBadRequest)
 		return
 	}
 
-	file, handler, err := r.FormFile("profile_picture")
+	// Retrieve file
+	file, _, err := r.FormFile("profile_picture")
 	if err != nil {
+		log.Println("UploadProfilePictureHandler: Error retrieving file:", err)
 		http.Error(w, "Error retrieving file", http.StatusBadRequest)
 		return
 	}
 	defer file.Close()
 
-	// Validate the file type (only allow image files)
-	ext := filepath.Ext(handler.Filename)
-	if ext != ".jpg" && ext != ".jpeg" && ext != ".png" && ext != ".gif" {
+	// Check MIME type by reading first 512 bytes
+	buffer := make([]byte, 512)
+	_, err = file.Read(buffer)
+	if err != nil {
+		log.Println("UploadProfilePictureHandler: Error reading file:", err)
+		http.Error(w, "Unable to read file", http.StatusBadRequest)
+		return
+	}
+	filetype := http.DetectContentType(buffer)
+	_, err = file.Seek(0, 0) // reset file pointer
+	if err != nil {
+		log.Println("UploadProfilePictureHandler: Error resetting file pointer:", err)
+		http.Error(w, "Failed to process file", http.StatusInternalServerError)
+		return
+	}
+
+	// Allow only valid image types
+	allowedTypes := map[string]string{
+		"image/jpeg": ".jpg",
+		"image/png":  ".png",
+		"image/gif":  ".gif",
+	}
+	ext, ok := allowedTypes[filetype]
+	if !ok {
+		log.Printf("UploadProfilePictureHandler: Rejected file type: %s", filetype)
 		http.Error(w, "Only image files are allowed (jpg, png, gif)", http.StatusBadRequest)
 		return
 	}
 
-	// Create a file on the server to store the uploaded image
-	filePath := fmt.Sprintf("web/static/profile_pictures/user_%d%s", userID, ext)
+	// Generate unique filename with timestamp to avoid overwrite
+	filename := fmt.Sprintf("user_%d_%d%s", userID, time.Now().Unix(), ext)
+	filePath := filepath.Join("web/static/profile_pictures", filename)
+
+	// Create destination file
 	out, err := os.Create(filePath)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError) // Set 500 status code
-		utils.RenderServerErrorPage(w)                // Render custom error page
+		log.Println("UploadProfilePictureHandler: Error creating file:", err)
+		utils.RenderServerErrorPage(w)
 		return
 	}
 	defer out.Close()
 
-	// Copy the file to the server
+	// Copy uploaded data to server file
 	_, err = io.Copy(out, file)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError) // Set 500 status code
-		utils.RenderServerErrorPage(w)                // Render custom error page
+		log.Println("UploadProfilePictureHandler: Error saving file:", err)
+		utils.RenderServerErrorPage(w)
 		return
 	}
 
-	// Update the user's profile picture in the database
-	err = repository.UpdateProfilePicture(userID, filepath.Base(filePath))
+	// Update user record with new filename
+	err = repository.UpdateProfilePicture(userID, filename)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError) // Set 500 status code
-		utils.RenderServerErrorPage(w)                // Render custom error page
+		log.Println("UploadProfilePictureHandler: Failed to update user profile:", err)
+		utils.RenderServerErrorPage(w)
 		return
 	}
 
-	// Redirect back to the profile page
+	// Redirect to profile
 	http.Redirect(w, r, "/profile", http.StatusSeeOther)
 }

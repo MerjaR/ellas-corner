@@ -10,7 +10,6 @@ import (
 	"strconv"
 )
 
-// ReactionHandler handles likes and dislikes for posts
 func ReactionHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("ReactionHandler: Request received")
 
@@ -45,8 +44,8 @@ func ReactionHandler(w http.ResponseWriter, r *http.Request) {
 	err = repository.AddReaction(userID, postID, reaction)
 	if err != nil {
 		log.Println("Error adding reaction:", err)
-		w.WriteHeader(http.StatusInternalServerError) // Send 500 status
-		utils.RenderServerErrorPage(w)                // Render custom error page
+		w.WriteHeader(http.StatusInternalServerError)
+		utils.RenderServerErrorPage(w)
 		return
 	}
 
@@ -56,7 +55,6 @@ func ReactionHandler(w http.ResponseWriter, r *http.Request) {
 
 // Helper function to render the home page with an error message (without r *http.Request)
 func renderHomeWithError(w http.ResponseWriter, errorMessage string, userID int) {
-	// Fetch the posts
 	posts, err := repository.FetchPosts(userID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -75,7 +73,6 @@ func renderHomeWithError(w http.ResponseWriter, errorMessage string, userID int)
 		return
 	}
 
-	// ✅ Don't set w.WriteHeader here — it's just a validation message
 	data := viewmodels.HomePageData{
 		IsLoggedIn:   false,
 		Posts:        posts,
@@ -90,7 +87,6 @@ func renderHomeWithError(w http.ResponseWriter, errorMessage string, userID int)
 	}
 }
 
-// CommentReactionHandler handles likes and dislikes for comments
 func CommentReactionHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("CommentReactionHandler: Request received")
 
@@ -114,7 +110,6 @@ func CommentReactionHandler(w http.ResponseWriter, r *http.Request) {
 	reaction := r.FormValue("reaction")
 	log.Printf("CommentReactionHandler: Comment ID: %s, Reaction: %s", commentIDStr, reaction)
 
-	// Convert commentIDStr to int
 	commentID, err := strconv.Atoi(commentIDStr)
 	if err != nil {
 		log.Println("Invalid comment ID:", err)
@@ -126,8 +121,8 @@ func CommentReactionHandler(w http.ResponseWriter, r *http.Request) {
 	err = repository.AddCommentReaction(userID, commentID, reaction)
 	if err != nil {
 		log.Println("Error adding reaction to comment:", err)
-		w.WriteHeader(http.StatusInternalServerError) // Send 500 status
-		utils.RenderServerErrorPage(w)                // Render custom error page
+		w.WriteHeader(http.StatusInternalServerError)
+		utils.RenderServerErrorPage(w)
 		return
 	}
 

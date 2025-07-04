@@ -75,6 +75,20 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Apply donation visibility logic
+	allPostGroups := [][]repository.Post{posts, likedPosts, dislikedPosts}
+	for _, postGroup := range allPostGroups {
+		for i := range postGroup {
+			if postGroup[i].IsDonation {
+				if user.ShowDonationsInCountryOnly {
+					postGroup[i].ShowDonatedLabel = postGroup[i].DonationCountry == user.Country
+				} else {
+					postGroup[i].ShowDonatedLabel = true
+				}
+			}
+		}
+	}
+
 	log.Println("ProfileHandler: Successfully fetched all data")
 	funcMap := template.FuncMap{
 		"dict": func(values ...interface{}) (map[string]interface{}, error) {

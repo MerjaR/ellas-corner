@@ -14,106 +14,90 @@ import (
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("HomeHandler: Request received")
 
-	// Only handle root "/"
+	// Handle only root path
 	if r.URL.Path != "/" {
-		// Serve the custom 404 page
 		tmpl, err := template.ParseFiles("web/templates/404.html")
 		if err != nil {
-			log.Println("Error loading 404 template:", err)
-			w.WriteHeader(http.StatusInternalServerError)
+			log.Println("HomeHandler: Error loading 404 template:", err)
 			utils.RenderServerErrorPage(w)
 			return
 		}
-
-		// Set the 404 status code
 		w.WriteHeader(http.StatusNotFound)
-
-		// Execute the 404 template
-		err = tmpl.Execute(w, nil)
-		if err != nil {
-			log.Println("Error rendering 404 template:", err)
-			w.WriteHeader(http.StatusInternalServerError)
+		if err := tmpl.Execute(w, nil); err != nil {
+			log.Println("HomeHandler: Error rendering 404 template:", err)
 			utils.RenderServerErrorPage(w)
 		}
-
 		return
 	}
 
-	// Variables for tracking user session and consent banner
+	// Initialize session/user state
 	isLoggedIn := false
 	showConsentBanner := true
 	var userID int
+	var currentUser repository.User
+	var profilePicture string
 
-	// Step 1: Check for session token
+	// Step 1: Check for existing session token or create guest session
 	sessionCookie, err := r.Cookie("session_token")
 	if err != nil {
-		// If no session token exists, create one for guest users
 		sessionToken := utils.GenerateSessionToken()
 		http.SetCookie(w, &http.Cookie{
 			Name:    "session_token",
 			Value:   sessionToken,
 			Expires: time.Now().Add(24 * time.Hour),
-			Path:    "/", // Ensure the session token applies site-wide
+			Path:    "/",
 		})
-		log.Println("Generated new session token for guest user")
+		log.Println("HomeHandler: Generated session token for guest")
 	} else {
-		// Validate session token and check if user is logged in
 		userID, err = repository.GetUserIDBySession(sessionCookie.Value)
 		if err == nil && userID != 0 {
 			isLoggedIn = true
-			log.Printf("User is logged in with ID: %d", userID)
+			log.Printf("HomeHandler: Logged-in user ID: %d", userID)
 
-			// Check if the user has given cookie consent (optional logic)
 			consentGiven, err := repository.CheckCookieConsent(userID)
 			if err == nil && consentGiven {
-				showConsentBanner = false // Don't show banner if consent is already given
+				showConsentBanner = false
 			}
 		} else {
-			log.Println("Session token is invalid or user ID not found.")
+			log.Println("HomeHandler: Invalid session token or user not found")
 		}
 	}
 
-	// Step 2: For non-logged-in users, check if the consent_given cookie is present
+	// Step 2: Fallback for cookie-based consent (non-logged-in users)
 	if !isLoggedIn {
-		consentCookie, err := r.Cookie("consent_given")
-		if err == nil && consentCookie.Value == "true" {
-			showConsentBanner = false // Hide banner if consent is already given
+		if consentCookie, err := r.Cookie("consent_given"); err == nil && consentCookie.Value == "true" {
+			showConsentBanner = false
 		}
 	}
 
-	var profilePicture string
-	var currentUser repository.User
-
+	// Step 3: Load current user (if logged in)
 	if isLoggedIn {
 		user, err := repository.GetUserByID(userID)
 		if err != nil {
-			log.Println("Error fetching user profile:", err)
+			log.Println("HomeHandler: Error fetching user profile:", err)
 		} else {
+			currentUser = user
 			profilePicture = user.ProfilePicture
-			currentUser = user // Save full user for donation filtering
 		}
 	}
 
-	// Get the post ID from the query to display the comment form
+	// Get query param to reveal comment form
 	showCommentFormForPostStr := r.URL.Query().Get("showCommentFormForPost")
-	var showCommentFormForPost int
-	if showCommentFormForPostStr != "" {
-		showCommentFormForPost, _ = strconv.Atoi(showCommentFormForPostStr) // Convert to integer
-	}
+	showCommentFormForPost, _ := strconv.Atoi(showCommentFormForPostStr)
 
-	// Step 3: Fetch posts from the database (ensure profile pictures are fetched)
-	posts, err := repository.FetchPosts(userID) // FetchPosts should now include ProfilePicture for each post
+	// Step 4: Fetch all posts
+	posts, err := repository.FetchPosts(userID)
 	if err != nil {
-		log.Println("Error loading posts:", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		log.Println("HomeHandler: Error fetching posts:", err)
 		utils.RenderServerErrorPage(w)
 		return
 	}
-	log.Println("HomeHandler: Posts fetched successfully with profile pictures")
+	log.Println("HomeHandler: Posts fetched")
 
+	// Step 5: Fetch top liked posts
 	topPosts, err := repository.FetchTopPostsByLikes(5)
 	if err != nil {
-		log.Println("Error fetching top liked posts:", err)
+		log.Println("HomeHandler: Error fetching top liked posts:", err)
 		topPosts = []repository.Post{}
 	} else {
 		for i := range topPosts {
@@ -124,58 +108,60 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Fetch categories
+	// Step 6: Fetch categories
 	categories, err := repository.FetchCategories()
 	if err != nil {
-		log.Println("Error fetching categories:", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		log.Println("HomeHandler: Error fetching categories:", err)
 		utils.RenderServerErrorPage(w)
 		return
 	}
-	log.Println("HomeHandler: Categories fetched:", categories)
+	log.Println("HomeHandler: Categories fetched")
 
-	// Step 3.1: Fetch the reaction counts and user reactions (if logged in)
+	// Step 7: Populate reaction and donation visibility for each post
 	for i := range posts {
-		// Fetch the number of likes and dislikes for each post
 		likes, dislikes, err := repository.FetchReactionsCount(posts[i].ID)
 		if err != nil {
-			log.Println("Error fetching reactions count for post:", posts[i].ID, err)
+			log.Println("HomeHandler: Error fetching reactions for post", posts[i].ID, ":", err)
 		}
 		posts[i].Likes = likes
 		posts[i].Dislikes = dislikes
 
-		// If the user is logged in, fetch the user's reaction to this post
 		if isLoggedIn {
 			userReaction, err := repository.FetchUserReaction(userID, posts[i].ID)
 			if err != nil {
-				log.Println("Error fetching user reaction for post:", posts[i].ID, err)
+				log.Println("HomeHandler: Error fetching user reaction for post", posts[i].ID, ":", err)
 			}
 			posts[i].UserReaction = userReaction
 
-			if isLoggedIn && posts[i].IsDonation {
+			// Donation visibility filtering for logged-in users
+			if posts[i].IsDonation {
 				if currentUser.ShowDonationsInCountryOnly {
 					posts[i].ShowDonatedLabel = (posts[i].DonationCountry == currentUser.Country)
 				} else {
 					posts[i].ShowDonatedLabel = true
 				}
-			} else {
-				posts[i].ShowDonatedLabel = false
 			}
-
+		} else {
+			// For guests, show donation label if post is a donation
+			if posts[i].IsDonation {
+				posts[i].ShowDonatedLabel = true
+			}
 		}
 	}
 
-	// Step 4: Parse the index template
-	tmpl, err := template.ParseFiles("web/templates/index.html", "web/templates/partials/navbar.html", "web/templates/partials/post.html")
+	// Step 8: Render the homepage
+	tmpl, err := template.ParseFiles(
+		"web/templates/index.html",
+		"web/templates/partials/navbar.html",
+		"web/templates/partials/post.html",
+	)
 	if err != nil {
-		log.Println("HomeHandler: Error parsing template", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		log.Println("HomeHandler: Error parsing template:", err)
 		utils.RenderServerErrorPage(w)
 		return
 	}
-	log.Println("HomeHandler: Template parsed successfully")
+	log.Println("HomeHandler: Templates parsed successfully")
 
-	// Step 5: Render the template with the correct data
 	data := viewmodels.HomePageData{
 		IsLoggedIn:             isLoggedIn,
 		ProfilePicture:         profilePicture,
@@ -184,18 +170,14 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 		Posts:                  posts,
 		Categories:             categories,
 		ShowCommentFormForPost: showCommentFormForPost,
-		ShowEditControls:       false, // set true only if the user is the post author in future
-		ErrorMessage:           "",    // fill if you later support error messages
+		ShowEditControls:       false, // Future logic for author-owned posts
+		ErrorMessage:           "",    // Optional error display
 	}
 
-	log.Printf("isLoggedIn: %v\n", isLoggedIn) // Log if the user is logged in
-
-	err = tmpl.Execute(w, data)
-	if err != nil {
-		log.Println("HomeHandler: Error executing template", err)
-		w.WriteHeader(http.StatusInternalServerError)
+	if err := tmpl.Execute(w, data); err != nil {
+		log.Println("HomeHandler: Error executing template:", err)
 		utils.RenderServerErrorPage(w)
 		return
 	}
-	log.Println("HomeHandler: Template executed successfully")
+	log.Println("HomeHandler: Page rendered successfully")
 }

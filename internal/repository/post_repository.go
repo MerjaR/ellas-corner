@@ -108,7 +108,8 @@ func GetPostByID(postID string, userID int) (*Post, error) {
 		&post.CreatedAt,
 		&post.Username,
 		&post.ProfilePicture,
-		&post.Image)
+		&post.Image,
+	)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			log.Printf("No post found with ID: %s", postID)
@@ -236,7 +237,7 @@ func FetchCategories() ([]string, error) {
 func FetchFilteredPosts(category, createdPosts, likedPosts, startDate, endDate string, userID int, isLoggedIn bool) ([]Post, error) {
 	query := `
 		SELECT posts.id, posts.title, posts.content, posts.user_id, posts.category, posts.created_at,
-		       users.username, users.profile_picture, COALESCE(posts.image, '') AS image
+		       users.username, users.profile_picture, COALESCE(posts.image, '') AS image, posts.is_donation, COALESCE(posts.donation_country, '')
 		FROM posts
 		JOIN users ON posts.user_id = users.id
 		WHERE 1=1`
@@ -272,7 +273,7 @@ func FetchFilteredPosts(category, createdPosts, likedPosts, startDate, endDate s
 		var post Post
 		var createdAt time.Time
 
-		err := rows.Scan(&post.ID, &post.Title, &post.Content, &post.UserID, &post.Category, &createdAt, &post.Username, &post.ProfilePicture, &post.Image)
+		err := rows.Scan(&post.ID, &post.Title, &post.Content, &post.UserID, &post.Category, &createdAt, &post.Username, &post.ProfilePicture, &post.Image, &post.IsDonation, &post.DonationCountry)
 		if err != nil {
 			log.Println("Error scanning filtered post:", err)
 			return nil, err
@@ -319,7 +320,7 @@ func FetchFilteredPosts(category, createdPosts, likedPosts, startDate, endDate s
 func SearchPosts(searchQuery string, userID int, isLoggedIn bool) ([]Post, error) {
 	query := `
     SELECT posts.id, posts.title, posts.content, posts.category, posts.created_at,
-           users.username, users.profile_picture, COALESCE(posts.image, '') AS image
+           users.username, users.profile_picture, COALESCE(posts.image, '') AS image, posts.is_donation, COALESCE(posts.donation_country, '')
     FROM posts
     JOIN users ON posts.user_id = users.id
     WHERE posts.title LIKE '%' || ? || '%' 
@@ -347,6 +348,8 @@ func SearchPosts(searchQuery string, userID int, isLoggedIn bool) ([]Post, error
 			&post.Username,
 			&post.ProfilePicture,
 			&post.Image,
+			&post.IsDonation,
+			&post.DonationCountry,
 		)
 		if err != nil {
 			log.Println("Error scanning post during search:", err)
@@ -422,7 +425,8 @@ func UpdatePost(postID int, title, content, category string, isDonation bool) er
 func FetchLikedPosts(userID int) ([]Post, error) {
 	query := `
 		SELECT posts.id, posts.title, posts.content, posts.user_id, posts.category, posts.created_at,
-		       users.username, users.profile_picture
+       users.username, users.profile_picture, posts.is_donation, COALESCE(posts.donation_country, '')
+ 
 		FROM posts
 		JOIN post_reactions ON posts.id = post_reactions.post_id
 		JOIN users ON posts.user_id = users.id
@@ -451,6 +455,8 @@ func FetchLikedPosts(userID int) ([]Post, error) {
 			&createdAt,
 			&post.Username,
 			&post.ProfilePicture,
+			&post.IsDonation,
+			&post.DonationCountry,
 		)
 		if err != nil {
 			log.Println("Error scanning liked post:", err)

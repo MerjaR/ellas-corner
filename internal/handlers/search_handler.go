@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"ellas-corner/internal/repository"
-	"ellas-corner/internal/utils" // Import the utils package for the custom error page
+	"ellas-corner/internal/utils"
 	"ellas-corner/internal/viewmodels"
 	"html/template"
 	"log"
@@ -23,11 +23,19 @@ func SearchHandler(w http.ResponseWriter, r *http.Request) {
 	isLoggedIn := false
 	var userID int
 	var profilePicture string
+	var currentUser repository.User // needed for donation logic
 
 	if err == nil {
 		isLoggedIn = true
 		userID = sessionUser.ID
 		profilePicture = sessionUser.ProfilePicture
+
+		currentUser, err = repository.GetUserByID(userID)
+		if err != nil {
+			log.Println("SearchHandler: Error fetching full user profile:", err)
+			utils.RenderServerErrorPage(w)
+			return
+		}
 	}
 
 	// Fetch posts matching the query
@@ -37,6 +45,16 @@ func SearchHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		utils.RenderServerErrorPage(w)
 		return
+	}
+
+	for i := range posts {
+		if posts[i].IsDonation {
+			if isLoggedIn && currentUser.ShowDonationsInCountryOnly {
+				posts[i].ShowDonatedLabel = posts[i].DonationCountry == currentUser.Country
+			} else {
+				posts[i].ShowDonatedLabel = true
+			}
+		}
 	}
 
 	for i := range posts {
@@ -59,10 +77,12 @@ func SearchHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Prepare data for the template
 	data := viewmodels.SearchPageData{
-		IsLoggedIn:     isLoggedIn,
-		ProfilePicture: profilePicture,
-		SearchQuery:    searchQuery,
-		Posts:          posts,
+		IsLoggedIn:             isLoggedIn,
+		ProfilePicture:         profilePicture,
+		SearchQuery:            searchQuery,
+		Posts:                  posts,
+		ShowEditControls:       false,
+		ShowCommentFormForPost: 0,
 	}
 
 	err = tmpl.Execute(w, data)
