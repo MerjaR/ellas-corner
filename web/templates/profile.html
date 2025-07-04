@@ -99,7 +99,7 @@
         <section>
             <h2>Your Items</h2>
             {{ if .Posts }}
- {{ template "post" (dict "Posts" .Posts "isLoggedIn" true "ShowEditControls" true) }}
+ {{ template "post" (dict "Posts" .Posts "IsLoggedIn" true "ShowEditControls" true) }}
 {{ else }}
   <p>You haven't posted anything yet.</p>
 {{ end }}

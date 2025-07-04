@@ -11,13 +11,13 @@
   {{ template "navbar" . }}
 
   <main>
-    <h1 class="page-title">Search Results for "{{ .SearchQuery }}"</h1>
+    <h1 class="page-title">Search Results for "{{ .SearchQuery | html }}"</h1>
 
     {{ if .Posts }}
       {{ template "post" . }}
     {{ else }}
       <div class="no-posts-message">
-        <p>No posts found for "{{ .SearchQuery }}".</p>
+        <p>No posts found for "{{ .SearchQuery | html }}".</p>
       </div>
     {{ end }}
     

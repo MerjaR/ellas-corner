@@ -20,7 +20,8 @@
     <input type="text" id="title" name="title" value="{{ .Post.Title }}" required><br><br>
 
     <label for="content">Content:</label>
-    <textarea id="content" name="content" rows="10" cols="50" required>{{ .Post.Content }}</textarea><br><br>
+    <textarea id="content" name="content" rows="10" cols="50" required>{{ .Post.Content | html }}</textarea>
+    <br><br>
 
     <div>
         <label for="category">Category:</label>
