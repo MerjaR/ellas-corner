@@ -18,7 +18,7 @@
       <p><strong>Posted by {{ .Username }}</strong> on {{ .FormattedCreatedAt }}</p>
     </div>
 
-    <pre class="post-content">{{ .Content }}</pre>
+   <pre class="post-content">{{ .Content | html }}</pre> 
 
     <!-- Reaction Bar -->
     <div class="interaction-bar">
@@ -60,7 +60,7 @@
               <p><strong>{{ .Username }}</strong> on {{ .FormattedCreatedAt }}</p>
             </div>
             <div class="comment-body">
-              <p class="comment-text">{{ .Content }}</p>
+              <p class="comment-text">{{ .Content | html }}</p>
             </div>
 
             <!-- Comment Reactions -->

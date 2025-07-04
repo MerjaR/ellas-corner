@@ -243,15 +243,8 @@ main {
 }
 
 /* Updated post container and title using branding */
-.post {
-    background-color: white;
-    border: 1px solid var(--green);
-    padding: 20px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    padding-bottom: 100px; /* Space for footer and consent banner */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
+
+
 
 .post-content {
   background-color: #f8f4ef;
@@ -652,12 +645,6 @@ footer {
 
 /* Filter section styles */
 
-.filter-section {
-    padding: 10px 20px;
-    background-color: var(--beige);
-    border-radius: 8px;
-    margin-bottom: 20px;
-}
 
 .filter-inline-form {
     display: flex;
@@ -785,18 +772,6 @@ footer {
     margin-top: 10px;
 }
 
-form button img.active-reaction {
-    filter: brightness(0.7);
-    transform: scale(1.2);
-    transition: all 0.2s ease;
-}
-
-form button img:hover {
-    filter: brightness(1.2);
-    transform: scale(1.1);
-    transition: all 0.2s ease;
-}
-
 
 /* Login Page Styling */
 
@@ -853,23 +828,6 @@ form button img:hover {
     background-color: #add8f0;
 }
 
-.success-message {
-    color: var(--green, #2e7d32);
-    background-color: #eaf7ea;
-    border-left: 4px solid var(--green, #2e7d32);
-    padding: 10px;
-    margin-bottom: 15px;
-    border-radius: 5px;
-}
-
-.error-message {
-    color: var(--red, #d32f2f);
-    background-color: #fcebea;
-    border-left: 4px solid var(--red, #d32f2f);
-    padding: 10px;
-    margin-bottom: 15px;
-    border-radius: 5px;
-}
 
 /* Register Page Styling – Matches Login Page Aesthetic */
 

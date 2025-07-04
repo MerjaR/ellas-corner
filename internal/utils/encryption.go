@@ -6,7 +6,7 @@ import (
 
 // HashPassword hashes a plain-text password using bcrypt
 func HashPassword(password string) (string, error) {
-	// bcrypt.GenerateFromPassword hashes the password using a cost of 14 (default is 10)
+	// HashPassword hashes a plain-text password using bcrypt with a cost of 14 (higher than default)
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
 	if err != nil {
 		return "", err
