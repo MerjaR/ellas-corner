@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"fmt"
 	"io"
 	"log"
 	"mime/multipart"
@@ -92,7 +93,9 @@ func FetchPosts(userID int) ([]Post, error) {
 
 func GetPostByID(postID string, userID int) (*Post, error) {
 	query := `
-        SELECT posts.id, posts.title, posts.content, posts.user_id, posts.category, posts.created_at, users.username, users.profile_picture, COALESCE(posts.image, '') AS image
+        SELECT posts.id, posts.title, posts.content, posts.user_id, posts.category, posts.created_at,
+       users.username, users.profile_picture, COALESCE(posts.image, ''),
+       posts.is_donation, COALESCE(posts.donation_country, '')
 
         FROM posts
         JOIN users ON posts.user_id = users.id
@@ -109,6 +112,8 @@ func GetPostByID(postID string, userID int) (*Post, error) {
 		&post.Username,
 		&post.ProfilePicture,
 		&post.Image,
+		&post.IsDonation,
+		&post.DonationCountry,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -525,8 +530,9 @@ func SaveImageFile(file multipart.File, handler *multipart.FileHeader) (string, 
 		return "", err
 	}
 
-	// Use the original filename
-	filename := filepath.Base(handler.Filename)
+	// Use a unique filename
+	filename := fmt.Sprintf("%d_%s", time.Now().UnixNano(), filepath.Base(handler.Filename))
+
 	dstPath := filepath.Join("web/static/uploads", filename)
 
 	dst, err := os.Create(dstPath)

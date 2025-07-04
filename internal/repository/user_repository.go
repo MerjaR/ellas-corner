@@ -15,10 +15,8 @@ type User struct {
 	ProfilePicture             string
 	Country                    string
 	ShowDonationsInCountryOnly bool
-	IsDonation                 bool
 }
 
-// CreateUser inserts a new user into the database, including the profile picture
 func CreateUser(username, email, password, profilePicture string) error {
 	query := "INSERT INTO users (username, email, password, profile_picture) VALUES (?, ?, ?, ?)"
 	_, err := database.Conn.Exec(query, username, email, password, profilePicture)
@@ -29,18 +27,17 @@ func CreateUser(username, email, password, profilePicture string) error {
 	return nil
 }
 
-// GetUserByEmail retrieves a user by their email
 func GetUserByEmail(email string) (*User, error) {
 	var user User
 	query := "SELECT id, username, email, password, profile_picture FROM users WHERE email = ?"
-	var profilePicture sql.NullString // Use sql.NullString to handle NULL values
+	var profilePicture sql.NullString
 	err := database.Conn.QueryRow(query, email).Scan(&user.ID, &user.Username, &user.Email, &user.Password, &profilePicture)
 
-	// If profile_picture is NULL, assign an empty string or a default picture
+	// If profile_picture is NULL, assign an empty string
 	if profilePicture.Valid {
 		user.ProfilePicture = profilePicture.String
 	} else {
-		user.ProfilePicture = "" // Or set a default picture like "/static/default.png"
+		user.ProfilePicture = ""
 	}
 	if err == sql.ErrNoRows {
 		return nil, nil // No user found with that email
@@ -77,7 +74,6 @@ func SaveSessionToken(userID int, sessionToken string) error {
 	return nil
 }
 
-// CheckCookieConsent checks if the user has given consent for cookies
 func CheckCookieConsent(userID int) (bool, error) {
 	var consentGiven bool
 	query := "SELECT consent_given FROM cookie_consent WHERE user_id = ?"
@@ -131,11 +127,11 @@ func GetUserByID(userID int) (User, error) {
 		return User{}, err
 	}
 
-	// If profile_picture is NULL, assign an empty string or a default picture
+	// If profile_picture is NULL, assign an empty string
 	if profilePicture.Valid {
 		user.ProfilePicture = profilePicture.String
 	} else {
-		user.ProfilePicture = "" // Or set a default picture like "/static/default.png"
+		user.ProfilePicture = ""
 	}
 
 	if country.Valid {
@@ -153,7 +149,7 @@ func GetUserByID(userID int) (User, error) {
 func FetchPostsByUser(userID int) ([]Post, error) {
 	query := `
 		SELECT posts.id, posts.title, posts.content, posts.category, posts.created_at,
-		       users.username, users.profile_picture, posts.is_donation,
+		       users.username, users.profile_picture,
 		       COALESCE(posts.image, '') AS image, 
 		       (SELECT COUNT(*) FROM post_reactions WHERE post_id = posts.id AND reaction_type = 'like') AS likes,
 		       (SELECT COUNT(*) FROM post_reactions WHERE post_id = posts.id AND reaction_type = 'dislike') AS dislikes, posts.is_donation, COALESCE(posts.donation_country, '') AS donation_country
@@ -179,7 +175,6 @@ func FetchPostsByUser(userID int) ([]Post, error) {
 			&post.CreatedAt,
 			&post.Username,
 			&post.ProfilePicture,
-			&post.IsDonation,
 			&post.Image,
 			&post.Likes,
 			&post.Dislikes,
@@ -205,9 +200,6 @@ func FetchPostsByUser(userID int) ([]Post, error) {
 			return nil, err
 		}
 		post.Comments = comments
-
-		// Note: UserReaction is optional here, since you're fetching the user's own posts
-		// You can skip it unless you want to display your own likes/dislikes
 
 		posts = append(posts, post)
 	}
