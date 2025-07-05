@@ -95,7 +95,7 @@ func TestAddReaction(t *testing.T) {
 		t.Fatalf("failed to insert post: %v", err)
 	}
 
-	// 1️⃣ Insert new "like" reaction
+	// Insert new "like" reaction
 	err = repository.AddReaction(userID, postID, "like")
 	if err != nil {
 		t.Fatalf("AddReaction failed on insert: %v", err)
@@ -110,7 +110,7 @@ func TestAddReaction(t *testing.T) {
 		t.Errorf("expected 'like', got '%s'", reaction)
 	}
 
-	// 2️⃣ Change to "dislike"
+	// Change to "dislike"
 	err = repository.AddReaction(userID, postID, "dislike")
 	if err != nil {
 		t.Fatalf("AddReaction failed on update: %v", err)
@@ -124,7 +124,7 @@ func TestAddReaction(t *testing.T) {
 		t.Errorf("expected 'dislike', got '%s'", reaction)
 	}
 
-	// 3️⃣ React again with "dislike" (same) → should be no-op but still same value
+	// React again with "dislike" (same) → should be no-op but still same value
 	err = repository.AddReaction(userID, postID, "dislike")
 	if err != nil {
 		t.Fatalf("AddReaction failed on no-op: %v", err)
