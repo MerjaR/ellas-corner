@@ -3,6 +3,7 @@ package handlers
 import (
 	"ellas-corner/internal/db"
 	"ellas-corner/internal/repository"
+	"ellas-corner/internal/utils"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -54,5 +55,45 @@ func TestRegisterHandler_POST(t *testing.T) {
 	}
 	if user.Password == "secretpass" {
 		t.Errorf("expected hashed password, got plain-text")
+	}
+}
+
+func TestLoginHandler_POST(t *testing.T) {
+	setupTestAuthDB(t)
+
+	// First, create a user
+	username := "loginuser"
+	email := "login@example.com"
+	password := "secret123"
+	hashed, _ := utils.HashPassword(password)
+	err := repository.CreateUser(username, email, hashed, "1.png")
+	if err != nil {
+		t.Fatalf("Failed to create user: %v", err)
+	}
+
+	// Simulate login request
+	form := strings.NewReader("email=login@example.com&password=secret123")
+	req := httptest.NewRequest(http.MethodPost, "/login", form)
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	w := httptest.NewRecorder()
+
+	LoginHandler(w, req)
+
+	resp := w.Result()
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusSeeOther {
+		t.Fatalf("Expected status %d, got %d", http.StatusSeeOther, resp.StatusCode)
+	}
+
+	cookies := resp.Cookies()
+	var sessionCookie *http.Cookie
+	for _, c := range cookies {
+		if c.Name == "session_token" {
+			sessionCookie = c
+		}
+	}
+	if sessionCookie == nil {
+		t.Error("Expected session_token cookie to be set")
 	}
 }
