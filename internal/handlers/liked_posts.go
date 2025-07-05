@@ -48,7 +48,6 @@ func LikedPostsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Prepare data for rendering
 	data := viewmodels.LikedPostsPageData{
 		IsLoggedIn:     true,
 		ProfilePicture: sessionUser.ProfilePicture,
@@ -57,7 +56,6 @@ func LikedPostsHandler(w http.ResponseWriter, r *http.Request) {
 		CuratedItems:   curatedItems,
 	}
 
-	// Execute the template
 	if err := tmpl.Execute(w, data); err != nil {
 		log.Println("LikedPostsHandler: Error executing template:", err)
 		w.WriteHeader(http.StatusInternalServerError)

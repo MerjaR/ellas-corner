@@ -17,7 +17,7 @@ func FilterHandler(w http.ResponseWriter, r *http.Request) {
 	isLoggedIn := err == nil
 	userID := 0
 	profilePicture := ""
-	var currentUser repository.User // ✅ Declare outside for later use
+	var currentUser repository.User
 
 	if isLoggedIn {
 		userID = sessionUser.ID
@@ -66,7 +66,6 @@ func FilterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Load and parse template files
 	tmpl, err := template.ParseFiles(
 		"web/templates/filter_results.html",
 		"web/templates/partials/navbar.html",
@@ -78,7 +77,6 @@ func FilterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Prepare data for template rendering
 	data := viewmodels.FilterPageData{
 		IsLoggedIn:     isLoggedIn,
 		ProfilePicture: profilePicture,

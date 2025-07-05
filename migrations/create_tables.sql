@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS posts (
     title TEXT NOT NULL,
     content TEXT NOT NULL,
     category TEXT DEFAULT 'General',
-    image TEXT,  -- Optional image path
+    image TEXT,  
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     is_donation BOOLEAN DEFAULT FALSE,
     donation_country TEXT DEFAULT 'no_location',
@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS comments (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     post_id INTEGER,
     user_id INTEGER,
-    parent_comment_id INTEGER DEFAULT NULL, -- New field for nested comments
+    parent_comment_id INTEGER DEFAULT NULL, 
     content TEXT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(post_id) REFERENCES posts(id),

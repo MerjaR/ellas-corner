@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"ellas-corner/internal/repository"
-	"ellas-corner/internal/utils" // Import the utils package for the custom error page
+	"ellas-corner/internal/utils"
 	"ellas-corner/internal/viewmodels"
 	"fmt"
 	"html/template"
@@ -37,8 +37,8 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 	user, err := repository.GetUserByID(userID)
 	if err != nil {
 		log.Println("ProfileHandler: Error fetching user data:", err)
-		w.WriteHeader(http.StatusInternalServerError) // Send 500 status
-		utils.RenderServerErrorPage(w)                // Render custom error page
+		w.WriteHeader(http.StatusInternalServerError)
+		utils.RenderServerErrorPage(w)
 		return
 	}
 
@@ -46,32 +46,32 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 	posts, err := repository.FetchPostsByUser(userID)
 	if err != nil {
 		log.Println("ProfileHandler: Error fetching user's posts:", err)
-		w.WriteHeader(http.StatusInternalServerError) // Send 500 status
-		utils.RenderServerErrorPage(w)                // Render custom error page
+		w.WriteHeader(http.StatusInternalServerError)
+		utils.RenderServerErrorPage(w)
 		return
 	}
 
 	comments, err := repository.FetchCommentsByUser(userID)
 	if err != nil {
 		log.Println("ProfileHandler: Error fetching user's comments:", err)
-		w.WriteHeader(http.StatusInternalServerError) // Send 500 status
-		utils.RenderServerErrorPage(w)                // Render custom error page
+		w.WriteHeader(http.StatusInternalServerError)
+		utils.RenderServerErrorPage(w)
 		return
 	}
 
 	likedPosts, err := repository.FetchLikedPostsByUser(userID)
 	if err != nil {
 		log.Println("ProfileHandler: Error fetching liked posts:", err)
-		w.WriteHeader(http.StatusInternalServerError) // Send 500 status
-		utils.RenderServerErrorPage(w)                // Render custom error page
+		w.WriteHeader(http.StatusInternalServerError)
+		utils.RenderServerErrorPage(w)
 		return
 	}
 
 	dislikedPosts, err := repository.FetchDislikedPostsByUser(userID)
 	if err != nil {
 		log.Println("ProfileHandler: Error fetching disliked posts:", err)
-		w.WriteHeader(http.StatusInternalServerError) // Send 500 status
-		utils.RenderServerErrorPage(w)                // Render custom error page
+		w.WriteHeader(http.StatusInternalServerError)
+		utils.RenderServerErrorPage(w)
 		return
 	}
 
@@ -114,8 +114,8 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 	)
 	if err != nil {
 		log.Println("ProfileHandler: Error loading template:", err)
-		w.WriteHeader(http.StatusInternalServerError) // Send 500 status
-		utils.RenderServerErrorPage(w)                // Render custom error page
+		w.WriteHeader(http.StatusInternalServerError)
+		utils.RenderServerErrorPage(w)
 		return
 	}
 
@@ -138,8 +138,8 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 	err = tmpl.ExecuteTemplate(w, "profile.html", data)
 	if err != nil {
 		log.Println("ProfileHandler: Error executing template:", err)
-		w.WriteHeader(http.StatusInternalServerError) // Send 500 status
-		utils.RenderServerErrorPage(w)                // Render custom error page
+		w.WriteHeader(http.StatusInternalServerError)
+		utils.RenderServerErrorPage(w)
 		return
 	}
 

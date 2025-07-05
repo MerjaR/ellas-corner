@@ -12,7 +12,6 @@ import (
 	"time"
 )
 
-// UploadProfilePictureHandler handles the profile picture upload
 func UploadProfilePictureHandler(w http.ResponseWriter, r *http.Request) {
 	const maxUploadSize = 10 << 20 // 10MB
 

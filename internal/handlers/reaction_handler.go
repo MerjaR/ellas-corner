@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"ellas-corner/internal/repository"
-	"ellas-corner/internal/utils" // Import the utils package for the custom error page
+	"ellas-corner/internal/utils"
 	"ellas-corner/internal/viewmodels"
 	"html/template"
 	"log"

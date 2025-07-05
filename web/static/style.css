@@ -111,9 +111,8 @@ h1, h2, h3, .page-title {
   margin-left: 10px;
 }
 
-/* Login – Soft Blue */
 .nav-button.login {
-  background-color: #ecf1f8; /* light blue */
+  background-color: #ecf1f8; 
   color: #333;
   border: 1px solid var(--blue);
 }
@@ -123,9 +122,8 @@ h1, h2, h3, .page-title {
   color: white;
 }
 
-/* Register – Soft Pink */
 .nav-button.register {
-  background-color: #fff5f6; /* light pink */
+  background-color: #fff5f6; 
   color: #333;
   border: 1px solid var(--pink);
 }
@@ -236,15 +234,13 @@ h1, h2, h3, .page-title {
 
 main {
     padding: 20px;
-    flex: 1; /* Allows main content to grow and push footer down */
-    padding-bottom: 100px; /* Space for footer and consent banner */
-    flex: 1; /* Make the main content area take up available space */
+    flex: 1; 
+    padding-bottom: 100px; 
+    flex: 1; 
     padding: 20px;
 }
 
 /* Updated post container and title using branding */
-
-
 
 .post-content {
   background-color: #f8f4ef;
@@ -271,44 +267,44 @@ main {
     color: var(--text-dark);
 }
 
-/* Update page title color */
+
 .page-title {
     color: var(--text-dark);
 }
 
 /* Style the post content */
 .post p {
-    margin-bottom: 15px;        /* Space between paragraphs */
-    line-height: 1.6;           /* Better readability */
-    color: #555;                /* Slightly lighter color for body text */
+    margin-bottom: 15px;        
+    line-height: 1.6;           
+    color: #555;                
 }
 
 /* Add styling for the metadata (author, date, etc.) */
 .post p strong {
-    color: var(--text-dark);              /* A highlight color for the post metadata */
+    color: var(--text-dark);              
 }
 
 /* Target images inside form buttons for active reaction */
 form button img.active-reaction {
-    filter: brightness(0.7); /* Darkens the image to indicate it's active */
-    transform: scale(1.2);   /* Enlarges the image slightly to show it's selected */
-    transition: all 0.2s ease; /* Smooth transition effect */
+    filter: brightness(0.7); 
+    transform: scale(1.2);   
+    transition: all 0.2s ease; 
 }
 
 /* Add hover effect specifically to images inside form buttons */
 form button img:hover {
-    filter: brightness(1.2); /* Brightens the image on hover */
-    transform: scale(1.1);   /* Slightly enlarges on hover */
+    filter: brightness(1.2); 
+    transform: scale(1.1);   
     transition: all 0.2s ease;
 }
 
 .post-image {
     display: block;
     width: 100%;
-    max-width: 400px;       /* adjust based on your layout */
-    height: auto;           /* maintain aspect ratio */
-    border-radius: 10px;    /* rounded corners */
-    margin: 10px 0;         /* space above and below */
+    max-width: 400px;      
+    height: auto;           
+    border-radius: 10px;    
+    margin: 10px 0;         
 }
 
 .post-meta {
@@ -321,26 +317,26 @@ form button img:hover {
 
 /* Comments section styles */
 
-/* Style the comments to be indented */
+
 .comments-section .comment {
-    margin-left: 40px; /* Indent the comments relative to the main post */
+    margin-left: 40px; 
     padding: 10px;
     border-left: 2px solid #f9f9f9; 
     background-color: var(--beige);; 
-    border-radius: 5px; /* Rounded corners */
-    margin-bottom: 10px; /* Space between each comment */
+    border-radius: 5px; 
+    margin-bottom: 10px; 
 }
 
-/* Style the comments section title */
+
 .comments-section h3 {
-    margin-left: 20px; /* Slightly indent the title of the comments section */
+    margin-left: 20px; 
 }
 
 /* Leave a comment button style */
 .comment-button {
     display: inline-block;
-    padding: 6px 14px; /* Match filter button padding */
-    margin-left: 8px;  /* Match margin */
+    padding: 6px 14px; 
+    margin-left: 8px; 
     background-color: var(--blue);
     color: white;
     border: none;
@@ -368,7 +364,7 @@ form button img:hover {
     margin: 0 20px;
 }
 
-/* Comments Section Styling */
+
 .comments-section .comment {
     background-color: white;
     border-left: 4px solid #ddd;
@@ -452,7 +448,7 @@ form button img:hover {
 .no-posts-message {
     text-align: center;
     margin-top: 20px;
-    color: #666; /* Optional: for softer tone */
+    color: #666; 
     font-family: 'Quicksand', sans-serif;
     font-size: 1.2em;
 }
@@ -500,8 +496,8 @@ form button img:hover {
     border: 1px solid #ccc;
     border-radius: 3px;
     font-size: 1em;
-    box-sizing: border-box; /* Ensures padding is included in the total width */
-    margin-bottom: 15px; /* Add space below each field */
+    box-sizing: border-box; 
+    margin-bottom: 15px; 
 }
 
 .post-form button {
@@ -581,12 +577,12 @@ h1 {
 /* Dropdown (category) styling */
 .post-form select {
     font-family: 'Quicksand', sans-serif;
-    width: 100%; /* Make the dropdown fit within the form */
+    width: 100%; 
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 3px;
-    box-sizing: border-box; /* Ensures padding is included in the total width */
-    margin-bottom: 15px; /* Add space below the dropdown */
+    box-sizing: border-box; 
+    margin-bottom: 15px; 
 }
 
 
@@ -601,42 +597,42 @@ footer {
 
 /* Cookie Banner Styling */
 .cookie-banner {
-    position: fixed;            /* Fixed at the bottom of the screen */
-    bottom: 0;                  /* Align with the bottom edge */
-    left: 0;                    /* Start from the left edge */
-    width: 100%;                /* Full width of the page */
-    background-color: #f4f4f4;  /* Light background for visibility */
-    border-top: 2px solid #ccc; /* Border at the top to separate it visually */
-    display: flex;              /* Flexbox for aligning the content */
-    align-items: center;        /* Vertically center the content */
-    justify-content: space-between; /* Space between image, text, and button */
-    padding: 15px 30px;         /* Padding to give breathing room */
-    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2); /* Shadow to make it stand out */
-    z-index: 1000;              /* Ensure it stays above other elements */
-    box-sizing: border-box;     /* Include padding in width calculation */
+    position: fixed;            
+    bottom: 0;                  
+    left: 0;                   
+    width: 100%;                
+    background-color: #f4f4f4;  
+    border-top: 2px solid #ccc; 
+    display: flex;              
+    align-items: center;        
+    justify-content: space-between; 
+    padding: 15px 30px;         
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2); 
+    z-index: 1000;              
+    box-sizing: border-box;    
 }
 
 /* Reduce the size of the cookie image */
 .cookie-image {
-    width: 40px;                /* Smaller cookie image */
+    width: 40px;                
     height: 40px;
-    margin-right: 20px;         /* Space between the image and the text */
+    margin-right: 20px;         
 }
 
 .cookie-text {
-    flex-grow: 1;               /* Allow the text to take up remaining space */
-    font-size: 14px;            /* Make the text smaller but readable */
+    flex-grow: 1;               
+    font-size: 14px;            
 }
 
 .accept-button {
-    background-color: var(--blue);  /* Button color */
+    background-color: var(--blue);  
     color: white;
     border: none;
     padding: 10px 20px;
     cursor: pointer;
     border-radius: 5px;
     font-size: 14px;
-    margin-left: 20px;          /* Add margin between text and button */
+    margin-left: 20px;         
 }
 
 .accept-button:hover {
@@ -776,7 +772,7 @@ footer {
 /* Login Page Styling */
 
 .login-container {
-    background-color: var(--beige); /* use #f8f4ef or define as --beige */
+    background-color: var(--beige); 
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     padding: 30px 40px;
@@ -786,7 +782,7 @@ footer {
 }
 
 .login-container h2 {
-    color: var(--text); /* dark text, assuming defined */
+    color: var(--text); 
     font-family: 'Roboto', sans-serif;
     margin-bottom: 20px;
     font-size: 1.6em;
@@ -829,10 +825,10 @@ footer {
 }
 
 
-/* Register Page Styling – Matches Login Page Aesthetic */
+/* Register Page Styling */
 
 .register-container {
-    background-color: var(--beige); /* same as login */
+    background-color: var(--beige); 
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     padding: 30px 40px;
@@ -1008,7 +1004,6 @@ footer {
     margin: 15px 0;
 }
 
-/* Reaction buttons */
 .reaction-button {
     background: none;
     border: none;
@@ -1016,7 +1011,7 @@ footer {
     padding: 0;
 }
 
-/* Reaction icons */
+
 .reaction-icon {
     width: 20px;
     height: 20px;
@@ -1150,7 +1145,6 @@ footer {
   color: #888;
 }
 
-/* Liked posts page styling */
 
 .section-title {
   font-size: 1.4rem;
@@ -1281,7 +1275,7 @@ footer {
     color: var(--text-dark);
     background-color: #fafafa;
     border-radius: 12px;
-    box-shadow: 0 0 8px rgba(179, 183, 238, 0.15); /* subtle blue shadow */
+    box-shadow: 0 0 8px rgba(179, 183, 238, 0.15); 
 }
 
 .about-header {
@@ -1298,20 +1292,20 @@ footer {
 .about-header h1 {
     font-size: 2.4rem;
     margin-bottom: 0.3rem;
-    color: var(--text-dark); /* strong but gentle */
+    color: var(--text-dark); 
 }
 
 .about-tagline {
     font-size: 1.2rem;
     font-style: italic;
-    color: var(--text-dark); /* soft blue tone */
+    color: var(--text-dark); 
     margin-bottom: 1rem;
 }
 
 blockquote {
     margin: 1.5rem 0;
     padding: 1rem 1.5rem;
-    background-color: var(--beige); /* soft neutral */
+    background-color: var(--beige); 
     font-style: italic;
     color: var(--text-dark);
     border-radius: 6px;

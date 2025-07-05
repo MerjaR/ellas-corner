@@ -7,7 +7,6 @@
 </head>
 <body>
 
-    <!-- Include navigation bar -->
     {{ template "navbar" . }}
 
     <main>
@@ -38,9 +37,9 @@
   <div class="curated-items-grid">
   {{ if .CuratedItems }}
     <h2 class="section-title">Here We Go, This Is What You Need:</h2>
-    <div class="liked-items-grid"> <!-- Reuse the existing class for grid layout -->
+    <div class="liked-items-grid"> 
       {{ range .CuratedItems }}
-      <div class="liked-item-card"> <!-- Reuse the card styling -->
+      <div class="liked-item-card"> 
         <img src="/static/uploads/{{ .Image }}" alt="{{ .Title }}" class="liked-item-image">
         <h4>{{ .Title }}</h4>
       </div>

@@ -7,21 +7,20 @@ import (
 	"time"
 )
 
-// Comment represents a comment on a post
 type Comment struct {
 	ID                 int
 	PostID             int
 	UserID             int
 	Username           string
-	ProfilePicture     string // New field for the user's profile picture
+	ProfilePicture     string
 	Content            string
 	CreatedAt          string
-	FormattedCreatedAt string // Human-readable formatted timestamp
+	FormattedCreatedAt string
 	PostTitle          string
-	Likes              int    // Count of likes for the comment
-	Dislikes           int    // Count of dislikes for the comment
-	UserReaction       string // User's reaction to the comment ("like" or "dislike")
-	ParentCommentID    *int   // Nullable field to store parent comment ID
+	Likes              int
+	Dislikes           int
+	UserReaction       string
+	ParentCommentID    *int
 }
 
 // FetchCommentsForPost retrieves comments for a specific post, including the user's profile picture and their reaction if logged in.
@@ -77,7 +76,6 @@ func FetchCommentsForPost(postID int, userID int) ([]Comment, error) {
 	return comments, nil
 }
 
-// CreateComment adds a new comment to the database
 func CreateComment(userID int, postIDStr string, content string) error {
 	// Convert postIDStr to an integer
 	postID, err := strconv.Atoi(postIDStr)
@@ -96,7 +94,6 @@ func CreateComment(userID int, postIDStr string, content string) error {
 	return nil
 }
 
-// AddCommentReaction adds or updates a user's reaction to a comment
 func AddCommentReaction(userID int, commentID int, reactionType string) error {
 	// First, check if the user already reacted to this comment
 	query := `SELECT reaction_type FROM comment_reactions WHERE comment_id = ? AND user_id = ?`
@@ -123,7 +120,6 @@ func AddCommentReaction(userID int, commentID int, reactionType string) error {
 	return nil
 }
 
-// FetchCommentReactionsCount fetches the count of likes and dislikes for a specific comment
 func FetchCommentReactionsCount(commentID int) (likes int, dislikes int, err error) {
 	query := `
 		SELECT 
@@ -138,7 +134,6 @@ func FetchCommentReactionsCount(commentID int) (likes int, dislikes int, err err
 func FetchUserCommentReaction(userID int, commentID int) (string, error) {
 	var reaction string
 
-	// SQL query to check if the user has reacted to the comment
 	query := `SELECT reaction_type FROM comment_reactions WHERE user_id = ? AND comment_id = ?`
 
 	err := database.Conn.QueryRow(query, userID, commentID).Scan(&reaction)

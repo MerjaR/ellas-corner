@@ -84,7 +84,7 @@ Basic unit and integration tests have been added to the project to provide examp
 Unit tests for:
 - Post creation logic
 - Reaction handling (like/dislike)
-- PPassword hashing with bcrypt
+- Password hashing with bcrypt
 
 Integration tests for:
 
@@ -97,7 +97,7 @@ These tests are designed to be minimal but extendable. They demonstrate:
 
 - How to safely isolate logic for testing
 
-- How to test handler behavior without a full server
+- How to test handler behaviour without a full server
 
 - How to simulate form submissions and cookies in test requests
 
@@ -116,7 +116,7 @@ The codebase is structured in a way that could support RESTful API endpoints whi
 
 Hardcoded paths (e.g., DB location, migration file) could be replaced with environment variables for scaling. 
 
-Images could have UUID based filenames to avoid the same names being used for uploaded images.
+Images could have UUID based filenames to avoid the same names being used for uploaded images (applied only partly right now).
 
 Hard coded categories could be managed through an admin account, which could also delete or update user accounts. 
 

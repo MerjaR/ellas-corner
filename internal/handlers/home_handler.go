@@ -30,7 +30,7 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Initialize session/user state
+	// Initialise session/user state
 	isLoggedIn := false
 	showConsentBanner := true
 	var userID int
@@ -170,8 +170,8 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 		Posts:                  posts,
 		Categories:             categories,
 		ShowCommentFormForPost: showCommentFormForPost,
-		ShowEditControls:       false, // Future logic for author-owned posts
-		ErrorMessage:           "",    // Optional error display
+		ShowEditControls:       false,
+		ErrorMessage:           "",
 	}
 
 	if err := tmpl.Execute(w, data); err != nil {

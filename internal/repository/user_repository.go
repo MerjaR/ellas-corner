@@ -6,7 +6,6 @@ import (
 	"time"
 )
 
-// User represents the user entity in the database
 type User struct {
 	ID                         int
 	Username                   string

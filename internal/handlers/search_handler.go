@@ -75,7 +75,6 @@ func SearchHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Prepare data for the template
 	data := viewmodels.SearchPageData{
 		IsLoggedIn:             isLoggedIn,
 		ProfilePicture:         profilePicture,

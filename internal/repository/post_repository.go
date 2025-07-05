@@ -16,7 +16,7 @@ type Post struct {
 	ID                 int
 	UserID             int
 	Username           string
-	ProfilePicture     string // New field for the user's profile picture
+	ProfilePicture     string
 	Title              string
 	Content            string
 	Category           string
@@ -32,7 +32,6 @@ type Post struct {
 	DonationCountry    string
 }
 
-// CreatePost saves a new post to the database
 func CreatePost(userID int, title, content, category, image string, isDonation bool, donationCountry string) error {
 	query := `
 	INSERT INTO posts (user_id, title, content, category, image, is_donation, donation_country)
@@ -128,7 +127,7 @@ func GetPostByID(postID string, userID int) (*Post, error) {
 	parsedTime, err := time.Parse(time.RFC3339, post.CreatedAt)
 	if err != nil {
 		log.Println("Error parsing CreatedAt:", err)
-		post.FormattedCreatedAt = post.CreatedAt // Fallback if parsing fails
+		post.FormattedCreatedAt = post.CreatedAt
 	} else {
 		post.FormattedCreatedAt = parsedTime.Format("02 Jan 2006, 15:04")
 	}
@@ -144,7 +143,6 @@ func GetPostByID(postID string, userID int) (*Post, error) {
 	return &post, nil
 }
 
-// AddReaction adds or updates a user's reaction to a post
 func AddReaction(userID int, postID int, reactionType string) error {
 	// First, check if the user already reacted to this post
 	query := `SELECT reaction_type FROM post_reactions WHERE post_id = ? AND user_id = ?`
@@ -175,7 +173,6 @@ func AddReaction(userID int, postID int, reactionType string) error {
 	return nil
 }
 
-// FetchReactionsCount fetches the count of likes and dislikes for a specific post
 func FetchReactionsCount(postID int) (likes int, dislikes int, err error) {
 	query := `
         SELECT 
@@ -189,11 +186,9 @@ func FetchReactionsCount(postID int) (likes int, dislikes int, err error) {
 	return likes, dislikes, err
 }
 
-// FetchUserReaction retrieves the reaction ("like" or "dislike") for a specific post by a specific user
 func FetchUserReaction(userID int, postID int) (string, error) {
 	var reaction string
 
-	// SQL query to check if the user has reacted to the post
 	query := `SELECT reaction_type FROM post_reactions WHERE user_id = ? AND post_id = ?`
 
 	err := database.Conn.QueryRow(query, userID, postID).Scan(&reaction)
@@ -226,7 +221,7 @@ func FetchCategories() ([]string, error) {
 			log.Println("Error scanning category row:", err)
 			return nil, err
 		}
-		log.Println("Fetched category:", category) // Log each fetched category
+		log.Println("Fetched category:", category)
 		categories = append(categories, category)
 	}
 
@@ -238,7 +233,6 @@ func FetchCategories() ([]string, error) {
 	return categories, nil
 }
 
-// FetchFilteredPosts retrieves posts based on the given filter criteria.
 func FetchFilteredPosts(category, createdPosts, likedPosts, startDate, endDate string, userID int, isLoggedIn bool) ([]Post, error) {
 	query := `
 		SELECT posts.id, posts.title, posts.content, posts.user_id, posts.category, posts.created_at,
@@ -287,7 +281,7 @@ func FetchFilteredPosts(category, createdPosts, likedPosts, startDate, endDate s
 		post.CreatedAt = createdAt.Format(time.RFC3339)
 		post.FormattedCreatedAt = createdAt.Format("02 Jan 2006, 15:04")
 
-		// ✅ Fetch comments
+		// Fetch comments
 		comments, err := FetchCommentsForPost(post.ID, userID)
 		if err != nil {
 			log.Println("Error fetching comments:", err)
@@ -295,7 +289,7 @@ func FetchFilteredPosts(category, createdPosts, likedPosts, startDate, endDate s
 		}
 		post.Comments = comments
 
-		// ✅ Fetch reactions
+		// Fetch reactions
 		likes, dislikes, err := FetchReactionsCount(post.ID)
 		if err != nil {
 			log.Println("Error fetching reactions count:", err)
@@ -304,7 +298,7 @@ func FetchFilteredPosts(category, createdPosts, likedPosts, startDate, endDate s
 		post.Likes = likes
 		post.Dislikes = dislikes
 
-		// ✅ If logged in, fetch user reaction
+		// If logged in, fetch user reaction
 		if isLoggedIn {
 			reaction, err := FetchUserReaction(userID, post.ID)
 			if err != nil {
