@@ -81,30 +81,27 @@ The website is accessible at localhost:8080 .
 Basic unit and integration tests have been added to the project to provide examples of how to test core functionality in a Go web application. These tests use Go’s standard testing package and an in-memory SQLite database to avoid modifying production data.
 
 ### Included tests
--Unit tests for:
-
--Post creation logic
-
--Reaction handling (like/dislike)
-
--Password hashing with bcrypt
+Unit tests for:
+- Post creation logic
+- Reaction handling (like/dislike)
+- PPassword hashing with bcrypt
 
 Integration tests for:
 
--Full user registration and login flow
+- Full user registration and login flow
+- Creating a post while authenticated (including session token handling)
 
--Creating a post while authenticated (including session token handling)
 
 Notes
 These tests are designed to be minimal but extendable. They demonstrate:
 
-How to safely isolate logic for testing
+- How to safely isolate logic for testing
 
-How to test handler behavior without a full server
+- How to test handler behavior without a full server
 
-How to simulate form submissions and cookies in test requests
+- How to simulate form submissions and cookies in test requests
 
-Future tests could expand to cover error cases, comments, protected routes, and more detailed handler flows.
+Future tests could expand to cover error cases, comments, and more detailed handler flows.
 
 To run all tests:
 
