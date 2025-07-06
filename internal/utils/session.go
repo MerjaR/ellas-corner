@@ -37,7 +37,7 @@ func GetSessionUser(r *http.Request) (*SessionUser, error) {
 
 	user, err := repository.GetUserByID(userID)
 	if err != nil {
-		return nil, err // genuine DB error
+		return nil, err 
 	}
 
 	return &SessionUser{
